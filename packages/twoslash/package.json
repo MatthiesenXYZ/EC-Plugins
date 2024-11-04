@@ -1,5 +1,5 @@
 {
-	"name": "package-name",
+	"name": "@matthiesenxyz/ec-twoslash",
 	"version": "0.0.0",
 	"description": "TODO:",
 	"author": {
@@ -20,25 +20,30 @@
 		"access": "public"
 	},
 	"sideEffects": false,
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
 			"default": "./dist/index.js"
-		}
+		},
+		"./css": "./src/styles.css"
 	},
-	"files": ["dist"],
+	"types": "./dist/index.d.ts",
+	"files": ["dist", "src/styles.css"],
 	"scripts": {
-		"dev": "tsup --watch",
-		"build": "tsup"
+		"build": "tsup ./src/index.ts --format esm --dts --sourcemap --clean",
+		"watch": "pnpm build --watch src"
 	},
 	"type": "module",
-	"peerDependencies": {
-		"astro": "^4.16.7"
-	},
 	"dependencies": {
-		"astro-integration-kit": "^0.16.1"
+		"@expressive-code/core": "^0.35.6",
+		"twoslash": "^0.2.12",
+		"@floating-ui/dom": "^1.6.12",
+		"typescript": "^5.6.3"
 	},
 	"devDependencies": {
-		"tsup": "^8.3.5"
+		"vite": "^5.4.10",
+		"astro": "^4.16"
 	}
 }

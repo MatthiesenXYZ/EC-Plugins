@@ -6,16 +6,18 @@
 		"node": ">=18.20.3"
 	},
 	"scripts": {
-		"package:dev": "pnpm --filter package-name dev",
 		"playground:dev": "pnpm --filter playground dev",
-		"dev": "pnpm --stream -r -parallel dev",
+		"twoslash:build": "pnpm --filter @matthiesenxyz/ec-twoslash build",
+		"twoslash:make-modules": "pnpm --filter @matthiesenxyz/ec-twoslash build-js-modules",
 		"changeset": "changeset",
-		"release": "node scripts/release.mjs",
 		"lint": "biome check .",
 		"lint:fix": "biome check --apply ."
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
-		"@changesets/cli": "^2.27.9"
+		"@changesets/cli": "^2.27.9",
+		"tsm": "^2.3.0",
+		"tsup": "^8.3.5",
+		"@types/node": "^18.15.11"
 	}
 }
