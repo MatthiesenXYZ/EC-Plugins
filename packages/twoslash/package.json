@@ -1,21 +1,20 @@
 {
 	"name": "@matthiesenxyz/ec-twoslash",
 	"version": "0.0.0",
-	"description": "TODO:",
+	"description": "Expressive Code Plugin for TwoSlash",
 	"author": {
-		"email": "TODO:",
-		"name": "TODO:",
-		"url": "TODO:"
+		"email": "adam@matthiesen.xyz",
+		"name": "Adam Matthiesen",
+		"url": "https://matthiesen.xyz"
 	},
 	"license": "MIT",
 	"keywords": [
-		"astro-integration",
-		"astro-component",
-		"withastro",
-		"astro",
-		"TODO:"
+		"expressive-code",
+		"expressive-code-plugin",
+		"ec-plugin",
+		"twoslash"
 	],
-	"homepage": "TODO:",
+	"homepage": "https://github.com/MatthiesenXYZ/EC-Plugins",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -26,24 +25,28 @@
 		".": {
 			"types": "./dist/index.d.ts",
 			"default": "./dist/index.js"
-		},
-		"./css": "./src/styles.css"
+		}
 	},
 	"types": "./dist/index.d.ts",
-	"files": ["dist", "src/styles.css"],
+	"files": ["dist"],
 	"scripts": {
 		"build": "tsup ./src/index.ts --format esm --dts --sourcemap --clean",
 		"watch": "pnpm build --watch src"
 	},
 	"type": "module",
 	"dependencies": {
-		"@expressive-code/core": "^0.35.6",
+		"hast": "^1.0.0",
+		"mdast-util-from-markdown": "^2.0.2",
+		"mdast-util-gfm": "^3.0.0",
+		"mdast-util-to-hast": "^13.2.0",
 		"twoslash": "^0.2.12",
-		"@floating-ui/dom": "^1.6.12",
 		"typescript": "^5.6.3"
 	},
+	"peerDependencies": {
+		"@expressive-code/core": "^0.35.6",
+		"typescript": ">=5.5"
+	},
 	"devDependencies": {
-		"vite": "^5.4.10",
-		"astro": "^4.16"
+		"@types/hast": "^3.0.4"
 	}
 }

@@ -13,7 +13,6 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: "Starlight",
-			customCss: ["@matthiesenxyz/ec-twoslash/css"],
 			expressiveCode: {
 				plugins: [ectwoslash()],
 			},
