@@ -56,7 +56,7 @@ export interface PluginTwoslashOptions {
 }
 
 /**
- * A plugin function that processes code blocks with the twoslash syntax.
+ * A Expressive Code Plugin that transforms code blocks with Twoslash annotations.
  *
  * @param options - Configuration options for the plugin.
  * @param options.explicitTrigger - A boolean or RegExp to explicitly trigger the transformation. Defaults to `true`.
