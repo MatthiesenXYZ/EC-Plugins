@@ -67,7 +67,29 @@ function renderMarkdown(md: string): ElementContent[] {
 		{ mdastExtensions: [gfmFromMarkdown()] },
 	);
 
-	return (toHast(mdast) as Element).children;
+	return (
+		toHast(mdast, {
+			handlers: {
+				// code: (state, node) => {
+				//     const lang = node.lang || '';
+				//     if (lang) {
+				//         return {
+				//             type: 'element',
+				//             tagName: 'code',
+				//             properties: {},
+				//             children: this.codeToHast(node.value, {
+				//                 ...this.options,
+				//                 transformers: [],
+				//                 lang,
+				//                 structure: node.value.trim().includes('\n') ? 'classic' : 'inline',
+				//             }).children,
+				//         } as Element;
+				//     }
+				//     return defaultHandlers.code(state, node);
+				// },
+			},
+		}) as Element
+	).children;
 }
 
 /**
