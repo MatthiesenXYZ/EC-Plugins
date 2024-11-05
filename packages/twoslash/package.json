@@ -1,6 +1,6 @@
 {
-	"name": "@matthiesenxyz/ec-twoslash",
-	"version": "0.0.0",
+	"name": "expressive-code-twoslash",
+	"version": "0.1.0",
 	"description": "Expressive Code Plugin for TwoSlash",
 	"author": {
 		"email": "adam@matthiesen.xyz",

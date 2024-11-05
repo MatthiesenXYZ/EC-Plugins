@@ -1,4 +1,4 @@
-# `@matthiesenxyz/ec-twoslash`
+# `expressive-code-twoslash`
 
 An Expressive Code plugin to add TwoSlash support
 
@@ -25,7 +25,7 @@ The following is a list of TwoSlash features and if they are currently supported
 Install the package with your favorite package manager
 
 ```bash
-pnpm add @matthiesenxyz/ec-twoslash
+pnpm add expressive-code-twoslash
 ```
 
 ### Add to EC Config
@@ -35,7 +35,7 @@ Add ecTwoSlash to your Expressive Code plugin list
 ```ts
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
-import ecTwoSlash from "@matthiesenxyz/ec-twoslash";
+import ecTwoSlash from "expressive-code-twoslash";
 
 // https://astro.build/config
 export default defineConfig({
@@ -98,7 +98,7 @@ A quick example using TwoSlash to make advanced CodeBlocks
 ```ts twoslash
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
-import ectwoslash from "@matthiesenxyz/ec-twoslash";
+import ectwoslash from "expressive-code-twoslash";
 
 // https://astro.build/config
 export default defineConfig({

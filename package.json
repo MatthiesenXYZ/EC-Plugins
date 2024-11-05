@@ -7,7 +7,7 @@
 	},
 	"scripts": {
 		"playground:dev": "pnpm --filter playground dev",
-		"twoslash:build": "pnpm --filter @matthiesenxyz/ec-twoslash build",
+		"twoslash:build": "pnpm --filter expressive-code-twoslash build",
 		"changeset": "changeset",
 		"lint": "biome check .",
 		"lint:fix": "biome check --apply ."

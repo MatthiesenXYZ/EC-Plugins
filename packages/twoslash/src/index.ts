@@ -150,7 +150,7 @@ export default function ecTwoSlash(options: PluginTwoslashOptions = {}) {
 	}
 
 	return definePlugin({
-		name: "@matthiesenxyz/ec-twoslash",
+		name: "@matthiesenxyz/expressive-code-twoslash",
 		jsModules: [popupModule],
 		styleSettings: twoSlashStyleSettings,
 		baseStyles: (context) => getTwoSlashBaseStyles(context),

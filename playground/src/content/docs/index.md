@@ -8,7 +8,7 @@ description: Learn more about my project in this docs site built with Starlight.
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 // ---cut-before---
-import ectwoslash from "@matthiesenxyz/ec-twoslash";
+import ectwoslash from "expressive-code-twoslash";
 
 const e: string = 1;
 //    ^?
