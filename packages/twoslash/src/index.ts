@@ -1,9 +1,5 @@
 import { definePlugin, type ExpressiveCodeBlock } from "@expressive-code/core";
-import {
-	createTwoslasher,
-	type NodeError,
-	type TwoslashOptions,
-} from "twoslash";
+import { createTwoslasher, type TwoslashOptions } from "twoslash";
 import ts from "typescript";
 import type { CompilerOptions } from "typescript";
 import popupModule from "./module-code/popup.min";

@@ -7,8 +7,9 @@ description: Learn more about my project in this docs site built with Starlight.
 // @errors: 2322
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
-import ectwoslash from "@matthiesenxyz/ec-twoslash";
 // ---cut-before---
+import ectwoslash from "@matthiesenxyz/ec-twoslash";
+
 const e: string = 1;
 //    ^?
 
