@@ -79,23 +79,25 @@ ecTwoSlash({
 
 A quick example using TwoSlash to make advanced CodeBlocks
 
-```ts twoslash
-import { defineConfig } from "astro/config";
-import starlight from "@astrojs/starlight";
-import ectwoslash from "@matthiesenxyz/ec-twoslash";
+  ```ts twoslash
+  import { defineConfig } from "astro/config";
+  import starlight from "@astrojs/starlight";
+  import ectwoslash from "@matthiesenxyz/ec-twoslash";
 
-// https://astro.build/config
-export default defineConfig({
-	integrations: [
-		starlight({
-			title: "Starlight",
-			expressiveCode: {
-				plugins: [ectwoslash()],
-			},
-		}),
-	],
-});
-```
+  // https://astro.build/config
+  export default defineConfig({
+    integrations: [
+      starlight({
+        title: "Starlight",
+        expressiveCode: {
+          plugins: [ectwoslash()],
+        },
+      }),
+    ],
+  });
+  ```
+
+The above codeblock will now have hover popups that will show type information!
 
 ```
 
