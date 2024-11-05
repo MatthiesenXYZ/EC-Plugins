@@ -186,6 +186,8 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         .twoslash-error {
             font-style: italic;
             padding-inline: 0.4rem;
+            padding-top: 0.2rem;
+            padding-bottom: 0.1rem;
             border-radius: 0.2rem;
             /* Prevent inline annotations from overriding our styles */
             & span {
