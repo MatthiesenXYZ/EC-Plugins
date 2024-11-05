@@ -1,86 +1,108 @@
-# `package-name`
+# `@matthiesenxyz/ec-twoslash`
 
-This is an [Astro integration](https://docs.astro.build/en/guides/integrations-guide/) that TODO:description
+An Expressive Code plugin to add TwoSlash to Expressive code
 
 ## Usage
 
-### Prerequisites
-
-TODO:
-
 ### Installation
 
-Install the integration **automatically** using the Astro CLI:
+Install the package with your favorite package manager
 
 ```bash
-pnpm astro add package-name
+pnpm add @matthiesenxyz/ec-twoslash
 ```
 
-```bash
-npx astro add package-name
-```
+### Add to EC Config
 
-```bash
-yarn astro add package-name
-```
+Add ecTwoSlash to your Expressive Code plugin list
 
-Or install it **manually**:
+```ts
+import { defineConfig } from "astro/config";
+import starlight from "@astrojs/starlight";
+import ecTwoSlash from "@matthiesenxyz/ec-twoslash";
 
-1. Install the required dependencies
-
-```bash
-pnpm add package-name
-```
-
-```bash
-npm install package-name
-```
-
-```bash
-yarn add package-name
-```
-
-2. Add the integration to your astro config
-
-```diff
-+import integration from "package-name";
-
+// https://astro.build/config
 export default defineConfig({
-  integrations: [
-+    integration(),
-  ],
+	integrations: [
+		starlight({
+			title: "Starlight",
+			expressiveCode: {
+				plugins: [ecTwoSlash()],
+			},
+		}),
+	],
 });
 ```
 
-### Configuration
+### Config Options
 
-TODO:configuration
+Default config options shown.
 
-## Contributing
-
-This package is structured as a monorepo:
-
-- `playground` contains code for testing the package
-- `package` contains the actual package
-
-Install dependencies using pnpm: 
-
-```bash
-pnpm i --frozen-lockfile
+```js
+ecTwoSlash({
+  /**
+   * If `true`, requires `twoslash` to be present in the code block meta for
+   * this transformer to be applied.
+   *
+   * If a `RegExp`, requires the `RegExp` to match a directive in the code
+   * block meta for this transformer to be applied.
+   *
+   * If `false`, this transformer will be applied to all code blocks.
+   *
+   * @default true
+   */
+  explicitTrigger: true,
+  /**
+   * If `true`, includes JSDoc comments in the hover popup.
+   *
+   * @default true
+   */
+  includeJSDoc: true,
+  /**
+   * The languages to apply this transformer to.
+   *
+   * @default ["ts", "tsx"]
+   */
+  languages: ["ts", "tsx"],
+  /**
+   * Options to forward to `twoslash`.
+   *
+   * @default {}
+   */
+  twoslashOptions: {},
+})
 ```
 
-Start the playground and package watcher:
+### Use TwoSlash!
 
-```bash
-pnpm dev
+```md
+
+A quick example using TwoSlash to make advanced CodeBlocks
+
+```ts twoslash
+import { defineConfig } from "astro/config";
+import starlight from "@astrojs/starlight";
+import ectwoslash from "@matthiesenxyz/ec-twoslash";
+
+// https://astro.build/config
+export default defineConfig({
+	integrations: [
+		starlight({
+			title: "Starlight",
+			expressiveCode: {
+				plugins: [ectwoslash()],
+			},
+		}),
+	],
+});
 ```
 
-You can now edit files in `package`. Please note that making changes to those files may require restarting the playground dev server.
+```
 
 ## Licensing
 
-[MIT Licensed](https://github.com/TODO:/blob/main/LICENSE). Made with ❤️ by [TODO:](https://github.com/TODO:).
+[MIT Licensed](https://github.com/MatthiesenXYZ/EC-Plugins/tree/main/packages/twoslash/LICENSE). Made with ❤️ by [Adam Matthiesen](https://github.com/Adammatthiesen).
 
 ## Acknowledgements
 
-TODO:
+- [GitHub: @Hippotastic](https://github.com/hippotastic) For providing/maintaining Expressive Code

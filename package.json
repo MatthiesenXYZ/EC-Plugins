@@ -8,7 +8,6 @@
 	"scripts": {
 		"playground:dev": "pnpm --filter playground dev",
 		"twoslash:build": "pnpm --filter @matthiesenxyz/ec-twoslash build",
-		"twoslash:make-modules": "pnpm --filter @matthiesenxyz/ec-twoslash build-js-modules",
 		"changeset": "changeset",
 		"lint": "biome check .",
 		"lint:fix": "biome check --apply ."

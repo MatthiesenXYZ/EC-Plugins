@@ -14,7 +14,12 @@
 		"ec-plugin",
 		"twoslash"
 	],
-	"homepage": "https://github.com/MatthiesenXYZ/EC-Plugins",
+	"homepage": "https://github.com/MatthiesenXYZ/EC-Plugins/blob/main/packages/twoslash/README.md",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/MatthiesenXYZ/EC-Plugins",
+		"directory": "packages/twoslash"
+	},
 	"publishConfig": {
 		"access": "public"
 	},
@@ -22,10 +27,8 @@
 	"main": "./dist/index.js",
 	"module": "./dist/index.js",
 	"exports": {
-		".": {
-			"types": "./dist/index.d.ts",
-			"default": "./dist/index.js"
-		}
+		"types": "./dist/index.d.ts",
+		"default": "./dist/index.js"
 	},
 	"types": "./dist/index.d.ts",
 	"files": ["dist"],
@@ -35,18 +38,16 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"hast": "^1.0.0",
 		"mdast-util-from-markdown": "^2.0.2",
 		"mdast-util-gfm": "^3.0.0",
 		"mdast-util-to-hast": "^13.2.0",
-		"twoslash": "^0.2.12",
-		"typescript": "^5.6.3"
+		"twoslash": "^0.2.12"
 	},
 	"peerDependencies": {
 		"@expressive-code/core": "^0.35.6",
-		"typescript": ">=5.5"
+		"typescript": "^5.5"
 	},
 	"devDependencies": {
-		"@types/hast": "^3.0.4"
+		"@expressive-code/core": "^0.35.6"
 	}
 }

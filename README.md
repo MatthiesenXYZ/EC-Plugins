@@ -1,9 +1,7 @@
-# package-name
+# EC Plugins
 
-TODO:description
-
-To see how to get started, check out the [package README](./package/README.md)
+Collection of useful Community EC Plugins maintained by MatthiesenXYZ
 
 ## Licensing
 
-[MIT Licensed](./LICENSE). Made with ❤️ by [TODO:user](https://github.com/TODO:github-user).
+[MIT Licensed](./LICENSE). Made with ❤️ by [MatthiesenXYZ](https://github.com/MatthiesenXYZ).

@@ -26,12 +26,6 @@ importers:
 
   packages/twoslash:
     dependencies:
-      '@expressive-code/core':
-        specifier: ^0.35.6
-        version: 0.35.6
-      hast:
-        specifier: ^1.0.0
-        version: 1.0.0
       mdast-util-from-markdown:
         specifier: ^2.0.2
         version: 2.0.2
@@ -45,12 +39,12 @@ importers:
         specifier: ^0.2.12
         version: 0.2.12(typescript@5.6.3)
       typescript:
-        specifier: ^5.6.3
+        specifier: ^5.5
         version: 5.6.3
     devDependencies:
-      '@types/hast':
-        specifier: ^3.0.4
-        version: 3.0.4
+      '@expressive-code/core':
+        specifier: ^0.35.6
+        version: 0.35.6
 
   playground:
     dependencies:
@@ -1828,10 +1822,6 @@ packages:
 
   hast-util-whitespace@3.0.0:
     resolution: {integrity: sha512-88JUN06ipLwsnv+dVn+OIYOvAuvBMy/Qoi6O7mQHxdPXpjy+Cd6xRkWwux7DKO+4sYILtLBRIKgsdpS2gQc7qw==}
-
-  hast@1.0.0:
-    resolution: {integrity: sha512-vFUqlRV5C+xqP76Wwq2SrM0kipnmpxJm7OfvVXpB35Fp+Fn4MV+ozr+JZr5qFvyR1q/U+Foim2x+3P+x9S1PLA==}
-    deprecated: Renamed to rehype
 
   hastscript@8.0.0:
     resolution: {integrity: sha512-dMOtzCEd3ABUeSIISmrETiKuyydk1w0pa+gE/uormcTpSYuaNJPbX1NU3JLyscSLjwAQM8bWMhhIlnCqnRvDTw==}
@@ -5225,8 +5215,6 @@ snapshots:
   hast-util-whitespace@3.0.0:
     dependencies:
       '@types/hast': 3.0.4
-
-  hast@1.0.0: {}
 
   hastscript@8.0.0:
     dependencies:
