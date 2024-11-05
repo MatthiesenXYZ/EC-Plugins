@@ -179,8 +179,12 @@ export default function ecTwoSlash(options: PluginTwoslashOptions = {}) {
 
 					// Find the two-slash flags in the code
 					const twoSlashFlags: number[] = code.reduce((acc, line, index) => {
-						const match = line.match(/^\/\/\s*\^\?\s*$/gm);
-						if (match) {
+						const matchExtraction = line.match(/^\/\/\s*\^\?\s*$/gm);
+						if (matchExtraction) {
+							acc.push(index);
+						}
+						const matchCompletion = line.match(/^\/\/\s*\^\|\s*$/gm);
+						if (matchCompletion) {
 							acc.push(index);
 						}
 						return acc;
@@ -190,6 +194,37 @@ export default function ecTwoSlash(options: PluginTwoslashOptions = {}) {
 
 					// Remove the collections of Flags
 					context.codeBlock.deleteLines(flags);
+
+					const cutOffCode = context.codeBlock.code.split("\n");
+
+					// Find the cut-off point for the code
+					const cutOffStart = cutOffCode.findIndex(
+						(line) =>
+							line.includes("// ---cut---") ||
+							line.includes("// ---cut-before---"),
+					);
+
+					const cutOffEnd = cutOffCode.findIndex((line) =>
+						line.includes("// ---cut-after---"),
+					);
+
+					const linesToCut: number[] = [];
+
+					if (cutOffStart !== -1) {
+						for (let i = 0; i <= cutOffStart; i++) {
+							linesToCut.push(i);
+						}
+					}
+
+					if (cutOffEnd !== -1) {
+						for (let i = cutOffEnd; i < cutOffCode.length; i++) {
+							linesToCut.push(i);
+						}
+					}
+
+					if (linesToCut.length) {
+						context.codeBlock.deleteLines(linesToCut);
+					}
 
 					// Generate the hover annotations
 					for (const hover of twoslash.hovers) {

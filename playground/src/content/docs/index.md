@@ -8,7 +8,7 @@ description: Learn more about my project in this docs site built with Starlight.
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import ectwoslash from "@matthiesenxyz/ec-twoslash";
-
+// ---cut-before---
 const e: string = 1;
 //    ^?
 
@@ -23,4 +23,6 @@ export default defineConfig({
 		}),
 	],
 });
+// ---cut-after---
+const hello = "world";
 ```
