@@ -10,6 +10,7 @@ import starlight from "@astrojs/starlight";
 import ectwoslash from "@matthiesenxyz/ec-twoslash";
 
 const e: string = 1;
+//    ^?
 
 // https://astro.build/config
 export default defineConfig({

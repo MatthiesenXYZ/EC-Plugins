@@ -8,7 +8,7 @@ import {
 	type Element,
 	type ElementContent,
 } from "@expressive-code/core/hast";
-import type { NodeError, NodeHover } from "twoslash";
+import type { NodeError, NodeHover, NodeQuery } from "twoslash";
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { gfmFromMarkdown } from "mdast-util-gfm";
 import { toHast } from "mdast-util-to-hast";
@@ -186,6 +186,7 @@ export class TwoslashHoverAnnotation extends ExpressiveCodeAnnotation {
 	constructor(
 		readonly hover: NodeHover,
 		readonly includeJsDoc: boolean,
+		readonly queries: NodeQuery[],
 	) {
 		super({
 			inlineRange: {
@@ -201,50 +202,60 @@ export class TwoslashHoverAnnotation extends ExpressiveCodeAnnotation {
 	 * @returns The transformed nodes with hover annotations.
 	 */
 	render({ nodesToTransform }: AnnotationRenderOptions) {
+		const query = this.queries.find((q) => q.text === this.hover.text);
+
 		return nodesToTransform.map((node) => {
 			if (node.type === "element") {
 				return h("span.twoslash", node.properties, [
 					h("span.twoslash-hover", [
-						h("div.twoslash-popup-container", [
-							h("code.twoslash-popup-code", node.properties, [
-								h(
-									"span.twoslash-popup-code-type",
-									defaultHoverInfoProcessor(this.hover.text),
-								),
-							]),
-							...(this.hover.docs && this.includeJsDoc
-								? [
-										h("div.twoslash-popup-docs", [
-											h("p", [renderMarkdown(this.hover.docs)]),
-										]),
-									]
-								: []),
-							...(this.hover.tags && this.includeJsDoc
-								? [
-										h("div.twoslash-popup-docs.twoslash-popup-docs-tags", [
-											h("p", [
-												...this.hover.tags.map((tag) =>
-													h("p", [
-														h(
-															"span.twoslash-popup-docs-tag-name",
-															`@${tag[0]}`,
-														),
-														tag[1]
-															? [
-																	filterTags(tag[0]) ? " ― " : " ",
-																	h(
-																		"span.twoslash-popup-docs-tag-value",
-																		renderMarkdownInline(tag[1]),
-																	),
-																]
-															: [],
-													]),
-												),
+						h(
+							"div",
+							{
+								class: query
+									? "twoslash-static-container"
+									: "twoslash-popup-container",
+							},
+							[
+								h("code.twoslash-popup-code", node.properties, [
+									h(
+										"span.twoslash-popup-code-type",
+										defaultHoverInfoProcessor(this.hover.text),
+									),
+								]),
+								...(this.hover.docs && this.includeJsDoc
+									? [
+											h("div.twoslash-popup-docs", [
+												h("p", [renderMarkdown(this.hover.docs)]),
 											]),
-										]),
-									]
-								: []),
-						]),
+										]
+									: []),
+								...(this.hover.tags && this.includeJsDoc
+									? [
+											h("div.twoslash-popup-docs.twoslash-popup-docs-tags", [
+												h("p", [
+													...this.hover.tags.map((tag) =>
+														h("p", [
+															h(
+																"span.twoslash-popup-docs-tag-name",
+																`@${tag[0]}`,
+															),
+															tag[1]
+																? [
+																		filterTags(tag[0]) ? " ― " : " ",
+																		h(
+																			"span.twoslash-popup-docs-tag-value",
+																			renderMarkdownInline(tag[1]),
+																		),
+																	]
+																: [],
+														]),
+													),
+												]),
+											]),
+										]
+									: []),
+							],
+						),
 						node,
 					]),
 				]);

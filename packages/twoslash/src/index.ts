@@ -177,15 +177,30 @@ export default function ecTwoSlash(options: PluginTwoslashOptions = {}) {
 						return acc;
 					}, [] as number[]);
 
-					// Remove the TS flags from the code
-					context.codeBlock.deleteLines(tsFlags);
+					// Find the two-slash flags in the code
+					const twoSlashFlags: number[] = code.reduce((acc, line, index) => {
+						const match = line.match(/^\/\/\s*\^\?\s*$/gm);
+						if (match) {
+							acc.push(index);
+						}
+						return acc;
+					}, [] as number[]);
+
+					const flags = [...tsFlags, ...twoSlashFlags];
+
+					// Remove the collections of Flags
+					context.codeBlock.deleteLines(flags);
 
 					// Generate the hover annotations
 					for (const hover of twoslash.hovers) {
 						const line = context.codeBlock.getLine(hover.line);
 						if (line) {
 							line.addAnnotation(
-								new TwoslashHoverAnnotation(hover, includeJsDoc),
+								new TwoslashHoverAnnotation(
+									hover,
+									includeJsDoc,
+									twoslash.queries,
+								),
 							);
 						}
 					}

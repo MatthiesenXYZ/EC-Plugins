@@ -92,6 +92,36 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             display: none;
         }
 
+        .twoslash-static-container {
+            position: absolute;
+            left: -4px;
+            display: block;
+            z-index: 10;
+            background: var(--ec-frm-edBg);
+            border: 1px solid var(--twoslash-border);
+            border-radius: 4px;
+            font-size: 90%;
+            white-space: nowrap !important;
+            word-break: normal !important;
+            overflow-wrap: normal !important;
+            width: max-content !important;
+        }
+
+        .twoslash-static-container:before {
+            content: "";
+            position: absolute;
+            top: -5px;
+            left: 3px;
+            border-top: 1px solid var(--twoslash-border);
+            border-right: 1px solid var(--twoslash-border);
+            background: var(--ec-frm-edBg);
+            transform: rotate(-45deg);
+            width: 8px;
+            height: 8px;
+            pointer-events: none;
+            display: inline-block;
+        }
+
         .twoslash-popup-container {
             position: absolute;
             z-index: 10;
@@ -106,7 +136,8 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             width: max-content !important;
         }
 
-        .twoslash-popup-container * {
+        .twoslash-popup-container *,
+        .twoslash-static-container * {
             white-space: wrap !important;
             word-break: normal !important;
             overflow-wrap: normal !important;
