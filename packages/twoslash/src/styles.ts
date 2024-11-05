@@ -40,7 +40,7 @@ export const twoSlashStyleSettings = new PluginStyleSettings({
  * used to resolve CSS variable values.
  * @returns {string} The generated CSS styles as a string.
  */
-export function getTwoSlashBaseStyles({ cssVar }: ResolverContext) {
+export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
 	return `
     :root[data-theme="dark"] {
         .twoslash-popup-code {
