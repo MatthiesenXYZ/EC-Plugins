@@ -2,7 +2,7 @@
 
 Collection of useful Community EC Plugins maintained by MatthiesenXYZ
 
-- [EC-TwoSlash](./packages/twoslash/) An Expressive Code plugin to add TwoSlash support
+- [expressive-code-twoslash](./packages/twoslash/) An Expressive Code plugin to add TwoSlash support
 
 ## Licensing
 
