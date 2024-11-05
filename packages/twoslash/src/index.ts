@@ -6,6 +6,19 @@ import popupModule from "./module-code/popup.min";
 import { TwoslashHoverAnnotation } from "./annotation";
 import { getTwoSlashBaseStyles, twoSlashStyleSettings } from "./styles";
 
+/**
+ * Default TypeScript compiler options used in TwoSlash.
+ *
+ * @constant
+ * @type {CompilerOptions}
+ * @property {boolean} strict - Enable all strict type-checking options.
+ * @property {ts.ScriptTarget} target - Specify ECMAScript target version.
+ * @property {boolean} exactOptionalPropertyTypes - Ensure optional property types are exactly as declared.
+ * @property {boolean} downlevelIteration - Provide full support for iterables in ES5/ES3.
+ * @property {boolean} skipLibCheck - Skip type checking of declaration files.
+ * @property {string[]} lib - List of library files to be included in the compilation.
+ * @property {boolean} noEmit - Do not emit outputs.
+ */
 const defaultCompilerOptions: CompilerOptions = {
 	strict: true,
 	target: ts.ScriptTarget.ES2022,

@@ -12,7 +12,20 @@ import { fromMarkdown } from "mdast-util-from-markdown";
 import { gfmFromMarkdown } from "mdast-util-gfm";
 import { toHast } from "mdast-util-to-hast";
 
+/**
+ * A regular expression to match a type annotation in the format of an uppercase letter followed by word characters,
+ * optionally followed by a generic type parameter enclosed in angle brackets, and ending with a colon.
+ *
+ * Examples of matching strings:
+ * - `TypeName:`
+ * - `GenericType<T>:`
+ */
 const regexType = /^[A-Z]\w*(<[^>]*>)?:/;
+
+/**
+ * A regular expression to match the beginning of a function name.
+ * The pattern matches zero or more word characters followed by an opening parenthesis.
+ */
 const regexFunction = /^\w*\(/;
 
 /**
@@ -35,6 +48,17 @@ function defaultHoverInfoProcessor(type: string): string {
 	return content;
 }
 
+/**
+ * Converts a markdown string into an array of ElementContent objects.
+ *
+ * This function processes the input markdown string, replacing JSDoc links with their
+ * corresponding text, and then parses the markdown into an MDAST (Markdown Abstract Syntax Tree).
+ * The MDAST is then transformed into a HAST (Hypertext Abstract Syntax Tree) and the children
+ * of the resulting HAST element are returned.
+ *
+ * @param md - The markdown string to be converted.
+ * @returns An array of ElementContent objects representing the parsed markdown.
+ */
 function renderMarkdown(md: string): ElementContent[] {
 	const mdast = fromMarkdown(
 		md.replace(/\{@link ([^}]*)\}/g, "$1"), // replace jsdoc links
@@ -44,6 +68,14 @@ function renderMarkdown(md: string): ElementContent[] {
 	return (toHast(mdast) as Element).children;
 }
 
+/**
+ * Renders the given markdown string as an array of ElementContent.
+ * If the rendered markdown consists of a single paragraph element,
+ * it returns the children of that paragraph instead.
+ *
+ * @param md - The markdown string to render.
+ * @returns An array of ElementContent representing the rendered markdown.
+ */
 function renderMarkdownInline(md: string): ElementContent[] {
 	const betterMD = md;
 
@@ -57,6 +89,12 @@ function renderMarkdownInline(md: string): ElementContent[] {
 	return children;
 }
 
+/**
+ * Filters tags based on specific keywords.
+ *
+ * @param tag - The tag string to be checked.
+ * @returns A boolean indicating whether the tag includes any of the specified keywords: "param", "returns", "type", or "template".
+ */
 function filterTags(tag: string) {
 	return (
 		tag.includes("param") ||

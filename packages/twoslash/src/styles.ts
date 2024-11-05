@@ -3,6 +3,19 @@ import {
 	type ResolverContext,
 } from "@expressive-code/core";
 
+/**
+ * Represents the style settings for the TwoSlash plugin.
+ *
+ * @constant
+ * @default
+ * @property {Object} defaultValues - The default values for the style settings.
+ * @property {Object} defaultValues.twoSlash - The style settings specific to TwoSlash.
+ * @property {Function} defaultValues.twoSlash.borderColor - Function to get the border color based on the theme.
+ * @property {Function} defaultValues.twoSlash.textColor - Function to get the text color based on the theme.
+ * @property {Function} defaultValues.twoSlash.titleColor - Function to get the title color based on the theme.
+ * @property {Function} defaultValues.twoSlash.tagColor - Function to get the tag color based on the theme.
+ * @property {Function} defaultValues.twoSlash.tagColorDark - Function to get the dark mode tag color based on the theme.
+ */
 export const twoSlashStyleSettings = new PluginStyleSettings({
 	defaultValues: {
 		twoSlash: {
@@ -15,6 +28,18 @@ export const twoSlashStyleSettings = new PluginStyleSettings({
 	},
 });
 
+/**
+ * Generates the base styles for the TwoSlash component.
+ *
+ * This function returns a string containing CSS styles that are applied to the
+ * TwoSlash component. The styles include both light and dark theme variations,
+ * as well as styles for various elements within the TwoSlash component such as
+ * popups, hover effects, and code blocks.
+ *
+ * @param {ResolverContext} context - The context object containing the `cssVar` function
+ * used to resolve CSS variable values.
+ * @returns {string} The generated CSS styles as a string.
+ */
 export function getTwoSlashBaseStyles({ cssVar }: ResolverContext) {
 	return `
     :root[data-theme="dark"] {
