@@ -67,7 +67,7 @@ export interface PluginTwoslashOptions {
  * ```ts
  * import { defineConfig } from "astro/config";
  * import starlight from "@astrojs/starlight";
- * import ectwoslash from "@matthiesenxyz/ec-twoslash";
+ * import ecTwoSlash from "@matthiesenxyz/ec-twoslash";
  *
  * // https://astro.build/config
  * export default defineConfig({
@@ -75,7 +75,7 @@ export interface PluginTwoslashOptions {
  *     starlight({
  *       title: "Starlight",
  *       expressiveCode: {
- *         plugins: [ectwoslash()],
+ *         plugins: [ecTwoSlash()],
  *       },
  *     }),
  *   ],
