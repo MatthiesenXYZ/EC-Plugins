@@ -154,7 +154,17 @@ function getErrorLevelString(error: NodeError) {
 	}
 }
 
+/**
+ * Represents an annotation for displaying error boxes in Twoslash.
+ * Extends the `ExpressiveCodeAnnotation` class.
+ */
 export class TwoslashErrorBoxAnnotation extends ExpressiveCodeAnnotation {
+	/**
+	 * Creates an instance of `TwoslashErrorBoxAnnotation`.
+	 *
+	 * @param error - The error object containing error details.
+	 * @param line - The line of code where the error occurred.
+	 */
 	constructor(
 		readonly error: NodeError,
 		readonly line: ExpressiveCodeLine,
@@ -167,6 +177,12 @@ export class TwoslashErrorBoxAnnotation extends ExpressiveCodeAnnotation {
 		});
 	}
 
+	/**
+	 * Renders the error box annotation.
+	 *
+	 * @param nodesToTransform - The nodes to transform with the error box annotation.
+	 * @returns An array of transformed nodes with the error box annotation.
+	 */
 	render({ nodesToTransform }: AnnotationRenderOptions) {
 		const error = this.error;
 		const errorLevelClass = getErrorLevelClass(error);
