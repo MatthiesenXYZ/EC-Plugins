@@ -6,7 +6,7 @@ An Expressive Code plugin to add TwoSlash support
 
 The following is a list of TwoSlash features and if they are currently supported by this plugin
 
-- [ x ] JSDocs and Type Hover boxes
+- [x] JSDocs and Type Hover boxes
 - [ ] Type Extraction (https://twoslash.netlify.app/refs/notations#extract-type)
 - [ ] Completions (https://twoslash.netlify.app/refs/notations#completions)
 - [ ] Hightlighting (https://twoslash.netlify.app/refs/notations#highlighting)
