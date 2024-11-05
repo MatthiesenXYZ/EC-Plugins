@@ -1,6 +1,6 @@
 # `@matthiesenxyz/ec-twoslash`
 
-An Expressive Code plugin to add TwoSlash to Expressive code
+An Expressive Code plugin to add TwoSlash support
 
 ## Usage
 
