@@ -7,7 +7,10 @@ import {
 import ts from "typescript";
 import type { CompilerOptions } from "typescript";
 import popupModule from "./module-code/popup.min";
-import { TwoslashErrorAnnotation, TwoslashHoverAnnotation } from "./annotation";
+import {
+	TwoslashErrorBoxAnnotation,
+	TwoslashHoverAnnotation,
+} from "./annotation";
 import { getTwoSlashBaseStyles, twoSlashStyleSettings } from "./styles";
 
 /**
@@ -245,25 +248,7 @@ export default function ecTwoSlash(options: PluginTwoslashOptions = {}) {
 						const line = context.codeBlock.getLine(error.line);
 
 						if (line) {
-							const errorType = getErrorLevelString(error);
-
-							const annotationStartPoint = line.text.length + 1;
-
-							line.editText(
-								line.text.length + 1,
-								line.text.length + 1 + error.text.length,
-								` // ${errorType}: [${error.code}] ${error.text}`,
-							);
-
-							if (annotationStartPoint) {
-								line.addAnnotation(
-									new TwoslashErrorAnnotation(
-										error,
-										annotationStartPoint,
-										line.text.length,
-									),
-								);
-							}
+							line.addAnnotation(new TwoslashErrorBoxAnnotation(error, line));
 						}
 					}
 				}

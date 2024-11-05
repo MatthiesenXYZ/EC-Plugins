@@ -1,5 +1,6 @@
 import {
 	ExpressiveCodeAnnotation,
+	type ExpressiveCodeLine,
 	type AnnotationRenderOptions,
 } from "@expressive-code/core";
 import {
@@ -131,45 +132,64 @@ function getErrorLevelClass(error: NodeError): string {
 }
 
 /**
- * Represents an annotation for a Twoslash error.
- * Extends the `ExpressiveCodeAnnotation` class.
+ * Returns a string representation of the error level.
+ *
+ * @param error - The error object containing the level property.
+ * @returns A string that represents the error level. Possible values are:
+ * - "Warning" for level "warning"
+ * - "Suggestion" for level "suggestion"
+ * - "Message" for level "message"
+ * - "Error" for any other level
  */
-export class TwoslashErrorAnnotation extends ExpressiveCodeAnnotation {
-	/**
-	 * Creates an instance of `TwoslashErrorAnnotation`.
-	 *
-	 * @param error - The error object containing details about the error.
-	 * @param start - The starting column number of the error.
-	 * @param end - The ending column number of the error.
-	 */
+function getErrorLevelString(error: NodeError) {
+	switch (error.level) {
+		case "warning":
+			return "Warning";
+		case "suggestion":
+			return "Suggestion";
+		case "message":
+			return "Message";
+		default:
+			return "Error";
+	}
+}
+
+export class TwoslashErrorBoxAnnotation extends ExpressiveCodeAnnotation {
 	constructor(
 		readonly error: NodeError,
-		readonly start: number,
-		readonly end: number,
+		readonly line: ExpressiveCodeLine,
 	) {
 		super({
 			inlineRange: {
-				columnStart: start,
-				columnEnd: end,
+				columnStart: 0,
+				columnEnd: line.text.length,
 			},
 		});
 	}
 
-	/**
-	 * Renders the annotation by transforming the nodes.
-	 *
-	 * @param nodesToTransform - The nodes to be transformed.
-	 * @returns The transformed nodes with the error annotation applied.
-	 */
 	render({ nodesToTransform }: AnnotationRenderOptions) {
+		const error = this.error;
+		const errorLevelClass = getErrorLevelClass(error);
+
 		return nodesToTransform.map((node) => {
-			return h(
-				"span",
-				{
-					class: ["twoslash-error", getErrorLevelClass(this.error)].join(" "),
-				},
-				node.children,
-			);
+			return h("span.twoslash", [
+				h(
+					"div.twoslash-error-box",
+					{
+						class: errorLevelClass,
+					},
+					[
+						h("span.twoslash-error-box-icon"),
+						h("span.twoslash-error-box-content", [
+							h("span.twoslash-error-box-content-title", [
+								`${getErrorLevelString(error)} ${error.code && `ts(${error.code}) `}`,
+							]),
+							h("span.twoslash-error-box-content-message", [error.text]),
+						]),
+					],
+				),
+				node,
+			]);
 		});
 	}
 }

@@ -92,6 +92,48 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             display: none;
         }
 
+        .twoslash-error-box {
+            display: block;
+            z-index: 10;
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.2rem;
+            font-style: italic;
+            background: var(--ec-frm-edBg);
+            border: 1px solid var(--twoslash-border);
+            border-radius: 4px;
+            font-size: 90%;
+            white-space: nowrap !important;
+            word-break: normal !important;
+            overflow-wrap: normal !important;
+            width: max-content !important;
+        }
+
+        .twoslash-error-box .twoslash-error-box-icon,
+        .twoslash-error-box .twoslash-error-box-content {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .twoslash-error-level-error {
+            color: #f22 !important;
+            border-color: #f22 !important;
+        }
+
+        .twoslash-error-level-warning {
+            color: #f60 !important;
+            border-color: #f60 !important;
+        }
+
+        .twoslash-error-level-suggestion {
+            color: #0a0 !important;
+            border-color: #0a0 !important
+        }
+
+        .twoslash-error-level-message {
+            color: #00f !important;
+            border-color: #00f !important;
+        }
+
         .twoslash-static-container {
             position: absolute;
             left: -4px;
@@ -225,26 +267,6 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             color: inherit;
             font-style: inherit;
             }
-        }
-
-        .twoslash-error-level-error {
-            color: #f22 !important;
-            background: #f002 !important;
-        }
-
-        .twoslash-error-level-warning {
-            color: #f60 !important;
-            background: #f602 !important;
-        }
-
-        .twoslash-error-level-suggestion {
-            color: #0a0 !important;
-            background: #0a02 !important;
-        }
-
-        .twoslash-error-level-message {
-            color: #00f !important;
-            background: #00f2 !important;
         }
     }
     `;
