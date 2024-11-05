@@ -7,7 +7,8 @@ An Expressive Code plugin to add TwoSlash support
 The following is a list of TwoSlash features and if they are currently supported by this plugin
 
 - [x] JSDocs and Type Hover boxes
-- [x] Error Handling/Messages
+- [x] [Error Handling/Messages](https://vocs.dev/docs/guides/twoslash#errors)
+- [x] [Overriding TSCompiler Options](https://twoslash.netlify.app/refs/notations#overriding-options)
 - [ ] [Queries: Extract Type](https://twoslash.netlify.app/refs/notations#extract-type)
 - [ ] [Queries: Completions](https://twoslash.netlify.app/refs/notations#completions)
 - [x] [Queries: Highlights](https://twoslash.netlify.app/refs/notations#highlighting) - Already Supported by [Expressive-Code](https://expressive-code.com/key-features/syntax-highlighting/)
@@ -15,7 +16,6 @@ The following is a list of TwoSlash features and if they are currently supported
 ### Extra Bonus features i would like to implement
 
 - [ ] [Code Sample Cutting](https://twoslash.netlify.app/refs/notations#cutting-a-code-sample)
-- [ ] [Overriding Options](https://twoslash.netlify.app/refs/notations#overriding-options)
 - [ ] [Showing Emitted files](https://twoslash.netlify.app/refs/notations#showing-the-emitted-files)
 
 ## Usage

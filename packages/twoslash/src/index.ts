@@ -169,21 +169,16 @@ export default function ecTwoSlash(options: PluginTwoslashOptions = {}) {
 					const code = context.codeBlock.code.split("\n");
 
 					// Find the TS flags in the code
-					const tsFlags = code.reduce(
-						(acc, line, index) => {
-							const match = line.match(/\/\/\s*@\w+/);
-							if (match) {
-								acc.push({ index, error: match[0] });
-							}
-							return acc;
-						},
-						[] as { index: number; error: string }[],
-					);
+					const tsFlags: number[] = code.reduce((acc, line, index) => {
+						const match = line.match(/\/\/\s*@\w+/);
+						if (match) {
+							acc.push(index);
+						}
+						return acc;
+					}, [] as number[]);
 
 					// Remove the TS flags from the code
-					for (const { index } of tsFlags) {
-						context.codeBlock.deleteLine(index);
-					}
+					context.codeBlock.deleteLines(tsFlags);
 
 					// Generate the hover annotations
 					for (const hover of twoslash.hovers) {
@@ -207,7 +202,7 @@ export default function ecTwoSlash(options: PluginTwoslashOptions = {}) {
 							line.editText(
 								line.text.length + 1,
 								line.text.length + 1 + error.text.length,
-								` ${errorType}: [${error.code}] ${error.text}`,
+								` // ${errorType}: [${error.code}] ${error.text}`,
 							);
 
 							if (annotationStartPoint) {
