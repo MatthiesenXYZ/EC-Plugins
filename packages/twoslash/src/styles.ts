@@ -195,23 +195,23 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         }
 
         .twoslash-error-level-error {
-            color: #f22;
-            background: #f002;
+            color: #f22 !important;
+            background: #f002 !important;
         }
 
         .twoslash-error-level-warning {
-            color: #f60;
-            background: #f602;
+            color: #f60 !important;
+            background: #f602 !important;
         }
 
         .twoslash-error-level-suggestion {
-            color: #0a0;
-            background: #0a02;
+            color: #0a0 !important;
+            background: #0a02 !important;
         }
 
         .twoslash-error-level-message {
-            color: #00f;
-            background: #00f2;
+            color: #00f !important;
+            background: #00f2 !important;
         }
     }
     `;

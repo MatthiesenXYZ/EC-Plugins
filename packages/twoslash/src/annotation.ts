@@ -105,6 +105,18 @@ function filterTags(tag: string) {
 	);
 }
 
+/**
+ * Returns a CSS class name based on the error level of the provided NodeError.
+ *
+ * @param error - The NodeError object containing the error level.
+ * @returns A string representing the CSS class name corresponding to the error level.
+ *
+ * The possible error levels and their corresponding CSS class names are:
+ * - "warning" -> "twoslash-error-level-warning"
+ * - "suggestion" -> "twoslash-error-level-suggestion"
+ * - "message" -> "twoslash-error-level-message"
+ * - Any other value -> "twoslash-error-level-error"
+ */
 function getErrorLevelClass(error: NodeError): string {
 	switch (error.level) {
 		case "warning":
@@ -118,7 +130,18 @@ function getErrorLevelClass(error: NodeError): string {
 	}
 }
 
+/**
+ * Represents an annotation for a Twoslash error.
+ * Extends the `ExpressiveCodeAnnotation` class.
+ */
 export class TwoslashErrorAnnotation extends ExpressiveCodeAnnotation {
+	/**
+	 * Creates an instance of `TwoslashErrorAnnotation`.
+	 *
+	 * @param error - The error object containing details about the error.
+	 * @param start - The starting column number of the error.
+	 * @param end - The ending column number of the error.
+	 */
 	constructor(
 		readonly error: NodeError,
 		readonly start: number,
@@ -132,6 +155,12 @@ export class TwoslashErrorAnnotation extends ExpressiveCodeAnnotation {
 		});
 	}
 
+	/**
+	 * Renders the annotation by transforming the nodes.
+	 *
+	 * @param nodesToTransform - The nodes to be transformed.
+	 * @returns The transformed nodes with the error annotation applied.
+	 */
 	render({ nodesToTransform }: AnnotationRenderOptions) {
 		return nodesToTransform.map((node) => {
 			return h(
@@ -139,7 +168,7 @@ export class TwoslashErrorAnnotation extends ExpressiveCodeAnnotation {
 				{
 					class: ["twoslash-error", getErrorLevelClass(this.error)].join(" "),
 				},
-				node,
+				node.children,
 			);
 		});
 	}
