@@ -4,9 +4,12 @@ description: Learn more about my project in this docs site built with Starlight.
 ---
 
 ```ts twoslash
+// @errors: 2322
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import ectwoslash from "@matthiesenxyz/ec-twoslash";
+
+const e: string = 1;
 
 // https://astro.build/config
 export default defineConfig({

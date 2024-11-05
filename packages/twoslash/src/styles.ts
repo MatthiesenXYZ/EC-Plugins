@@ -182,6 +182,37 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         .twoslash-popup-docs code span::after {
             content: none !important;
         }
+
+        .twoslash-error {
+            font-style: italic;
+            padding-inline: 0.4rem;
+            border-radius: 0.2rem;
+            /* Prevent inline annotations from overriding our styles */
+            & span {
+            color: inherit;
+            font-style: inherit;
+            }
+        }
+
+        .twoslash-error-level-error {
+            color: #f22;
+            background: #f002;
+        }
+
+        .twoslash-error-level-warning {
+            color: #f60;
+            background: #f602;
+        }
+
+        .twoslash-error-level-suggestion {
+            color: #0a0;
+            background: #0a02;
+        }
+
+        .twoslash-error-level-message {
+            color: #00f;
+            background: #00f2;
+        }
     }
     `;
 }

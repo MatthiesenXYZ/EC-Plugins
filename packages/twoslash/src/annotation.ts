@@ -4,10 +4,11 @@ import {
 } from "@expressive-code/core";
 import {
 	h,
+	type Parents,
 	type Element,
 	type ElementContent,
 } from "@expressive-code/core/hast";
-import type { NodeHover } from "twoslash";
+import type { NodeError, NodeHover } from "twoslash";
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { gfmFromMarkdown } from "mdast-util-gfm";
 import { toHast } from "mdast-util-to-hast";
@@ -102,6 +103,46 @@ function filterTags(tag: string) {
 		tag.includes("type") ||
 		tag.includes("template")
 	);
+}
+
+function getErrorLevelClass(error: NodeError): string {
+	switch (error.level) {
+		case "warning":
+			return "twoslash-error-level-warning";
+		case "suggestion":
+			return "twoslash-error-level-suggestion";
+		case "message":
+			return "twoslash-error-level-message";
+		default:
+			return "twoslash-error-level-error";
+	}
+}
+
+export class TwoslashErrorAnnotation extends ExpressiveCodeAnnotation {
+	constructor(
+		readonly error: NodeError,
+		readonly start: number,
+		readonly end: number,
+	) {
+		super({
+			inlineRange: {
+				columnStart: start,
+				columnEnd: end,
+			},
+		});
+	}
+
+	render({ nodesToTransform }: AnnotationRenderOptions) {
+		return nodesToTransform.map((node) => {
+			return h(
+				"span",
+				{
+					class: ["twoslash-error", getErrorLevelClass(this.error)].join(" "),
+				},
+				node,
+			);
+		});
+	}
 }
 
 /**

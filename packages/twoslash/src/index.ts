@@ -3,7 +3,7 @@ import { createTwoslasher, type TwoslashOptions } from "twoslash";
 import ts from "typescript";
 import type { CompilerOptions } from "typescript";
 import popupModule from "./module-code/popup.min";
-import { TwoslashHoverAnnotation } from "./annotation";
+import { TwoslashErrorAnnotation, TwoslashHoverAnnotation } from "./annotation";
 import { getTwoSlashBaseStyles, twoSlashStyleSettings } from "./styles";
 
 /**
@@ -138,6 +138,24 @@ export default function ecTwoSlash(options: PluginTwoslashOptions = {}) {
 						},
 					);
 
+					// search the code for the index and remove any '// @errors: ' comments
+					const code = context.codeBlock.code.split("\n");
+
+					const errors = code.reduce(
+						(acc, line, index) => {
+							if (line.includes("// @errors: ")) {
+								const error = line.replace("// @errors: ", "");
+								acc.push({ index, error });
+							}
+							return acc;
+						},
+						[] as { index: number; error: string }[],
+					);
+
+					for (const { index } of errors) {
+						context.codeBlock.deleteLine(index);
+					}
+
 					// Generate the hover annotations
 					for (const hover of twoslash.hovers) {
 						const line = context.codeBlock.getLine(hover.line);
@@ -145,6 +163,43 @@ export default function ecTwoSlash(options: PluginTwoslashOptions = {}) {
 							line.addAnnotation(
 								new TwoslashHoverAnnotation(hover, includeJsDoc),
 							);
+						}
+					}
+
+					// Generate the error annotations
+					for (const error of twoslash.errors) {
+						const line = context.codeBlock.getLine(error.line);
+
+						if (line) {
+							const errorType =
+								error.level === "error"
+									? "Error"
+									: error.level === "warning"
+										? "Warning"
+										: error.level === "suggestion"
+											? "Suggestion"
+											: "Message";
+
+							line.editText(
+								line.text.length + 1,
+								line.text.length + 1 + error.text.length,
+								` // ${errorType}: ${error.code} ${error.text}`,
+							);
+
+							const match = line.text.match(
+								/\/\/\s*(Error|Warning|Suggestion|Message):/,
+							);
+							const annotationStartPoint = match ? match.index : 0;
+
+							if (annotationStartPoint) {
+								line.addAnnotation(
+									new TwoslashErrorAnnotation(
+										error,
+										annotationStartPoint,
+										line.text.length,
+									),
+								);
+							}
 						}
 					}
 				}
