@@ -12,6 +12,7 @@ import {
 	TwoslashHoverAnnotation,
 } from "./annotation";
 import { getTwoSlashBaseStyles, twoSlashStyleSettings } from "./styles";
+import { cleanFlags, processCutOffPoints } from "./helpers";
 
 /**
  * Default TypeScript compiler options used in TwoSlash.
@@ -76,29 +77,6 @@ export interface PluginTwoslashOptions {
 }
 
 /**
- * Returns a string representation of the error level.
- *
- * @param error - The error object containing the level property.
- * @returns A string that represents the error level. Possible values are:
- * - "Warning" for level "warning"
- * - "Suggestion" for level "suggestion"
- * - "Message" for level "message"
- * - "Error" for any other level
- */
-function getErrorLevelString(error: NodeError) {
-	switch (error.level) {
-		case "warning":
-			return "Warning";
-		case "suggestion":
-			return "Suggestion";
-		case "message":
-			return "Message";
-		default:
-			return "Error";
-	}
-}
-
-/**
  * A Expressive Code Plugin that transforms code blocks with Twoslash annotations.
  *
  * @param options - Configuration options for the plugin.
@@ -128,6 +106,15 @@ function getErrorLevelString(error: NodeError) {
  * @returns A plugin object with the specified configuration.
  */
 export default function ecTwoSlash(options: PluginTwoslashOptions = {}) {
+	/**
+	 * Destructures the options object to extract configuration settings.
+	 *
+	 * @param options - The options object containing configuration settings.
+	 * @param options.explicitTrigger - Determines if the trigger should be explicit. Defaults to `true`.
+	 * @param options.languages - An array of languages to be included. Defaults to `["ts", "tsx"]`.
+	 * @param options.includeJsDoc - Indicates whether to include JSDoc comments. Defaults to `true`.
+	 * @param options.twoslashOptions - Additional options for the twoslash plugin.
+	 */
 	const {
 		explicitTrigger = true,
 		languages = ["ts", "tsx"],
@@ -135,11 +122,30 @@ export default function ecTwoSlash(options: PluginTwoslashOptions = {}) {
 		twoslashOptions,
 	} = options;
 
+	/**
+	 * Initializes and returns a new instance of the Twoslasher.
+	 *
+	 * @returns {Twoslasher} A new instance of the Twoslasher.
+	 */
 	const twoslasher = createTwoslasher();
 
+	/**
+	 * Determines the trigger pattern for the twoslash functionality.
+	 * If `explicitTrigger` is an instance of `RegExp`, it uses that as the trigger.
+	 * Otherwise, it defaults to the regular expression pattern `\btwoslash\b`.
+	 *
+	 * @param explicitTrigger - The explicit trigger which can be a `RegExp` instance.
+	 * @returns The trigger pattern as a `RegExp`.
+	 */
 	const trigger =
 		explicitTrigger instanceof RegExp ? explicitTrigger : /\btwoslash\b/;
 
+	/**
+	 * Determines if a given code block should be transformed based on its language and metadata.
+	 *
+	 * @param codeBlock - The code block to check for transformation eligibility.
+	 * @returns `true` if the code block's language is included in the list of languages and, if an explicit trigger is defined, the code block's metadata matches the trigger pattern; otherwise, `false`.
+	 */
 	function shouldTransform(codeBlock: ExpressiveCodeBlock) {
 		return (
 			languages.includes(codeBlock.language) &&
@@ -168,66 +174,11 @@ export default function ecTwoSlash(options: PluginTwoslashOptions = {}) {
 						},
 					);
 
-					// Split the code block into lines
-					const code = context.codeBlock.code.split("\n");
+					// Clean TypeScript and TwoSlash flags
+					cleanFlags(context.codeBlock);
 
-					// Find the TS flags in the code
-					const tsFlags: number[] = code.reduce((acc, line, index) => {
-						const match = line.match(/\/\/\s*@\w+/);
-						if (match) {
-							acc.push(index);
-						}
-						return acc;
-					}, [] as number[]);
-
-					// Find the two-slash flags in the code
-					const twoSlashFlags: number[] = code.reduce((acc, line, index) => {
-						const matchExtraction = line.match(/^\/\/\s*\^\?\s*$/gm);
-						if (matchExtraction) {
-							acc.push(index);
-						}
-						const matchCompletion = line.match(/^\/\/\s*\^\|\s*$/gm);
-						if (matchCompletion) {
-							acc.push(index);
-						}
-						return acc;
-					}, [] as number[]);
-
-					const flags = [...tsFlags, ...twoSlashFlags];
-
-					// Remove the collections of Flags
-					context.codeBlock.deleteLines(flags);
-
-					const cutOffCode = context.codeBlock.code.split("\n");
-
-					// Find the cut-off point for the code
-					const cutOffStart = cutOffCode.findIndex(
-						(line) =>
-							line.includes("// ---cut---") ||
-							line.includes("// ---cut-before---"),
-					);
-
-					const cutOffEnd = cutOffCode.findIndex((line) =>
-						line.includes("// ---cut-after---"),
-					);
-
-					const linesToCut: number[] = [];
-
-					if (cutOffStart !== -1) {
-						for (let i = 0; i <= cutOffStart; i++) {
-							linesToCut.push(i);
-						}
-					}
-
-					if (cutOffEnd !== -1) {
-						for (let i = cutOffEnd; i < cutOffCode.length; i++) {
-							linesToCut.push(i);
-						}
-					}
-
-					if (linesToCut.length) {
-						context.codeBlock.deleteLines(linesToCut);
-					}
+					// Process cut-off points
+					processCutOffPoints(context.codeBlock);
 
 					// Generate the hover annotations
 					for (const hover of twoslash.hovers) {

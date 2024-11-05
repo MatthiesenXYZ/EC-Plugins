@@ -5,7 +5,7 @@ import {
 } from "@expressive-code/core";
 import {
 	h,
-	type Parents,
+	type Root,
 	type Element,
 	type ElementContent,
 } from "@expressive-code/core/hast";
@@ -183,12 +183,13 @@ export class TwoslashErrorBoxAnnotation extends ExpressiveCodeAnnotation {
 	 * @param nodesToTransform - The nodes to transform with the error box annotation.
 	 * @returns An array of transformed nodes with the error box annotation.
 	 */
-	render({ nodesToTransform }: AnnotationRenderOptions) {
+	render({ nodesToTransform }: AnnotationRenderOptions): Element[] {
 		const error = this.error;
 		const errorLevelClass = getErrorLevelClass(error);
 
 		return nodesToTransform.map((node) => {
-			return h("span.twoslash", [
+			return h("span.twoslash.twoerror", [
+				node,
 				h(
 					"div.twoslash-error-box",
 					{
@@ -198,13 +199,12 @@ export class TwoslashErrorBoxAnnotation extends ExpressiveCodeAnnotation {
 						h("span.twoslash-error-box-icon"),
 						h("span.twoslash-error-box-content", [
 							h("span.twoslash-error-box-content-title", [
-								`${getErrorLevelString(error)} ${error.code && `ts(${error.code}) `}`,
+								`${getErrorLevelString(error)} ${error.code && `ts(${error.code}) `} ― `,
 							]),
 							h("span.twoslash-error-box-content-message", [error.text]),
 						]),
 					],
 				),
-				node,
 			]);
 		});
 	}
@@ -237,7 +237,7 @@ export class TwoslashHoverAnnotation extends ExpressiveCodeAnnotation {
 	 * @param nodesToTransform - The nodes to be transformed with hover annotations.
 	 * @returns The transformed nodes with hover annotations.
 	 */
-	render({ nodesToTransform }: AnnotationRenderOptions) {
+	render({ nodesToTransform }: AnnotationRenderOptions): (Root | Element)[] {
 		const query = this.queries.find((q) => q.text === this.hover.text);
 
 		return nodesToTransform.map((node) => {

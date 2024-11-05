@@ -92,13 +92,17 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             display: none;
         }
 
+        .twoslash.twoerror {
+            display: ruby;
+        }
+
         .twoslash-error-box {
+            margin-left: 0.5rem;
             display: block;
             z-index: 10;
             padding: 0.1rem 0.3rem;
             border-radius: 0.2rem;
             font-style: italic;
-            background: var(--ec-frm-edBg);
             border: 1px solid var(--twoslash-border);
             border-radius: 4px;
             font-size: 90%;
@@ -117,21 +121,25 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         .twoslash-error-level-error {
             color: #f22 !important;
             border-color: #f22 !important;
+            background: rgba(237, 0, 0, 0.1);
         }
 
         .twoslash-error-level-warning {
             color: #f60 !important;
             border-color: #f60 !important;
+            background: rgba(255, 102, 0, 0.1);
         }
 
         .twoslash-error-level-suggestion {
             color: #0a0 !important;
-            border-color: #0a0 !important
+            border-color: #0a0 !important;
+            background: rgba(0, 170, 0, 0.1);
         }
 
         .twoslash-error-level-message {
             color: #00f !important;
             border-color: #00f !important;
+            background: rgba(0, 0, 255, 0.1);
         }
 
         .twoslash-static-container {
