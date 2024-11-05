@@ -125,6 +125,7 @@ export default function ecTwoSlash(options: PluginTwoslashOptions = {}) {
 		hooks: {
 			preprocessCode(context) {
 				if (shouldTransform(context.codeBlock)) {
+					// Run twoslash on the code block
 					const twoslash = twoslasher(
 						context.codeBlock.code,
 						context.codeBlock.language,
@@ -137,6 +138,7 @@ export default function ecTwoSlash(options: PluginTwoslashOptions = {}) {
 						},
 					);
 
+					// Generate the hover annotations
 					for (const hover of twoslash.hovers) {
 						const line = context.codeBlock.getLine(hover.line);
 						if (line) {
