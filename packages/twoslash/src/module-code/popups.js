@@ -52,7 +52,7 @@ function setupTooltip(referenceNode) {
 					placement: "bottom-start",
 					middleware: [
 						offset({
-							mainAxis: 1,
+							mainAxis: 5,
 						}),
 						shift({
 							padding: 10,
@@ -62,7 +62,7 @@ function setupTooltip(referenceNode) {
 							apply({ availableHeight, availableWidth }) {
 								Object.assign(popperNode.style, {
 									maxWidth: `${Math.max(0, availableWidth)}px`,
-									maxHeight: `${Math.max(0, availableHeight)}px`,
+									maxHeight: "100%",
 								});
 							},
 						}),
@@ -103,7 +103,7 @@ function setupTooltip(referenceNode) {
  */
 function initTwoslashPopups(container) {
 	// biome-ignore lint/complexity/noForEach: <explanation>
-	container.querySelectorAll?.(".twoslash").forEach((el) => {
+	container.querySelectorAll?.(".twoslash-hover").forEach((el) => {
 		setupTooltip(el);
 	});
 }

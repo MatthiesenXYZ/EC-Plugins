@@ -1,5 +1,11 @@
 # expressive-code-twoslash
 
+## 0.1.2
+
+### Patch Changes
+
+- Add support for Code Completions and cleanup CSS and Code
+
 ## 0.1.1
 
 ### Patch Changes

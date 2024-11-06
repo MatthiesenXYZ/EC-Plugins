@@ -9,26 +9,20 @@ import {
 	type Element,
 	type ElementContent,
 } from "@expressive-code/core/hast";
-import type { NodeError, NodeHover, NodeQuery } from "twoslash";
+import type { NodeCompletion, NodeError, NodeHover, NodeQuery } from "twoslash";
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { gfmFromMarkdown } from "mdast-util-gfm";
 import { toHast } from "mdast-util-to-hast";
-
-/**
- * A regular expression to match a type annotation in the format of an uppercase letter followed by word characters,
- * optionally followed by a generic type parameter enclosed in angle brackets, and ending with a colon.
- *
- * Examples of matching strings:
- * - `TypeName:`
- * - `GenericType<T>:`
- */
-const regexType = /^[A-Z]\w*(<[^>]*>)?:/;
-
-/**
- * A regular expression to match the beginning of a function name.
- * The pattern matches zero or more word characters followed by an opening parenthesis.
- */
-const regexFunction = /^\w*\(/;
+import {
+	reFunctionCleanup,
+	reImportStatement,
+	reInterfaceOrNamespace,
+	reJsDocLink,
+	reJsDocTagFilter,
+	reLeadingPropertyMethod,
+	reTypeCleanup,
+} from "./regex";
+import type { CompletionItem } from "./helpers";
 
 /**
  * The default hover info processor, which will do some basic cleanup
@@ -36,16 +30,16 @@ const regexFunction = /^\w*\(/;
 function defaultHoverInfoProcessor(type: string): string {
 	let content = type
 		// remove leading `(property)` or `(method)` on each line
-		.replace(/^\(([\w-]+)\)\s+/gm, "")
+		.replace(reLeadingPropertyMethod, "")
 		// remove import statement
-		.replace(/\nimport .*$/, "")
+		.replace(reImportStatement, "")
 		// remove interface or namespace lines with only the name
-		.replace(/^(interface|namespace) \w+$/gm, "")
+		.replace(reInterfaceOrNamespace, "")
 		.trim();
 
 	// Add `type` or `function` keyword if needed
-	if (content.match(regexType)) content = `type ${content}`;
-	else if (content.match(regexFunction)) content = `function ${content}`;
+	if (content.match(reTypeCleanup)) content = `type ${content}`;
+	else if (content.match(reFunctionCleanup)) content = `function ${content}`;
 
 	return content;
 }
@@ -63,7 +57,7 @@ function defaultHoverInfoProcessor(type: string): string {
  */
 function renderMarkdown(md: string): ElementContent[] {
 	const mdast = fromMarkdown(
-		md.replace(/\{@link ([^}]*)\}/g, "$1"), // replace jsdoc links
+		md.replace(reJsDocLink, "$1"), // replace jsdoc links
 		{ mdastExtensions: [gfmFromMarkdown()] },
 	);
 
@@ -120,12 +114,7 @@ function renderMarkdownInline(md: string): ElementContent[] {
  * @returns A boolean indicating whether the tag includes any of the specified keywords: "param", "returns", "type", or "template".
  */
 function filterTags(tag: string) {
-	return (
-		tag.includes("param") ||
-		tag.includes("returns") ||
-		tag.includes("type") ||
-		tag.includes("template")
-	);
+	return reJsDocTagFilter.test(tag);
 }
 
 /**
@@ -163,7 +152,7 @@ function getErrorLevelClass(error: NodeError): string {
  * - "Message" for level "message"
  * - "Error" for any other level
  */
-function getErrorLevelString(error: NodeError) {
+function getErrorLevelString(error: NodeError): string {
 	switch (error.level) {
 		case "warning":
 			return "Warning";
@@ -193,8 +182,8 @@ export class TwoslashErrorBoxAnnotation extends ExpressiveCodeAnnotation {
 	) {
 		super({
 			inlineRange: {
-				columnStart: 0,
-				columnEnd: line.text.length,
+				columnStart: line.text.length,
+				columnEnd: line.text.length + error.length,
 			},
 		});
 	}
@@ -232,6 +221,94 @@ export class TwoslashErrorBoxAnnotation extends ExpressiveCodeAnnotation {
 	}
 }
 
+function getTextWidthInPixels(
+	textLoc: number,
+	fontSize = 16,
+	charWidth = 8,
+): number {
+	return textLoc * charWidth * (fontSize / 16);
+}
+
+export class TwoslashStaticAnnotation extends ExpressiveCodeAnnotation {
+	constructor(
+		readonly hover: NodeHover,
+		readonly line: ExpressiveCodeLine,
+		readonly includeJsDoc: boolean,
+		readonly query: NodeQuery,
+	) {
+		super({
+			inlineRange: {
+				columnStart: line.text.length,
+				columnEnd: line.text.length + hover.length,
+			},
+		});
+	}
+
+	/**
+	 * Renders the error box annotation.
+	 *
+	 * @param nodesToTransform - The nodes to transform with the error box annotation.
+	 * @returns An array of transformed nodes with the error box annotation.
+	 */
+	render({ nodesToTransform }: AnnotationRenderOptions) {
+		return nodesToTransform.map((node) => {
+			return h("span.twoslash-noline", [
+				node,
+				h(
+					"div.twoslash-static",
+					{
+						style: {
+							"margin-left": `${getTextWidthInPixels(this.query.character)}px`,
+						},
+					},
+					[
+						h("div.twoslash-static-container", [
+							h("code.twoslash-popup-code", [
+								h(
+									"span.twoslash-popup-code-type",
+									defaultHoverInfoProcessor(this.hover.text),
+								),
+							]),
+							...(this.hover.docs && this.includeJsDoc
+								? [
+										h("div.twoslash-popup-docs", [
+											h("p", [renderMarkdown(this.hover.docs)]),
+										]),
+									]
+								: []),
+							...(this.hover.tags && this.includeJsDoc
+								? [
+										h("div.twoslash-popup-docs.twoslash-popup-docs-tags", [
+											h("p", [
+												...this.hover.tags.map((tag) =>
+													h("p", [
+														h(
+															"span.twoslash-popup-docs-tag-name",
+															`@${tag[0]}`,
+														),
+														tag[1]
+															? [
+																	filterTags(tag[0]) ? " ― " : " ",
+																	h(
+																		"span.twoslash-popup-docs-tag-value",
+																		renderMarkdownInline(tag[1]),
+																	),
+																]
+															: [],
+													]),
+												),
+											]),
+										]),
+									]
+								: []),
+						]),
+					],
+				),
+			]);
+		});
+	}
+}
+
 /**
  * Represents a hover annotation for Twoslash.
  * Extends the `ExpressiveCodeAnnotation` class to provide hover functionality.
@@ -244,7 +321,6 @@ export class TwoslashHoverAnnotation extends ExpressiveCodeAnnotation {
 	constructor(
 		readonly hover: NodeHover,
 		readonly includeJsDoc: boolean,
-		readonly queries: NodeQuery[],
 	) {
 		super({
 			inlineRange: {
@@ -260,19 +336,13 @@ export class TwoslashHoverAnnotation extends ExpressiveCodeAnnotation {
 	 * @returns The transformed nodes with hover annotations.
 	 */
 	render({ nodesToTransform }: AnnotationRenderOptions): (Root | Element)[] {
-		const query = this.queries.find((q) => q.text === this.hover.text);
-
 		return nodesToTransform.map((node) => {
 			if (node.type === "element") {
 				return h("span.twoslash", node.properties, [
 					h("span.twoslash-hover", [
 						h(
-							"div",
-							{
-								class: query
-									? "twoslash-static-container"
-									: "twoslash-popup-container",
-							},
+							"div.twoslash-popup-container",
+
 							[
 								h("code.twoslash-popup-code", node.properties, [
 									h(
@@ -319,6 +389,76 @@ export class TwoslashHoverAnnotation extends ExpressiveCodeAnnotation {
 				]);
 			}
 			return node;
+		});
+	}
+}
+
+export class TwoslashCompletionAnnotation extends ExpressiveCodeAnnotation {
+	constructor(
+		readonly completion: CompletionItem,
+		readonly query: NodeCompletion,
+	) {
+		super({
+			inlineRange: {
+				columnStart: completion.startCharacter,
+				columnEnd: completion.startCharacter + completion.length,
+			},
+		});
+	}
+
+	/**
+	 * Renders the error box annotation.
+	 *
+	 * @param nodesToTransform - The nodes to transform with the error box annotation.
+	 * @returns An array of transformed nodes with the error box annotation.
+	 */
+	render({ nodesToTransform }: AnnotationRenderOptions) {
+		return nodesToTransform.map((node) => {
+			return h("span", [
+				h("span.twoslash-cursor", [node]),
+				h(
+					"div.twoslash-completion",
+					{
+						style: {
+							"margin-left": `${getTextWidthInPixels(this.completion.startCharacter)}px`,
+						},
+					},
+					[
+						h("div.twoslash-completion-container", [
+							...this.completion.items.map((item, index) => {
+								return h(
+									"div.twoslash-completion-item",
+									{
+										class: `
+										${
+											item.isDeprecated
+												? "twoslash-completion-item-deprecated"
+												: ""
+										} ${index === 0 ? "" : "twoslash-completion-item-separator"}`,
+									},
+									[
+										h("span.twoslash-completion-icon", item.icon),
+										h("span.twoslash-completion-name", [
+											h("span.twoslash-completion-name-matched", [
+												item.name.startsWith(this.query.completionsPrefix)
+													? this.query.completionsPrefix
+													: "",
+											]),
+											h("span.twoslash-completion-name-unmatched", [
+												item.name.startsWith(this.query.completionsPrefix)
+													? item.name.slice(
+															this.query.completionsPrefix.length || 0,
+														)
+													: item.name,
+											]),
+										]),
+									],
+								);
+							}),
+						]),
+					],
+				),
+			]);
 		});
 	}
 }

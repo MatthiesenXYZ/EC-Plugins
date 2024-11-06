@@ -1,14 +1,21 @@
-import { definePlugin, type ExpressiveCodeBlock } from "@expressive-code/core";
+import { definePlugin, type ExpressiveCodePlugin } from "@expressive-code/core";
 import { createTwoslasher, type TwoslashOptions } from "twoslash";
 import ts from "typescript";
 import type { CompilerOptions } from "typescript";
 import popupModule from "./module-code/popup.min";
 import {
+	TwoslashCompletionAnnotation,
 	TwoslashErrorBoxAnnotation,
 	TwoslashHoverAnnotation,
+	TwoslashStaticAnnotation,
 } from "./annotation";
 import { getTwoSlashBaseStyles, twoSlashStyleSettings } from "./styles";
-import { cleanFlags, processCutOffPoints } from "./helpers";
+import {
+	buildMetaChecker,
+	cleanFlags,
+	processCompletion,
+	processCutOffPoints,
+} from "./helpers";
 
 /**
  * Default TypeScript compiler options used in TwoSlash.
@@ -101,7 +108,9 @@ export interface PluginTwoslashOptions {
  *
  * @returns A plugin object with the specified configuration.
  */
-export default function ecTwoSlash(options: PluginTwoslashOptions = {}) {
+export default function ecTwoSlash(
+	options: PluginTwoslashOptions = {},
+): ExpressiveCodePlugin {
 	/**
 	 * Destructures the options object to extract configuration settings.
 	 *
@@ -125,32 +134,10 @@ export default function ecTwoSlash(options: PluginTwoslashOptions = {}) {
 	 */
 	const twoslasher = createTwoslasher();
 
-	/**
-	 * Determines the trigger pattern for the twoslash functionality.
-	 * If `explicitTrigger` is an instance of `RegExp`, it uses that as the trigger.
-	 * Otherwise, it defaults to the regular expression pattern `\btwoslash\b`.
-	 *
-	 * @param explicitTrigger - The explicit trigger which can be a `RegExp` instance.
-	 * @returns The trigger pattern as a `RegExp`.
-	 */
-	const trigger =
-		explicitTrigger instanceof RegExp ? explicitTrigger : /\btwoslash\b/;
-
-	/**
-	 * Determines if a given code block should be transformed based on its language and metadata.
-	 *
-	 * @param codeBlock - The code block to check for transformation eligibility.
-	 * @returns `true` if the code block's language is included in the list of languages and, if an explicit trigger is defined, the code block's metadata matches the trigger pattern; otherwise, `false`.
-	 */
-	function shouldTransform(codeBlock: ExpressiveCodeBlock) {
-		return (
-			languages.includes(codeBlock.language) &&
-			(!explicitTrigger || trigger.test(codeBlock.meta))
-		);
-	}
+	const shouldTransform = buildMetaChecker(languages, explicitTrigger);
 
 	return definePlugin({
-		name: "@matthiesenxyz/expressive-code-twoslash",
+		name: "expressive-code-twoslash",
 		jsModules: [popupModule],
 		styleSettings: twoSlashStyleSettings,
 		baseStyles: (context) => getTwoSlashBaseStyles(context),
@@ -176,26 +163,52 @@ export default function ecTwoSlash(options: PluginTwoslashOptions = {}) {
 					// Process cut-off points
 					processCutOffPoints(context.codeBlock);
 
-					// Generate the hover annotations
-					for (const hover of twoslash.hovers) {
-						const line = context.codeBlock.getLine(hover.line);
-						if (line) {
-							line.addAnnotation(
-								new TwoslashHoverAnnotation(
-									hover,
-									includeJsDoc,
-									twoslash.queries,
-								),
-							);
-						}
-					}
-
 					// Generate the error annotations
 					for (const error of twoslash.errors) {
 						const line = context.codeBlock.getLine(error.line);
 
 						if (line) {
 							line.addAnnotation(new TwoslashErrorBoxAnnotation(error, line));
+						}
+					}
+
+					// Generate the Hover and Static Annotations
+					for (const hover of twoslash.hovers) {
+						// Get the line where the hover annotation should be added
+						const line = context.codeBlock.getLine(hover.line);
+
+						// Is there a Type Extraction query for this hover?
+						const query = twoslash.queries.find((q) => q.text === hover.text);
+
+						if (line) {
+							// Add Static or Hover annotation based on the query
+							if (query) {
+								// Query found, add Static annotation
+								line.addAnnotation(
+									new TwoslashStaticAnnotation(
+										hover,
+										line,
+										includeJsDoc,
+										query,
+									),
+								);
+							} else {
+								// Query not found, add Hover annotation
+								line.addAnnotation(
+									new TwoslashHoverAnnotation(hover, includeJsDoc),
+								);
+							}
+						}
+					}
+
+					// Generate the Completion annotations
+					for (const completion of twoslash.completions) {
+						const proccessed = processCompletion(completion);
+						const line = context.codeBlock.getLine(completion.line);
+						if (line) {
+							line.addAnnotation(
+								new TwoslashCompletionAnnotation(proccessed, completion),
+							);
 						}
 					}
 				}
@@ -212,6 +225,7 @@ declare module "@expressive-code/core" {
 			tagColor: string;
 			tagColorDark: string;
 			titleColor: string;
+			titleColorDark: string;
 		};
 	}
 }
