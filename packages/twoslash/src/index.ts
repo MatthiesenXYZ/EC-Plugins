@@ -3,19 +3,18 @@ import { createTwoslasher, type TwoslashOptions } from "twoslash";
 import ts from "typescript";
 import type { CompilerOptions } from "typescript";
 import popupModule from "./module-code/popup.min";
-import {
-	TwoslashCompletionAnnotation,
-	TwoslashErrorBoxAnnotation,
-	TwoslashHoverAnnotation,
-	TwoslashStaticAnnotation,
-} from "./annotation";
 import { getTwoSlashBaseStyles, twoSlashStyleSettings } from "./styles";
 import {
+	addCompletionAnnotations,
+	addCustomTagAnnotations,
+	addErrorAnnotations,
+	addHighlightAnnotations,
+	addHoverOrStaticAnnotations,
 	buildMetaChecker,
 	cleanFlags,
-	processCompletion,
 	processCutOffPoints,
 } from "./helpers";
+import { twoslashDefaultTags } from "./regex";
 
 /**
  * Default TypeScript compiler options used in TwoSlash.
@@ -80,6 +79,31 @@ export interface PluginTwoslashOptions {
 }
 
 /**
+ * Merges custom tags from the provided `twoslashOptions` with the default tags.
+ * Ensures that there are no duplicate tags in the final list.
+ *
+ * @param twoslashOptions - The options object containing custom tags to be merged.
+ * @returns A new `TwoslashOptions` object with merged custom tags.
+ */
+export function checkForCustomTagsAndMerge(twoslashOptions: TwoslashOptions) {
+	const customTags = twoslashOptions.customTags ?? [];
+	const defaultTags = twoslashDefaultTags;
+
+	const allTags: string[] = [...defaultTags];
+
+	for (const tag of customTags) {
+		if (!allTags.includes(tag)) {
+			allTags.push(tag);
+		}
+	}
+
+	return {
+		...twoslashOptions,
+		customTags: allTags,
+	} as TwoslashOptions;
+}
+
+/**
  * A Expressive Code Plugin that transforms code blocks with Twoslash annotations.
  *
  * @param options - Configuration options for the plugin.
@@ -124,7 +148,7 @@ export default function ecTwoSlash(
 		explicitTrigger = true,
 		languages = ["ts", "tsx"],
 		includeJsDoc = true,
-		twoslashOptions,
+		twoslashOptions = checkForCustomTagsAndMerge(options.twoslashOptions ?? {}),
 	} = options;
 
 	/**
@@ -163,69 +187,26 @@ export default function ecTwoSlash(
 					// Process cut-off points
 					processCutOffPoints(context.codeBlock);
 
-					// Generate the error annotations
-					for (const error of twoslash.errors) {
-						const line = context.codeBlock.getLine(error.line);
+					// Generate the Custom Tag annotations
+					addCustomTagAnnotations(twoslash, context.codeBlock);
 
-						if (line) {
-							line.addAnnotation(new TwoslashErrorBoxAnnotation(error, line));
-						}
-					}
+					// Generate the error annotations
+					addErrorAnnotations(twoslash, context.codeBlock);
 
 					// Generate the Hover and Static Annotations
-					for (const hover of twoslash.hovers) {
-						// Get the line where the hover annotation should be added
-						const line = context.codeBlock.getLine(hover.line);
-
-						// Is there a Type Extraction query for this hover?
-						const query = twoslash.queries.find((q) => q.text === hover.text);
-
-						if (line) {
-							// Add Static or Hover annotation based on the query
-							if (query) {
-								// Query found, add Static annotation
-								line.addAnnotation(
-									new TwoslashStaticAnnotation(
-										hover,
-										line,
-										includeJsDoc,
-										query,
-									),
-								);
-							} else {
-								// Query not found, add Hover annotation
-								line.addAnnotation(
-									new TwoslashHoverAnnotation(hover, includeJsDoc),
-								);
-							}
-						}
-					}
+					addHoverOrStaticAnnotations(
+						twoslash,
+						context.codeBlock,
+						includeJsDoc,
+					);
 
 					// Generate the Completion annotations
-					for (const completion of twoslash.completions) {
-						const proccessed = processCompletion(completion);
-						const line = context.codeBlock.getLine(completion.line);
-						if (line) {
-							line.addAnnotation(
-								new TwoslashCompletionAnnotation(proccessed, completion),
-							);
-						}
-					}
+					addCompletionAnnotations(twoslash, context.codeBlock);
+
+					// Generate the Twoslash Highlight annotations
+					addHighlightAnnotations(twoslash, context.codeBlock);
 				}
 			},
 		},
 	});
-}
-
-declare module "@expressive-code/core" {
-	export interface StyleSettings {
-		twoSlash: {
-			borderColor: string;
-			textColor: string;
-			tagColor: string;
-			tagColorDark: string;
-			titleColor: string;
-			titleColorDark: string;
-		};
-	}
 }

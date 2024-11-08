@@ -9,7 +9,14 @@ import {
 	type Element,
 	type ElementContent,
 } from "@expressive-code/core/hast";
-import type { NodeCompletion, NodeError, NodeHover, NodeQuery } from "twoslash";
+import type {
+	NodeCompletion,
+	NodeError,
+	NodeHighlight,
+	NodeHover,
+	NodeQuery,
+	NodeTag,
+} from "twoslash";
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { gfmFromMarkdown } from "mdast-util-gfm";
 import { toHast } from "mdast-util-to-hast";
@@ -23,6 +30,7 @@ import {
 	reTypeCleanup,
 } from "./regex";
 import type { CompletionItem } from "./helpers";
+import { type CustomTagsIcon, customTagsIcons } from "./customTagsIcons";
 
 /**
  * The default hover info processor, which will do some basic cleanup
@@ -221,6 +229,109 @@ export class TwoslashErrorBoxAnnotation extends ExpressiveCodeAnnotation {
 	}
 }
 
+type TwoslashTag = "annotate" | "log" | "warn" | "error";
+
+/**
+ * Returns a string representation of a custom tag.
+ *
+ * @param tag - The custom tag to convert to a string. Can be one of "warn", "annotate", or "log".
+ * @returns A string that represents the custom tag. Returns "Warning" for "warn", "Message" for "annotate",
+ * "Log" for "log", and "Error" for any other value.
+ */
+function getCustomTagString(tag: TwoslashTag): string {
+	switch (tag) {
+		case "warn":
+			return "Warning";
+		case "annotate":
+			return "Message";
+		case "log":
+			return "Log";
+		default:
+			return "Error";
+	}
+}
+
+/**
+ * Returns a custom CSS class name based on the provided TwoslashTag.
+ *
+ * @param tag - The TwoslashTag to get the custom class for. Possible values are "warn", "annotate", "log", or any other string.
+ * @returns The corresponding CSS class name as a string.
+ *          - "twoslash-custom-level-warning" for "warn"
+ *          - "twoslash-custom-level-suggestion" for "annotate"
+ *          - "twoslash-custom-level-message" for "log"
+ *          - "twoslash-custom-level-error" for any other value
+ */
+function getCustomTagClass(tag: TwoslashTag): string {
+	switch (tag) {
+		case "warn":
+			return "twoslash-custom-level-warning";
+		case "annotate":
+			return "twoslash-custom-level-suggestion";
+		case "log":
+			return "twoslash-custom-level-message";
+		default:
+			return "twoslash-custom-level-error";
+	}
+}
+
+/**
+ * Represents a custom annotation for Twoslash tags.
+ * Extends the `ExpressiveCodeAnnotation` class to provide custom rendering for Twoslash tags.
+ */
+export class TwoslashCustomTagsAnnotation extends ExpressiveCodeAnnotation {
+	/**
+	 * Creates an instance of TwoslashCustomTagsAnnotation.
+	 * @param tag - The NodeTag object representing the Twoslash tag.
+	 */
+	constructor(
+		readonly tag: NodeTag,
+		readonly line: ExpressiveCodeLine,
+	) {
+		super({
+			inlineRange: {
+				columnStart: 0,
+				columnEnd: line.text.length,
+			},
+		});
+	}
+
+	render({ nodesToTransform }: AnnotationRenderOptions): Element[] {
+		const tag = this.tag;
+		const customTagClass = getCustomTagClass(tag.name as TwoslashTag);
+
+		return nodesToTransform.map((node) => {
+			return h("span.twoslash.twocustom", [
+				h(
+					"div.twoslash-custom-box",
+					{
+						class: customTagClass,
+					},
+					[
+						h("span.twoslash-custom-box-icon", [
+							customTagsIcons[tag.name as CustomTagsIcon],
+						]),
+						h("span.twoslash-custom-box-content", [
+							h("span.twoslash-custom-box-content-title", [
+								`${getCustomTagString(tag.name as TwoslashTag)}:`,
+							]),
+							h("span.twoslash-custom-box-content-message", [` ${tag.text}`]),
+						]),
+					],
+				),
+				node,
+			]);
+		});
+	}
+}
+
+/**
+ * Calculates the width of a given text in pixels based on the character location, font size, and character width.
+ *
+ * @param textLoc - The location of the text (number of characters).
+ * @param fontSize - The font size in pixels. Defaults to 16.
+ * @param charWidth - The width of a single character in pixels. Defaults to 8.
+ * @returns The width of the text in pixels.
+ */
 function getTextWidthInPixels(
 	textLoc: number,
 	fontSize = 16,
@@ -229,7 +340,19 @@ function getTextWidthInPixels(
 	return textLoc * charWidth * (fontSize / 16);
 }
 
+/**
+ * Represents a static annotation for Twoslash.
+ * Extends the ExpressiveCodeAnnotation class.
+ */
 export class TwoslashStaticAnnotation extends ExpressiveCodeAnnotation {
+	/**
+	 * Creates an instance of TwoslashStaticAnnotation.
+	 *
+	 * @param hover - The hover information for the node.
+	 * @param line - The line of code associated with the annotation.
+	 * @param includeJsDoc - A flag indicating whether to include JSDoc comments.
+	 * @param query - The query information for the node.
+	 */
 	constructor(
 		readonly hover: NodeHover,
 		readonly line: ExpressiveCodeLine,
@@ -245,8 +368,7 @@ export class TwoslashStaticAnnotation extends ExpressiveCodeAnnotation {
 	}
 
 	/**
-	 * Renders the error box annotation.
-	 *
+	 * Renders the static annotation.
 	 * @param nodesToTransform - The nodes to transform with the error box annotation.
 	 * @returns An array of transformed nodes with the error box annotation.
 	 */
@@ -262,7 +384,7 @@ export class TwoslashStaticAnnotation extends ExpressiveCodeAnnotation {
 						},
 					},
 					[
-						h("div.twoslash-static-container", [
+						h("div.twoslash-static-container.not-content", [
 							h("code.twoslash-popup-code", [
 								h(
 									"span.twoslash-popup-code-type",
@@ -310,6 +432,36 @@ export class TwoslashStaticAnnotation extends ExpressiveCodeAnnotation {
 }
 
 /**
+ * Represents a highlight annotation for Twoslash.
+ * Extends the `ExpressiveCodeAnnotation` class.
+ */
+export class TwoslashHighlightAnnotation extends ExpressiveCodeAnnotation {
+	/**
+	 * Creates an instance of `TwoslashHighlightAnnotation`.
+	 * @param highlight - The highlight details including start position and length.
+	 */
+	constructor(readonly highlight: NodeHighlight) {
+		super({
+			inlineRange: {
+				columnStart: highlight.start,
+				columnEnd: highlight.start + highlight.length,
+			},
+		});
+	}
+
+	/**
+	 * Renders the highlight annotation.
+	 * @param nodesToTransform - The nodes to be transformed.
+	 * @returns An array of transformed nodes wrapped in a span with the class `twoslash-highlighted`.
+	 */
+	render({ nodesToTransform }: AnnotationRenderOptions): (Root | Element)[] {
+		return nodesToTransform.map((node) => {
+			return h("span.twoslash-highlighted", [node]);
+		});
+	}
+}
+
+/**
  * Represents a hover annotation for Twoslash.
  * Extends the `ExpressiveCodeAnnotation` class to provide hover functionality.
  */
@@ -341,7 +493,7 @@ export class TwoslashHoverAnnotation extends ExpressiveCodeAnnotation {
 				return h("span.twoslash", node.properties, [
 					h("span.twoslash-hover", [
 						h(
-							"div.twoslash-popup-container",
+							"div.twoslash-popup-container.not-content",
 
 							[
 								h("code.twoslash-popup-code", node.properties, [
@@ -393,7 +545,17 @@ export class TwoslashHoverAnnotation extends ExpressiveCodeAnnotation {
 	}
 }
 
+/**
+ * Represents a completion annotation for Twoslash.
+ * Extends the `ExpressiveCodeAnnotation` class.
+ */
 export class TwoslashCompletionAnnotation extends ExpressiveCodeAnnotation {
+	/**
+	 * Creates an instance of TwoslashCompletionAnnotation.
+	 *
+	 * @param completion - The completion item to be annotated.
+	 * @param query - The node completion query.
+	 */
 	constructor(
 		readonly completion: CompletionItem,
 		readonly query: NodeCompletion,
@@ -407,15 +569,14 @@ export class TwoslashCompletionAnnotation extends ExpressiveCodeAnnotation {
 	}
 
 	/**
-	 * Renders the error box annotation.
-	 *
+	 * Renders the completion annotation.
 	 * @param nodesToTransform - The nodes to transform with the error box annotation.
 	 * @returns An array of transformed nodes with the error box annotation.
 	 */
 	render({ nodesToTransform }: AnnotationRenderOptions) {
 		return nodesToTransform.map((node) => {
 			return h("span", [
-				h("span.twoslash-cursor", [node]),
+				h("span.twoslash-cursor", [" "]),
 				h(
 					"div.twoslash-completion",
 					{
@@ -437,7 +598,13 @@ export class TwoslashCompletionAnnotation extends ExpressiveCodeAnnotation {
 										} ${index === 0 ? "" : "twoslash-completion-item-separator"}`,
 									},
 									[
-										h("span.twoslash-completion-icon", item.icon),
+										h(
+											"span.twoslash-completion-icon",
+											{
+												class: item.kind,
+											},
+											item.icon,
+										),
 										h("span.twoslash-completion-name", [
 											h("span.twoslash-completion-name-matched", [
 												item.name.startsWith(this.query.completionsPrefix)

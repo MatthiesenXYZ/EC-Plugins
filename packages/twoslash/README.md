@@ -11,8 +11,9 @@ The following is a list of TwoSlash features and if they are currently supported
 - [x] [Overriding TSCompiler Options](https://twoslash.netlify.app/refs/notations#overriding-options)
 - [x] [Queries: Extract Type](https://twoslash.netlify.app/refs/notations#extract-type)
 - [x] [Queries: Completions](https://twoslash.netlify.app/refs/notations#completions)
-- [x] [Queries: Highlights](https://twoslash.netlify.app/refs/notations#highlighting) - Already Supported by [Expressive-Code](https://expressive-code.com/key-features/syntax-highlighting/)
+- [x] [Queries: Highlights](https://twoslash.netlify.app/refs/notations#highlighting)
 - [x] [Code Sample Cutting](https://twoslash.netlify.app/refs/notations#cutting-a-code-sample)
+- [x] [Custom Tags/Callouts](https://vocs.dev/docs/guides/twoslash#callouts)
 
 ### Extra Bonus features i would like to implement
 
@@ -98,7 +99,7 @@ A quick example using TwoSlash to make advanced CodeBlocks
 ```ts twoslash
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
-import ectwoslash from "expressive-code-twoslash";
+import ecTwoSlash from "expressive-code-twoslash";
 
 // https://astro.build/config
 export default defineConfig({
@@ -106,7 +107,7 @@ export default defineConfig({
     starlight({
       title: "Starlight",
       expressiveCode: {
-        plugins: [ectwoslash()],
+        plugins: [ecTwoSlash()],
       },
     }),
   ],
@@ -123,4 +124,6 @@ The above codeblock will now have hover popups that will show type information!
 
 ## Acknowledgements
 
-- [GitHub: @Hippotastic](https://github.com/hippotastic) For providing/maintaining Expressive Code
+- [GitHub: @Hippotastic](https://github.com/hippotastic) for providing/maintaining Expressive Code as well as being a huge help during the development of this plugin!
+- [EffectTS Website](https://effect.website/docs) for showing the EC Community that Twoslash CAN be used with Expressive-Code. While they did have the first working version, this re-sparked intrest in me building out a fully featured EC-Twoslash plugin for the community.
+- [`shiki-twoslash`](https://github.com/shikijs/twoslash/tree/main/packages/shiki-twoslash) for being the example of how to implement the elements within codeblocks as well as providing the basic layouts of the elements.

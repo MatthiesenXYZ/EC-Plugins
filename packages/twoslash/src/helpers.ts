@@ -1,4 +1,7 @@
-import type { ExpressiveCodeBlock } from "@expressive-code/core";
+import type {
+	ExpressiveCodeBlock,
+	ExpressiveCodeLine,
+} from "@expressive-code/core";
 import {
 	reAnnonateMarkers,
 	reCutAfter,
@@ -8,9 +11,17 @@ import {
 	reFlagNotations,
 	reTrigger,
 } from "./regex";
-import type { NodeCompletion } from "twoslash";
+import type { NodeCompletion, NodeTag, TwoslashReturn } from "twoslash";
 import { type CompletionIcon, completionIcons } from "./completionIcons";
 import type { Element } from "@expressive-code/core/hast";
+import {
+	TwoslashCompletionAnnotation,
+	TwoslashCustomTagsAnnotation,
+	TwoslashErrorBoxAnnotation,
+	TwoslashHighlightAnnotation,
+	TwoslashHoverAnnotation,
+	TwoslashStaticAnnotation,
+} from "./annotation";
 
 /**
  * Builds a function to check if a code block should be transformed based on the provided languages and trigger.
@@ -47,7 +58,7 @@ export function buildMetaChecker(
  */
 function cleanTSFlags(code: string[]): number[] {
 	return code.reduce((acc, line, index) => {
-		const match = line.startsWith("// @");
+		const match = reFlagNotations.test(line);
 		if (match) {
 			acc.push(index);
 		}
@@ -67,7 +78,7 @@ function cleanTSFlags(code: string[]): number[] {
  */
 function cleanTwoSlashFlags(code: string[]): number[] {
 	return code.reduce((acc, line, index) => {
-		const matchTwoSlash = line.match(reAnnonateMarkers);
+		const matchTwoSlash = reAnnonateMarkers.test(line);
 		if (matchTwoSlash) {
 			acc.push(index);
 		}
@@ -84,11 +95,199 @@ export function cleanFlags(codeBlock: ExpressiveCodeBlock): void {
 	const code = codeBlock.code.split("\n");
 	const tsFlags = cleanTSFlags(code);
 	const twoSlashFlags = cleanTwoSlashFlags(code);
-
 	const linesToRemove = [...tsFlags, ...twoSlashFlags];
-
 	if (linesToRemove.length) {
 		codeBlock.deleteLines(linesToRemove);
+	}
+}
+
+/**
+ * Adds completion annotations to the provided code block based on the twoslash completions.
+ *
+ * @param twoslash - The TwoslashReturn object containing completion information.
+ * @param codeBlock - The ExpressiveCodeBlock object representing the code block to annotate.
+ */
+export function addCompletionAnnotations(
+	twoslash: TwoslashReturn,
+	codeBlock: ExpressiveCodeBlock,
+) {
+	for (const completion of twoslash.completions) {
+		const proccessed = processCompletion(completion);
+		const line = codeBlock.getLine(completion.line);
+		if (line) {
+			// Remove any Hover annotations that match the completion
+			// This is to avoid `any` type completions being shown as hovers for completions
+			removeHoverFromCompletions(line, proccessed);
+
+			line.addAnnotation(
+				new TwoslashCompletionAnnotation(proccessed, completion),
+			);
+		}
+	}
+}
+
+/**
+ * Adds error annotations to the given code block based on the errors found in the Twoslash return object.
+ *
+ * @param twoslash - The Twoslash return object containing error information.
+ * @param codeBlock - The code block to which error annotations will be added.
+ */
+export function addErrorAnnotations(
+	twoslash: TwoslashReturn,
+	codeBlock: ExpressiveCodeBlock,
+) {
+	for (const error of twoslash.errors) {
+		const line = codeBlock.getLine(error.line);
+
+		if (line) {
+			line.addAnnotation(new TwoslashErrorBoxAnnotation(error, line));
+		}
+	}
+}
+
+// /**
+//  * Replaces lines in a code block that match a specific tag with a blank space and adds a custom annotation.
+//  *
+//  * @param lines - An array of strings representing the lines of code.
+//  * @param tag - The tag to search for in the lines.
+//  * @param codeBlock - The code block where the lines will be replaced and annotated.
+//  */
+// const findAndReplace = (
+// 	lines: string[],
+// 	tag: NodeTag,
+// 	codeBlock: ExpressiveCodeBlock,
+// ) => {
+// 	const lineMap = lines.map((line, index) => {
+// 		return {
+// 			line: index,
+// 			text: line,
+// 		};
+// 	});
+
+// 	for (const line of lineMap) {
+// 		if (
+// 			line.text.endsWith(tag.text ?? "") &&
+// 			line.text.startsWith(`// @${tag.name}:`)
+// 		) {
+// 			const pickedLine = codeBlock.getLine(line.line);
+
+// 			if (pickedLine) {
+// 				pickedLine.editText(0, pickedLine.text.length, " ");
+// 				pickedLine.addAnnotation(new TwoslashCustomTagsAnnotation(tag));
+// 			}
+// 		}
+// 	}
+// };
+
+function checkForNextDefinedLine(codeBlock: ExpressiveCodeBlock, tag: NodeTag) {
+	const lines = codeBlock.code.split("\n").length;
+	const desiredLine = tag.line;
+
+	while (desiredLine < lines) {
+		const nextLine = codeBlock.getLine(desiredLine + 1);
+		if (nextLine) {
+			return nextLine;
+		}
+	}
+
+	if (desiredLine === lines) {
+		const reverse = tag.line;
+		while (reverse > 0) {
+			const prevLine = codeBlock.getLine(reverse - 1);
+			if (prevLine) {
+				return prevLine;
+			}
+		}
+	}
+}
+/**
+ * Adds custom tag annotations to the provided code block based on the tags found in the twoslash return object.
+ *
+ * @param twoslash - The TwoslashReturn object containing the tags to be added as annotations.
+ * @param codeBlock - The ExpressiveCodeBlock object representing the code block to which annotations will be added.
+ */
+export function addCustomTagAnnotations(
+	twoslash: TwoslashReturn,
+	codeBlock: ExpressiveCodeBlock,
+) {
+	const lines = codeBlock.code.split("\n");
+
+	const lineMap = lines.map((line, index) => {
+		return {
+			line: index,
+			text: line,
+		};
+	});
+
+	for (const tag of twoslash.tags) {
+		const lineToRemove = lineMap.find((line) => {
+			return (
+				line.text.endsWith(tag.text ?? "") &&
+				line.text.startsWith(`// @${tag.name}:`)
+			);
+		});
+		if (lineToRemove) {
+			codeBlock.deleteLines([lineToRemove.line]);
+
+			const tagLine = codeBlock.getLine(tag.line);
+
+			if (tagLine) {
+				tagLine.addAnnotation(new TwoslashCustomTagsAnnotation(tag, tagLine));
+				// Stop processing this tag and move to the next one
+				continue;
+			}
+
+			const nextLine = checkForNextDefinedLine(codeBlock, tag);
+
+			if (nextLine) {
+				nextLine.addAnnotation(new TwoslashCustomTagsAnnotation(tag, nextLine));
+			}
+		}
+	}
+}
+
+/**
+ * Adds hover or static annotations to the provided code block based on the twoslash results.
+ *
+ * @param twoslash - The result object from running twoslash, containing hover and query information.
+ * @param codeBlock - The code block to which annotations will be added.
+ * @param includeJsDoc - A boolean indicating whether to include JSDoc comments in the annotations.
+ */
+export function addHoverOrStaticAnnotations(
+	twoslash: TwoslashReturn,
+	codeBlock: ExpressiveCodeBlock,
+	includeJsDoc: boolean,
+) {
+	for (const hover of twoslash.hovers) {
+		const line = codeBlock.getLine(hover.line);
+		if (line) {
+			const query = twoslash.queries.find((q) => q.text === hover.text);
+			if (query) {
+				line.addAnnotation(
+					new TwoslashStaticAnnotation(hover, line, includeJsDoc, query),
+				);
+			} else {
+				line.addAnnotation(new TwoslashHoverAnnotation(hover, includeJsDoc));
+			}
+		}
+	}
+}
+
+/**
+ * Adds highlight annotations to the given code block based on the highlights from the twoslash return object.
+ *
+ * @param twoslash - The object containing the highlights information.
+ * @param codeBlock - The code block to which the highlight annotations will be added.
+ */
+export function addHighlightAnnotations(
+	twoslash: TwoslashReturn,
+	codeBlock: ExpressiveCodeBlock,
+) {
+	for (const highlight of twoslash.highlights) {
+		const line = codeBlock.getLine(highlight.line);
+		if (line) {
+			line.addAnnotation(new TwoslashHighlightAnnotation(highlight));
+		}
 	}
 }
 
@@ -105,6 +304,28 @@ function counter(start: number, end: number): number[] {
 		array.push(i);
 	}
 	return array;
+}
+
+/**
+ * Removes hover annotations from a given line of code if they match the start character and length of the processed completion item.
+ *
+ * @param line - The line of code from which hover annotations should be removed.
+ * @param proccessed - The completion item containing the start character and length to match against hover annotations.
+ */
+export function removeHoverFromCompletions(
+	line: ExpressiveCodeLine,
+	proccessed: CompletionItem,
+) {
+	for (const annotation of line.getAnnotations()) {
+		if (annotation instanceof TwoslashHoverAnnotation) {
+			if (
+				annotation.hover.start === proccessed.startCharacter &&
+				annotation.hover.length === proccessed.length
+			) {
+				line.deleteAnnotation(annotation);
+			}
+		}
+	}
 }
 
 /**
@@ -184,6 +405,17 @@ export function processCutOffPoints(codeBlock: ExpressiveCodeBlock): void {
 	}
 }
 
+/**
+ * Represents a completion item used in the editor.
+ *
+ * @property {number} startCharacter - The starting character position of the completion item.
+ * @property {number} length - The length of the completion item.
+ * @property {Object[]} items - An array of completion details.
+ * @property {string} items[].name - The name of the completion item.
+ * @property {string} items[].kind - The kind/type of the completion item.
+ * @property {Element} items[].icon - The icon representing the completion item.
+ * @property {boolean} items[].isDeprecated - Indicates if the completion item is deprecated.
+ */
 export type CompletionItem = {
 	startCharacter: number;
 	length: number;
@@ -195,6 +427,12 @@ export type CompletionItem = {
 	}[];
 };
 
+/**
+ * Processes a NodeCompletion object and returns a CompletionItem.
+ *
+ * @param completion - The NodeCompletion object to process.
+ * @returns A CompletionItem containing the processed completion data.
+ */
 export function processCompletion(completion: NodeCompletion): CompletionItem {
 	const items = completion.completions
 		.map((c) => {

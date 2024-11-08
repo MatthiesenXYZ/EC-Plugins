@@ -7,8 +7,6 @@
 
 import {
 	computePosition,
-	offset,
-	shift,
 	size,
 } from "https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.6.10/+esm";
 
@@ -28,39 +26,33 @@ import {
  *
  * The tooltip will be shown on mouse enter and hidden on mouse leave.
  */
-function setupTooltip(referenceNode) {
-	const containerNode = document.querySelector(".main-pane") || document.body;
-	const popperNode = referenceNode.querySelector(".twoslash-popup-container");
+function setupTooltip(ToolTip) {
+	const hoverAnnotation = ToolTip.querySelector(".twoslash-popup-container");
+	const expressiveCodeBlock = hoverAnnotation.closest(".expressive-code");
 
 	// Compute a unique identifier to use for the aria-describedby attribute
 	const randomId = `twoslash_popup_${[Math.random(), Date.now()].map((n) => n.toString(36).substring(2, 10)).join("_")}`;
 
 	// biome-ignore lint/complexity/useOptionalChain: <explanation>
-	if (popperNode && popperNode.parentNode) {
-		popperNode.parentNode.removeChild(popperNode);
+	if (hoverAnnotation && hoverAnnotation.parentNode) {
+		hoverAnnotation.parentNode.removeChild(hoverAnnotation);
 	}
 
 	function updatePosition() {
-		containerNode.appendChild(popperNode);
+		expressiveCodeBlock.appendChild(hoverAnnotation);
+
 		new Promise((resolve) =>
 			requestAnimationFrame(() => {
 				requestAnimationFrame(resolve);
 			}),
 		)
 			.then(() =>
-				computePosition(referenceNode, popperNode, {
+				computePosition(ToolTip, hoverAnnotation, {
 					placement: "bottom-start",
 					middleware: [
-						offset({
-							mainAxis: 5,
-						}),
-						shift({
-							padding: 10,
-						}),
 						size({
-							padding: 10,
-							apply({ availableHeight, availableWidth }) {
-								Object.assign(popperNode.style, {
+							apply({ availableWidth }) {
+								Object.assign(hoverAnnotation.style, {
 									maxWidth: `${Math.max(0, availableWidth)}px`,
 									maxHeight: "100%",
 								});
@@ -70,7 +62,7 @@ function setupTooltip(referenceNode) {
 				}),
 			)
 			.then(({ x, y }) => {
-				Object.assign(popperNode.style, {
+				Object.assign(hoverAnnotation.style, {
 					display: "block",
 					left: `${x}px`,
 					top: `${y}px`,
@@ -78,22 +70,54 @@ function setupTooltip(referenceNode) {
 			});
 	}
 
-	referenceNode.addEventListener("mouseenter", () => {
+	let isMouseOverTooltip = false;
+	let hideTimeout;
+
+	const TimeoutDelay = 100; // ms
+
+	ToolTip.addEventListener("mouseenter", () => {
+		clearTimeout(hideTimeout); // Clear any previous hide timeouts
 		updatePosition();
-		popperNode.setAttribute("aria-hidden", "false");
-		referenceNode
-			.querySelector(".twoslash-hover span")
-			?.setAttribute("aria-describedby", randomId);
-		popperNode.setAttribute("id", randomId);
+		hoverAnnotation.setAttribute("aria-hidden", "false");
+		ToolTip.querySelector(".twoslash-hover span")?.setAttribute(
+			"aria-describedby",
+			randomId,
+		);
+		hoverAnnotation.setAttribute("id", randomId);
 	});
-	referenceNode.addEventListener("mouseleave", () => {
-		containerNode.removeChild(popperNode);
-		popperNode.setAttribute("aria-hidden", "true");
-		referenceNode
-			.querySelector(".twoslash-hover span")
-			?.removeAttribute("aria-describedby");
-		popperNode.removeAttribute("id");
+
+	ToolTip.addEventListener("mouseleave", () => {
+		// Set a timeout to hide the tooltip after a short delay
+		hideTimeout = setTimeout(() => {
+			if (!isMouseOverTooltip) {
+				hideTooltip();
+			}
+		}, TimeoutDelay);
 	});
+
+	hoverAnnotation.addEventListener("mouseenter", () => {
+		clearTimeout(hideTimeout); // Clear the hide timeout if hovering over the tooltip
+		isMouseOverTooltip = true;
+	});
+
+	hoverAnnotation.addEventListener("mouseleave", () => {
+		isMouseOverTooltip = false;
+		// Set a timeout to hide the tooltip if not over the reference node
+		hideTimeout = setTimeout(() => {
+			if (!ToolTip.matches(":hover")) {
+				hideTooltip();
+			}
+		}, TimeoutDelay);
+	});
+
+	function hideTooltip() {
+		hoverAnnotation.setAttribute("aria-hidden", "true");
+		ToolTip.querySelector(".twoslash-hover span")?.removeAttribute(
+			"aria-describedby",
+		);
+		hoverAnnotation.removeAttribute("id");
+		expressiveCodeBlock.removeChild(hoverAnnotation);
+	}
 }
 
 /**

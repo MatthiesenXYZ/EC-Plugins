@@ -81,3 +81,28 @@ console.c
 //       ^|
 
 ```
+
+### Test Highlighting
+
+```ts twoslash title="example-highlights.ts"
+
+const hello = "world";
+//            ^^^^^^^
+
+```
+
+## Test Custom Tags
+
+```ts twoslash
+
+const example: string = "Code Block with custom annotation tags";
+
+// @error: test
+
+// @warn: foo
+
+// @annotate: bar
+
+// @log: hello world
+
+```

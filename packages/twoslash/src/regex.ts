@@ -30,11 +30,50 @@ function createFlagRegex(): RegExp {
 	);
 
 	// Join flags with OR (|) operator and create a regex pattern
-	const pattern = `^\\s*\\/\\/\\s*@(?:${escapedFlags.join("|")})\\s*$`;
+	const pattern = `^\\s*\\/\\/\\s*@(?:${escapedFlags.join("|")}):?`;
 
 	// Create and return the RegExp object with 'gm' flags for global, multiline matching
 	return new RegExp(pattern, "gm");
 }
+
+/**
+ * Default tags used in the twoslash plugin.
+ *
+ * @constant
+ * @default ["annotate", "log", "warn", "error"]
+ */
+export const twoslashDefaultTags = ["annotate", "log", "warn", "error"];
+
+/**
+ * Creates a regular expression to match specific tags in comments.
+ *
+ * The tags are defined in the `twoslashDefaultTags` array. Each tag is escaped to ensure
+ * special characters are treated literally in the regular expression.
+ *
+ * The resulting pattern matches lines that start with optional whitespace, followed by
+ * `//`, more optional whitespace, and then an `@` symbol followed by one of the tags
+ * from the `twoslashDefaultTags` array, ending with a colon.
+ *
+ * @returns {RegExp} The generated regular expression.
+ */
+function createTagRegex(): RegExp {
+	const keys = twoslashDefaultTags;
+
+	const escapedTags = keys.map((tag) =>
+		tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+	);
+
+	const pattern = `^\\s*\\/\\/\\s*@(${escapedTags.join("|")}):`;
+
+	return new RegExp(pattern, "gm");
+}
+
+/**
+ * Regular expression to match custom tags.
+ *
+ * This constant is initialized by calling the `createTagRegex` function.
+ */
+export const reCustomTags: RegExp = createTagRegex();
 
 /**
  * Regular expression to match the word "twoslash" as a whole word.
@@ -51,7 +90,7 @@ export const reTrigger: RegExp = /\btwoslash\b/;
  * @constant {RegExp} reFlagNotations - The regular expression pattern.
  * @type {RegExp}
  */
-export const reFlagNotations: RegExp = /^\/\/\s*@\w+:?$/;
+export const reFlagNotations: RegExp = createFlagRegex();
 
 /**
  * Regular expression to match annotation markers in comments.
