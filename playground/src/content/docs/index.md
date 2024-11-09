@@ -93,16 +93,34 @@ const hello = "world";
 
 ## Test Custom Tags
 
+### Errors
+
 ```ts twoslash
-
-const example: string = "Code Block with custom annotation tags";
-
 // @error: test
+const exampleErrorCallout = 1
 
+```
+
+### Warnings
+
+```ts twoslash
 // @warn: foo
+const exampleWarnCallout = 2
 
+```
+
+### Annotations
+
+```ts twoslash
 // @annotate: bar
+const exampleAnnotateCallout = 3
 
+```
+
+### Logs
+
+```ts twoslash
 // @log: hello world
+const exampleLogCallout = 4
 
 ```

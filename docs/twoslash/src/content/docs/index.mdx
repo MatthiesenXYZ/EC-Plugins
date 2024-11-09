@@ -2,6 +2,7 @@
 title: Expressive Code Twoslash
 description: Add TypeScript Twoslash code examples with the Expressive Code Twoslash plugin.
 template: splash
+editUrl: false
 hero:
   tagline: A plugin to add TypeScript Twoslash code examples
   image: 
@@ -17,21 +18,23 @@ hero:
       variant: minimal
 ---
 
-```ts twoslash title="astro.config.mjs"
-import { defineConfig } from "astro/config";
-import starlight from "@astrojs/starlight";
-import ecTwoSlash from "expressive-code-twoslash";
+import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-// @annotate: Just Hover over items like your would in your Code Editor!
-// https://astro.build/config
-export default defineConfig({
-	integrations: [
-		starlight({
-			title: "Example Starlight",
-			expressiveCode: {
-				plugins: [ecTwoSlash()],
-			},
-		}),
-	],
-});
+```ts twoslash
+// @errors: 2540
+
+console.log((1 + 2 + 3 + 4).toFixed(2))
+//                            ^|
+
+/** A Basic Todo interface*/
+interface Todo {
+  title: string;
+}
+
+const todo: Readonly<Todo> = {
+  title: 'Delete inactive users',
+//  ^?
+}
+
+todo.title = 'Hello'
 ```

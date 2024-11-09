@@ -11,11 +11,15 @@
 		"docs:dev": "pnpm --filter docs dev",
 		"changeset": "changeset",
 		"lint": "biome check .",
-		"lint:fix": "biome check --apply ."
+		"lint:fix": "biome check --apply .",
+		"ci:install": "pnpm install --frozen-lockfile",
+		"ci:build": "pnpm twoslash:build"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
 		"@changesets/cli": "^2.27.9",
+		"@changesets/config": "3.0.3",
+		"@changesets/changelog-github": "^0.5.0",
 		"tsm": "^2.3.0",
 		"tsup": "^8.3.5",
 		"@types/node": "^18.15.11"

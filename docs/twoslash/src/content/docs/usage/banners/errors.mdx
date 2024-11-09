@@ -1,0 +1,77 @@
+---
+title: Error Annotations
+sidebar:
+  order: 1
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Most of the time, you want to avoid errors in your code samples. Strictly speaking, this usually means setting the right compiler flags and environment in each code sample.
+
+Some times however, you do want to raise a compiler error - to show incorrect states. In those cases, twoslash has a way to mark the compiler errors you expect.
+
+## `@errors: [num]`
+
+All TypeScript compiler errors have a number, this number is relatively arbitrary and can change between TypeScript versions. For our case these numbers are useful in declaring what we expect to see.
+
+Taking this example:
+
+<Tabs>
+
+<TabItem label="Output">
+
+```ts twoslash
+// @errors: 2588
+const a: string = "123";
+a = 132;
+```
+
+</TabItem>
+
+<TabItem label='Markdown'>
+
+``````md
+
+```ts twoslash
+// @errors: 2588
+const a: string = "123";
+a = 132;
+```
+
+``````
+
+</TabItem>
+
+</Tabs>
+
+## `@noErrors`
+
+Sometimes you have needs in which a broken TypeScript build is OK, a good example of this is using a [completion query `// ^|`](/usage/queries/completions) which requires a broken TypeScript project to work. You can use `// @noErrors` to supress all errors in a code sample, and not have them show inline.
+
+<Tabs>
+
+<TabItem label="Output">
+
+```ts twoslash
+// @noErrors
+const a = "123"
+a = 132
+```
+
+</TabItem>
+
+<TabItem label='Markdown'>
+
+``````md
+
+```ts twoslash
+// @noErrors
+const a = "123"
+a = 132
+```
+
+``````
+
+</TabItem>
+
+</Tabs>

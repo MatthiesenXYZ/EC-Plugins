@@ -1,0 +1,115 @@
+---
+title: Code Cutting
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+Every Twoslash code sample needs to be a complete TypeScript program realistically, basically it needs to compile. Quite often to make it compile, there is a bunch of code which isn't relevant to the user. This can be extracted out of the code sample via the following flags to remove code from the output.
+
+## `cut-before` and `cut`
+
+Cut works after TypeScript has generated the project and pulled out all the editor information (like identifiers, queries, highlights etc) and then amends all of their offsets and lines to re-fit the smaller output. What your user sees is everything below the `// ---cut-before---`. A shorthand `// ---cut---` is also available.
+
+<Tabs>
+
+<TabItem label="Output">
+
+```ts twoslash
+const level: string = 'Danger'
+// ---cut---
+console.log(level)
+```
+
+</TabItem>
+
+<TabItem label='Markdown'>
+
+``````md
+
+```ts twoslash
+const level: string = 'Danger'
+// ---cut---
+console.log(level)
+```
+
+``````
+
+</TabItem>
+
+</Tabs>
+
+## `cut-after`
+
+The sibling to `// ---cut-before---` which trims anything after the flag.
+
+<Tabs>
+
+<TabItem label="Output">
+
+```ts twoslash
+const level: string = 'Danger'
+// ---cut-before---
+console.log(level)
+// ---cut-after---
+console.log('This is not shown')
+```
+
+</TabItem>
+
+<TabItem label='Markdown'>
+
+``````md
+
+```ts twoslash
+const level: string = 'Danger'
+// ---cut-before---
+console.log(level)
+// ---cut-after---
+console.log('This is not shown')
+```
+
+``````
+
+</TabItem>
+
+</Tabs>
+
+## `cut-start` and `cut-end`
+
+You can also use `// ---cut-start---` and `// ---cut-end---` pairs to cut out sections of code in between the two flags.
+
+<Tabs>
+
+<TabItem label="Output">
+
+```ts twoslash
+const level: string = 'Danger'
+// ---cut-start---
+console.log(level) // This is not shown.
+// ---cut-end---
+console.log('This is shown')
+```
+
+</TabItem>
+
+<TabItem label='Markdown'>
+
+``````md
+
+```ts twoslash
+const level: string = 'Danger'
+// ---cut-start---
+console.log(level) // This is not shown.
+// ---cut-end---
+console.log('This is shown')
+```
+
+``````
+
+</TabItem>
+
+</Tabs>
+
+<Aside type='tip'>
+Multiple instances are supported to cut out multiple sections, but the flags must comes in pairs.
+</Aside>

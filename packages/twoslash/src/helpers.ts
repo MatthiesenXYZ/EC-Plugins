@@ -3,25 +3,283 @@ import type {
 	ExpressiveCodeLine,
 } from "@expressive-code/core";
 import {
-	reAnnonateMarkers,
-	reCutAfter,
-	reCutBefore,
-	reCutEnd,
-	reCutStart,
-	reFlagNotations,
+	reFunctionCleanup,
+	reImportStatement,
+	reInterfaceOrNamespace,
+	reJsDocLink,
+	reJsDocTagFilter,
+	reLeadingPropertyMethod,
 	reTrigger,
+	reTypeCleanup,
+	twoslashDefaultTags,
 } from "./regex";
-import type { NodeCompletion, NodeTag, TwoslashReturn } from "twoslash";
-import { type CompletionIcon, completionIcons } from "./completionIcons";
-import type { Element } from "@expressive-code/core/hast";
+import type {
+	NodeCompletion,
+	NodeError,
+	TwoslashInstance,
+	TwoslashOptions,
+	TwoslashReturn,
+} from "twoslash";
+import { completionIcons } from "./completionIcons";
 import {
 	TwoslashCompletionAnnotation,
 	TwoslashCustomTagsAnnotation,
 	TwoslashErrorBoxAnnotation,
+	TwoslashErrorUnderlineAnnotation,
 	TwoslashHighlightAnnotation,
 	TwoslashHoverAnnotation,
 	TwoslashStaticAnnotation,
 } from "./annotation";
+import ts, { type CompilerOptions } from "typescript";
+import type { CompletionItem, CompletionIcon, TwoslashTag } from "./types";
+import type { Element, ElementContent } from "@expressive-code/core/hast";
+import { fromMarkdown } from "mdast-util-from-markdown";
+import { gfmFromMarkdown } from "mdast-util-gfm";
+import { toHast } from "mdast-util-to-hast";
+
+/**
+ * Converts a markdown string into an array of ElementContent objects.
+ *
+ * This function processes the input markdown string, replacing JSDoc links with their
+ * corresponding text, and then parses the markdown into an MDAST (Markdown Abstract Syntax Tree).
+ * The MDAST is then transformed into a HAST (Hypertext Abstract Syntax Tree) and the children
+ * of the resulting HAST element are returned.
+ *
+ * @param md - The markdown string to be converted.
+ * @returns An array of ElementContent objects representing the parsed markdown.
+ */
+export function renderMarkdown(md: string): ElementContent[] {
+	const mdast = fromMarkdown(
+		md.replace(reJsDocLink, "$1"), // replace jsdoc links
+		{ mdastExtensions: [gfmFromMarkdown()] },
+	);
+
+	return (
+		toHast(mdast, {
+			handlers: {
+				// code: (state, node) => {
+				//     const lang = node.lang || '';
+				//     if (lang) {
+				//         return {
+				//             type: 'element',
+				//             tagName: 'code',
+				//             properties: {},
+				//             children: this.codeToHast(node.value, {
+				//                 ...this.options,
+				//                 transformers: [],
+				//                 lang,
+				//                 structure: node.value.trim().includes('\n') ? 'classic' : 'inline',
+				//             }).children,
+				//         } as Element;
+				//     }
+				//     return defaultHandlers.code(state, node);
+				// },
+			},
+		}) as Element
+	).children;
+}
+
+/**
+ * Renders the given markdown string as an array of ElementContent.
+ * If the rendered markdown consists of a single paragraph element,
+ * it returns the children of that paragraph instead.
+ *
+ * @param md - The markdown string to render.
+ * @returns An array of ElementContent representing the rendered markdown.
+ */
+export function renderMarkdownInline(md: string): ElementContent[] {
+	const betterMD = md;
+
+	const children = renderMarkdown(betterMD);
+	if (
+		children.length === 1 &&
+		children[0].type === "element" &&
+		children[0].tagName === "p"
+	)
+		return children[0].children;
+	return children;
+}
+
+/**
+ * Filters tags based on specific keywords.
+ *
+ * @param tag - The tag string to be checked.
+ * @returns A boolean indicating whether the tag includes any of the specified keywords: "param", "returns", "type", or "template".
+ */
+export function filterTags(tag: string) {
+	return reJsDocTagFilter.test(tag);
+}
+
+/**
+ * Calculates the width of a given text in pixels based on the character location, font size, and character width.
+ *
+ * @param textLoc - The location of the text (number of characters).
+ * @param fontSize - The font size in pixels. Defaults to 16.
+ * @param charWidth - The width of a single character in pixels. Defaults to 8.
+ * @returns The width of the text in pixels.
+ */
+export function getTextWidthInPixels(
+	textLoc: number,
+	fontSize = 16,
+	charWidth = 8,
+): number {
+	return textLoc * charWidth * (fontSize / 16);
+}
+
+/**
+ * Returns a string representation of a custom tag.
+ *
+ * @param tag - The custom tag to convert to a string. Can be one of "warn", "annotate", or "log".
+ * @returns A string that represents the custom tag. Returns "Warning" for "warn", "Message" for "annotate",
+ * "Log" for "log", and "Error" for any other value.
+ */
+export function getCustomTagString(tag: TwoslashTag): string {
+	switch (tag) {
+		case "warn":
+			return "Warning";
+		case "annotate":
+			return "Message";
+		case "log":
+			return "Log";
+		default:
+			return "Error";
+	}
+}
+
+/**
+ * Returns a custom CSS class name based on the provided TwoslashTag.
+ *
+ * @param tag - The TwoslashTag to get the custom class for. Possible values are "warn", "annotate", "log", or any other string.
+ * @returns The corresponding CSS class name as a string.
+ *          - "twoslash-custom-level-warning" for "warn"
+ *          - "twoslash-custom-level-suggestion" for "annotate"
+ *          - "twoslash-custom-level-message" for "log"
+ *          - "twoslash-custom-level-error" for any other value
+ */
+export function getCustomTagClass(tag: TwoslashTag): string {
+	switch (tag) {
+		case "warn":
+			return "twoslash-custom-level-warning";
+		case "annotate":
+			return "twoslash-custom-level-suggestion";
+		case "log":
+			return "twoslash-custom-level-message";
+		default:
+			return "twoslash-custom-level-error";
+	}
+}
+
+/**
+ * Returns a CSS class name based on the error level of the provided NodeError.
+ *
+ * @param error - The NodeError object containing the error level.
+ * @returns A string representing the CSS class name corresponding to the error level.
+ *
+ * The possible error levels and their corresponding CSS class names are:
+ * - "warning" -> "twoslash-error-level-warning"
+ * - "suggestion" -> "twoslash-error-level-suggestion"
+ * - "message" -> "twoslash-error-level-message"
+ * - Any other value -> "twoslash-error-level-error"
+ */
+export function getErrorLevelClass(error: NodeError): string {
+	switch (error.level) {
+		case "warning":
+			return "twoslash-error-level-warning";
+		case "suggestion":
+			return "twoslash-error-level-suggestion";
+		case "message":
+			return "twoslash-error-level-message";
+		default:
+			return "twoslash-error-level-error";
+	}
+}
+
+/**
+ * Returns a string representation of the error level.
+ *
+ * @param error - The error object containing the level property.
+ * @returns A string that represents the error level. Possible values are:
+ * - "Warning" for level "warning"
+ * - "Suggestion" for level "suggestion"
+ * - "Message" for level "message"
+ * - "Error" for any other level
+ */
+export function getErrorLevelString(error: NodeError): string {
+	switch (error.level) {
+		case "warning":
+			return "Warning";
+		case "suggestion":
+			return "Suggestion";
+		case "message":
+			return "Message";
+		default:
+			return "Error";
+	}
+}
+
+/**
+ * Default TypeScript compiler options used in TwoSlash.
+ *
+ * @constant
+ * @type {CompilerOptions}
+ * @property {boolean} strict - Enable all strict type-checking options.
+ * @property {ts.ScriptTarget} target - Specify ECMAScript target version.
+ * @property {boolean} exactOptionalPropertyTypes - Ensure optional property types are exactly as declared.
+ * @property {boolean} downlevelIteration - Provide full support for iterables in ES5/ES3.
+ * @property {boolean} skipLibCheck - Skip type checking of declaration files.
+ * @property {string[]} lib - List of library files to be included in the compilation.
+ * @property {boolean} noEmit - Do not emit outputs.
+ */
+const defaultCompilerOptions: CompilerOptions = {
+	strict: true,
+	target: ts.ScriptTarget.ES2022,
+	exactOptionalPropertyTypes: true,
+	downlevelIteration: true,
+	skipLibCheck: true,
+	lib: ["ES2022", "DOM", "DOM.Iterable"],
+	noEmit: true,
+};
+
+export function ecTwoslasher(
+	twoslasher: TwoslashInstance,
+	twoslashOptions: TwoslashOptions,
+	codeBlock: ExpressiveCodeBlock,
+) {
+	return twoslasher(codeBlock.code, codeBlock.language, {
+		...twoslashOptions,
+		compilerOptions: {
+			...defaultCompilerOptions,
+			...(twoslashOptions?.compilerOptions ?? {}),
+		},
+	});
+}
+
+/**
+ * Merges custom tags from the provided `twoslashOptions` with the default tags.
+ * Ensures that there are no duplicate tags in the final list.
+ *
+ * @param twoslashOptions - The options object containing custom tags to be merged.
+ * @returns A new `TwoslashOptions` object with merged custom tags.
+ */
+export function checkForCustomTagsAndMerge(
+	twoslashOptions: TwoslashOptions | undefined,
+) {
+	const customTags = twoslashOptions?.customTags ?? [];
+	const defaultTags = twoslashDefaultTags;
+
+	const allTags: string[] = [...defaultTags];
+
+	for (const tag of customTags) {
+		if (!allTags.includes(tag)) {
+			allTags.push(tag);
+		}
+	}
+
+	return {
+		...twoslashOptions,
+		customTags: allTags,
+	} as TwoslashOptions;
+}
 
 /**
  * Builds a function to check if a code block should be transformed based on the provided languages and trigger.
@@ -49,59 +307,6 @@ export function buildMetaChecker(
 }
 
 /**
- * Extracts the indices of lines in the provided code array that contain TypeScript flags.
- *
- * A TypeScript flag is identified by a comment in the format `// @<flag>`.
- *
- * @param code - An array of strings representing lines of code.
- * @returns An array of indices where TypeScript flags are found.
- */
-function cleanTSFlags(code: string[]): number[] {
-	return code.reduce((acc, line, index) => {
-		const match = reFlagNotations.test(line);
-		if (match) {
-			acc.push(index);
-		}
-		return acc;
-	}, [] as number[]);
-}
-
-/**
- * Extracts the line numbers of specific flags from a given array of code lines.
- *
- * This function scans through an array of strings representing lines of code and identifies
- * lines that contain specific flags used for type extraction (`// ^?`) and type completion (`// ^|`).
- * It returns an array of line numbers where these flags are found.
- *
- * @param code - An array of strings, each representing a line of code.
- * @returns An array of numbers, each representing the line number where a flag was found.
- */
-function cleanTwoSlashFlags(code: string[]): number[] {
-	return code.reduce((acc, line, index) => {
-		const matchTwoSlash = reAnnonateMarkers.test(line);
-		if (matchTwoSlash) {
-			acc.push(index);
-		}
-		return acc;
-	}, [] as number[]);
-}
-
-/**
- * Cleans TypeScript and TwoSlash flags from the given code block.
- *
- * @param codeBlock - The code block from which flags should be removed.
- */
-export function cleanFlags(codeBlock: ExpressiveCodeBlock): void {
-	const code = codeBlock.code.split("\n");
-	const tsFlags = cleanTSFlags(code);
-	const twoSlashFlags = cleanTwoSlashFlags(code);
-	const linesToRemove = [...tsFlags, ...twoSlashFlags];
-	if (linesToRemove.length) {
-		codeBlock.deleteLines(linesToRemove);
-	}
-}
-
-/**
  * Adds completion annotations to the provided code block based on the twoslash completions.
  *
  * @param twoslash - The TwoslashReturn object containing completion information.
@@ -120,7 +325,7 @@ export function addCompletionAnnotations(
 			removeHoverFromCompletions(line, proccessed);
 
 			line.addAnnotation(
-				new TwoslashCompletionAnnotation(proccessed, completion),
+				new TwoslashCompletionAnnotation(proccessed, completion, line),
 			);
 		}
 	}
@@ -140,66 +345,44 @@ export function addErrorAnnotations(
 		const line = codeBlock.getLine(error.line);
 
 		if (line) {
+			line.addAnnotation(new TwoslashErrorUnderlineAnnotation(error));
 			line.addAnnotation(new TwoslashErrorBoxAnnotation(error, line));
 		}
 	}
 }
 
-// /**
-//  * Replaces lines in a code block that match a specific tag with a blank space and adds a custom annotation.
-//  *
-//  * @param lines - An array of strings representing the lines of code.
-//  * @param tag - The tag to search for in the lines.
-//  * @param codeBlock - The code block where the lines will be replaced and annotated.
-//  */
-// const findAndReplace = (
-// 	lines: string[],
-// 	tag: NodeTag,
-// 	codeBlock: ExpressiveCodeBlock,
-// ) => {
-// 	const lineMap = lines.map((line, index) => {
-// 		return {
-// 			line: index,
-// 			text: line,
-// 		};
-// 	});
+/**
+ * Replaces the code in an ExpressiveCodeBlock with the code from a TwoslashReturn object.
+ *
+ * @param twoslash - The TwoslashReturn object containing the new code.
+ * @param codeBlock - The ExpressiveCodeBlock object to be updated.
+ */
+export function replaceECBlockWithTwoslashBlock(
+	twoslash: TwoslashReturn,
+	codeBlock: ExpressiveCodeBlock,
+) {
+	const ecCodeBlock = codeBlock.code.split("\n").map((line, index) => {
+		return { index, line };
+	});
+	const twoslashCodeBlock = twoslash.code.split("\n").map((line, index) => {
+		return { index, line };
+	});
 
-// 	for (const line of lineMap) {
-// 		if (
-// 			line.text.endsWith(tag.text ?? "") &&
-// 			line.text.startsWith(`// @${tag.name}:`)
-// 		) {
-// 			const pickedLine = codeBlock.getLine(line.line);
+	for (const line of twoslashCodeBlock) {
+		const ln = codeBlock.getLine(line.index);
 
-// 			if (pickedLine) {
-// 				pickedLine.editText(0, pickedLine.text.length, " ");
-// 				pickedLine.addAnnotation(new TwoslashCustomTagsAnnotation(tag));
-// 			}
-// 		}
-// 	}
-// };
-
-function checkForNextDefinedLine(codeBlock: ExpressiveCodeBlock, tag: NodeTag) {
-	const lines = codeBlock.code.split("\n").length;
-	const desiredLine = tag.line;
-
-	while (desiredLine < lines) {
-		const nextLine = codeBlock.getLine(desiredLine + 1);
-		if (nextLine) {
-			return nextLine;
+		if (ln) {
+			ln.editText(0, ln.text.length, line.line);
 		}
 	}
 
-	if (desiredLine === lines) {
-		const reverse = tag.line;
-		while (reverse > 0) {
-			const prevLine = codeBlock.getLine(reverse - 1);
-			if (prevLine) {
-				return prevLine;
-			}
+	if (twoslashCodeBlock.length < ecCodeBlock.length) {
+		for (let i = twoslashCodeBlock.length; i < ecCodeBlock.length; i++) {
+			codeBlock.deleteLine(twoslashCodeBlock.length);
 		}
 	}
 }
+
 /**
  * Adds custom tag annotations to the provided code block based on the tags found in the twoslash return object.
  *
@@ -210,38 +393,11 @@ export function addCustomTagAnnotations(
 	twoslash: TwoslashReturn,
 	codeBlock: ExpressiveCodeBlock,
 ) {
-	const lines = codeBlock.code.split("\n");
-
-	const lineMap = lines.map((line, index) => {
-		return {
-			line: index,
-			text: line,
-		};
-	});
-
 	for (const tag of twoslash.tags) {
-		const lineToRemove = lineMap.find((line) => {
-			return (
-				line.text.endsWith(tag.text ?? "") &&
-				line.text.startsWith(`// @${tag.name}:`)
-			);
-		});
-		if (lineToRemove) {
-			codeBlock.deleteLines([lineToRemove.line]);
+		const line = codeBlock.getLine(tag.line);
 
-			const tagLine = codeBlock.getLine(tag.line);
-
-			if (tagLine) {
-				tagLine.addAnnotation(new TwoslashCustomTagsAnnotation(tag, tagLine));
-				// Stop processing this tag and move to the next one
-				continue;
-			}
-
-			const nextLine = checkForNextDefinedLine(codeBlock, tag);
-
-			if (nextLine) {
-				nextLine.addAnnotation(new TwoslashCustomTagsAnnotation(tag, nextLine));
-			}
+		if (line) {
+			line.addAnnotation(new TwoslashCustomTagsAnnotation(tag, line));
 		}
 	}
 }
@@ -274,6 +430,30 @@ export function addHoverOrStaticAnnotations(
 }
 
 /**
+ * The default hover info processor, which will do some basic cleanup
+ */
+export function defaultHoverInfoProcessor(type: string): string | boolean {
+	let content = type
+		// remove leading `(property)` or `(method)` on each line
+		.replace(reLeadingPropertyMethod, "")
+		// remove import statement
+		.replace(reImportStatement, "")
+		// remove interface or namespace lines with only the name
+		.replace(reInterfaceOrNamespace, "")
+		.trim();
+
+	// Add `type` or `function` keyword if needed
+	if (content.match(reTypeCleanup)) content = `type ${content}`;
+	else if (content.match(reFunctionCleanup)) content = `function ${content}`;
+
+	if (content.length === 0) {
+		return false;
+	}
+
+	return content;
+}
+
+/**
  * Adds highlight annotations to the given code block based on the highlights from the twoslash return object.
  *
  * @param twoslash - The object containing the highlights information.
@@ -292,21 +472,6 @@ export function addHighlightAnnotations(
 }
 
 /**
- * Generates an array of numbers starting from `start` and ending at `end`.
- *
- * @param start - The starting number of the sequence.
- * @param end - The ending number of the sequence.
- * @returns An array of numbers from `start` to `end`.
- */
-function counter(start: number, end: number): number[] {
-	const array: number[] = [];
-	for (let i = start; i <= end; i++) {
-		array.push(i);
-	}
-	return array;
-}
-
-/**
  * Removes hover annotations from a given line of code if they match the start character and length of the processed completion item.
  *
  * @param line - The line of code from which hover annotations should be removed.
@@ -318,6 +483,14 @@ export function removeHoverFromCompletions(
 ) {
 	for (const annotation of line.getAnnotations()) {
 		if (annotation instanceof TwoslashHoverAnnotation) {
+			const annotationInlineRange = annotation.inlineRange;
+			const processedStart = proccessed.startCharacter;
+			if (annotationInlineRange) {
+				const { columnStart, columnEnd } = annotationInlineRange;
+				if (processedStart >= columnStart && processedStart <= columnEnd) {
+					annotation.inlineRange.columnStart = proccessed.startCharacter;
+				}
+			}
 			if (
 				annotation.hover.start === proccessed.startCharacter &&
 				annotation.hover.length === proccessed.length
@@ -327,105 +500,6 @@ export function removeHoverFromCompletions(
 		}
 	}
 }
-
-/**
- * Processes the cut-off points in a given code block and removes the lines
- * between the specified cut-off markers.
- *
- * @param {ExpressiveCodeBlock} codeBlock - The code block to process.
- *
- * The function looks for the following markers in the code block:
- * - `// ---cut---` or `// ---cut-before---`: Marks the start of the cut-off section.
- * - `// ---cut-after---`: Marks the end of the cut-off section.
- *
- * It then removes all lines from the start of the code block to the start cut-off marker,
- * and from the end cut-off marker to the end of the code block.
- */
-export function processCutOffPoints(codeBlock: ExpressiveCodeBlock): void {
-	const code = codeBlock.code.split("\n");
-
-	// Find the cut-off start point for the code
-	const cutOffStart = code.findIndex((line) => reCutBefore.test(line));
-
-	// Find the cut-off end point for the code
-	const cutOffEnd = code.findIndex((line) => reCutAfter.test(line));
-
-	const cutSections: { start: number; end: number }[] = [];
-	let currentIndex = 0;
-
-	while (currentIndex < code.length) {
-		// Find the next start and end points from the current index
-		const cutBetweenStart = code.findIndex(
-			(line, index) => index >= currentIndex && reCutStart.test(line),
-		);
-		const cutBetweenEnd = code.findIndex(
-			(line, index) => index > cutBetweenStart && reCutEnd.test(line),
-		);
-
-		// Check if both start and end points are found
-		if (cutBetweenStart !== -1 && cutBetweenEnd !== -1) {
-			// Store the indices of the found start-end pair
-			cutSections.push({
-				start: cutBetweenStart,
-				end: cutBetweenEnd,
-			});
-
-			// Move the current index past the found end point to continue searching
-			currentIndex = cutBetweenEnd + 1;
-		} else {
-			// Break the loop if no more pairs are found
-			break;
-		}
-	}
-
-	// Find the lines to cut
-	const linesToCut: number[] = [];
-
-	// Start cutting from the beginning of the code block
-	if (cutOffStart !== -1) {
-		// Count from the beginning of the code block to the cut-off point
-		linesToCut.push(...counter(0, cutOffStart));
-	}
-
-	// Start cutting from the end of the code block
-	if (cutOffEnd !== -1) {
-		// Count from the cut-off point to the end of the code block
-		linesToCut.push(...counter(cutOffEnd, code.length - 1));
-	}
-
-	// Start cutting between the section cut points
-	for (const section of cutSections) {
-		// Count from the start to the end of the section
-		linesToCut.push(...counter(section.start, section.end));
-	}
-
-	// Delete the lines
-	if (linesToCut.length) {
-		codeBlock.deleteLines(linesToCut);
-	}
-}
-
-/**
- * Represents a completion item used in the editor.
- *
- * @property {number} startCharacter - The starting character position of the completion item.
- * @property {number} length - The length of the completion item.
- * @property {Object[]} items - An array of completion details.
- * @property {string} items[].name - The name of the completion item.
- * @property {string} items[].kind - The kind/type of the completion item.
- * @property {Element} items[].icon - The icon representing the completion item.
- * @property {boolean} items[].isDeprecated - Indicates if the completion item is deprecated.
- */
-export type CompletionItem = {
-	startCharacter: number;
-	length: number;
-	items: {
-		name: string;
-		kind: string;
-		icon: Element;
-		isDeprecated: boolean;
-	}[];
-};
 
 /**
  * Processes a NodeCompletion object and returns a CompletionItem.
@@ -453,12 +527,14 @@ export function processCompletion(completion: NodeCompletion): CompletionItem {
 		})
 		.slice(0, 5);
 
-	const { character, start } = completion;
+	const { character, start, completionsPrefix } = completion;
 
 	const length = start - character;
 
 	return {
 		startCharacter: character,
+		completionsPrefix,
+		start,
 		length,
 		items,
 	};

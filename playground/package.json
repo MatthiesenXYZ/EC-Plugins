@@ -11,11 +11,10 @@
 		"astro": "astro"
 	},
 	"dependencies": {
-		"@astrojs/tailwind": "^5.1.2",
-		"@astrojs/starlight": "^0.28.5",
-		"astro": "^4.16.8",
+		"@astrojs/starlight": "^0.29.0",
+		"astro": "^4.16.10",
 		"astro-integration-kit": "^0.17.0",
-		"astro-expressive-code": "^0.38.0",
+		"astro-expressive-code": "^0.38.3",
 		"tailwindcss": "^3.4.14",
 		"expressive-code-twoslash": "workspace:*"
 	},

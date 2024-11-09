@@ -1,0 +1,163 @@
+---
+title: Installing
+sidebar:
+  order: 1
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { PackageManagers } from 'starlight-package-managers'
+
+### Twoslash Features
+
+| Feature                                                   | Supported Status |
+|-----------------------------------------------------------|------------------|
+| [JSDocs and Type Hover boxes](/getting-started/basic)     | ✅               |
+| [Error Handling/Messages](/usage/banners/errors)          | ✅               |
+| [Type Extraction](/usage/queries/extractions)             | ✅               |
+| [Code Completions](/usage/queries/completions)            | ✅               |
+| [Code Highlighting](/usage/queries/highlights)            | ✅               |
+| [Code Cutting](/usage/code-cutting)                       | ✅               |
+| [Callouts](/usage/banners/callouts)                       | ✅               |
+| [TSComiler Overrides](/usage/ts-compiler-flags)           | ✅               |
+| [Show Emitted Files](/usage/show-emitted-files)           | ⛔️               |
+
+### Installation
+
+Install the package with your favorite package manager
+
+<PackageManagers pkg="expressive-code-twoslash" />
+
+### Add to EC Config
+
+Add ecTwoSlash to your Expressive Code plugin list
+
+<Tabs>
+
+<TabItem label="Astro">
+
+<Tabs>
+
+<TabItem label='astro.config.mjs'>
+
+```ts twoslash ins={3, 9}
+import { defineConfig } from "astro/config";
+import astroExpressiveCode from 'astro-expressive-code'
+import ecTwoSlash from "expressive-code-twoslash";
+
+// https://astro.build/config
+export default defineConfig({
+  integrations: [
+    astroExpressiveCode({
+      plugins: [ecTwoSlash()],
+    }),
+  ],
+});
+```
+
+</TabItem>
+
+<TabItem label='ec.config.mjs'>
+
+```ts twoslash ins={2, 5}
+import { defineEcConfig } from 'astro-expressive-code'
+import ecTwoSlash from "expressive-code-twoslash";
+
+export default defineEcConfig({
+  plugins: [ecTwoSlash()],
+});
+```
+
+</TabItem>
+
+</Tabs>
+
+</TabItem>
+
+<TabItem label="Starlight">
+
+<Tabs>
+
+<TabItem label='astro.config.mjs'>
+
+```ts twoslash ins={3, 11}
+import { defineConfig } from "astro/config";
+import starlight from "@astrojs/starlight";
+import ecTwoSlash from "expressive-code-twoslash";
+
+// https://astro.build/config
+export default defineConfig({
+  integrations: [
+    starlight({
+      title: "Starlight",
+      expressiveCode: {
+        plugins: [ecTwoSlash()],
+      },
+    }),
+  ],
+});
+```
+
+</TabItem>
+
+<TabItem label='ec.config.mjs'>
+
+```ts twoslash ins={2, 5}
+import { defineEcConfig } from "@astrojs/starlight/expressive-code";
+import ecTwoSlash from "expressive-code-twoslash";
+
+export default defineEcConfig({
+	plugins: [ecTwoSlash()],
+});
+```
+
+</TabItem>
+
+</Tabs>
+
+</TabItem>
+
+<TabItem label='Next.js'>
+
+```ts twoslash title="next.config.mjs" ins={2, 6}
+import rehypeExpressiveCode from 'rehype-expressive-code'
+import ecTwoSlash from "expressive-code-twoslash";
+
+/** @type {import('rehype-expressive-code').RehypeExpressiveCodeOptions} */
+const rehypeExpressiveCodeOptions = {
+  plugins: [ecTwoSlash()],
+}
+
+// Rest of your Next.js config
+```
+
+For more information on how to add to your Next.js config, see the [Expressive Code documentation](https://expressive-code.com/reference/configuration/#passing-options-directly).
+
+</TabItem>
+
+</Tabs>
+
+
+
+### Config Options
+
+Default config options shown.
+
+```ts twoslash
+import { defineEcConfig } from 'astro-expressive-code'
+import ecTwoSlash from "expressive-code-twoslash";
+
+export default defineEcConfig({
+  plugins: [
+// ---cut-before---            
+ecTwoSlash({
+    explicitTrigger: true,
+    includeJsDoc: true,
+    languages: ["ts", "tsx"],
+    twoslashOptions: {},
+})
+// ---cut-after---
+  ],
+});
+```
+
+

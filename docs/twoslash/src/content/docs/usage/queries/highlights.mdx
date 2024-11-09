@@ -1,0 +1,39 @@
+---
+title: Code Highlighting
+sidebar:
+  order: 3
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Use `// ^^^` to highlight a particular range of the line above it.
+
+<Tabs>
+
+<TabItem label="Output">
+
+```ts twoslash
+function add(a: number, b: number) {
+  //     ^^^
+  return a + b
+}
+```
+
+</TabItem>
+
+<TabItem label='Markdown'>
+
+``````md
+
+```ts twoslash
+function add(a: number, b: number) {
+  //     ^^^
+  return a + b
+}
+```
+
+``````
+
+</TabItem>
+
+</Tabs>

@@ -1,11 +1,7 @@
-import { type Element, h } from "@expressive-code/core/hast";
+import { h } from "@expressive-code/core/hast";
+import type { CustomTagsIcons } from "./types";
 
-export const customTagsIcons: {
-	log: Element;
-	warn: Element;
-	error: Element;
-	annotate: Element;
-} = {
+export const customTagsIcons: CustomTagsIcons = {
 	log: h("svg", { viewBox: "0 0 32 32", width: "1rem", height: "auto" }, [
 		h(
 			"path",
@@ -71,5 +67,3 @@ export const customTagsIcons: {
 		),
 	]),
 };
-
-export type CustomTagsIcon = keyof typeof customTagsIcons;

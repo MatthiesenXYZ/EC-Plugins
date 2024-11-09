@@ -1,0 +1,43 @@
+---
+title: External Types
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Unless you're teaching TypeScript/JavaScript, you're probably going to want to import libraries into your code samples.
+
+Twoslash works by faking a virtual file system over your existing file system. This means any @types or libraries with TypeScript definitions should work out of the box with no config.
+
+## Globals
+
+Setting up globals is a little bit more complex, but not drastically. You need to use the [triple slash reference](https://www.typescriptlang.org/docs/handbook/triple-slash-directives.html#-reference-types-) which adds a particular library to the global scope.
+
+<Tabs>
+
+<TabItem label="Output">
+
+```ts twoslash
+/// <reference types="node" />
+// ---cut---
+import { writeFileSync } from "node:fs";
+writeFileSync("myfile.txt", "// TODO");
+```
+
+</TabItem>
+
+<TabItem label='Markdown'>
+
+``````md
+
+```ts twoslash
+/// <reference types="node" />
+// ---cut---
+import { writeFileSync } from "node:fs";
+writeFileSync("myfile.txt", "// TODO");
+```
+
+``````
+
+</TabItem>
+
+</Tabs>
