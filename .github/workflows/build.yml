@@ -1,4 +1,4 @@
-name: Build
+name: CI - Build & Preview
 
 on: [pull_request]
 
@@ -23,3 +23,7 @@ jobs:
 
       - name: Build EC-Twoslash
         run: pnpm ci:build:twoslash
+  
+      - name: Publish packages
+        run: pnpx pkg-pr-new publish --pnpm './packages/*'
+
