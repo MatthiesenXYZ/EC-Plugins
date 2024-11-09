@@ -1,7 +1,7 @@
 {
 	"name": "expressive-code-twoslash",
 	"version": "0.1.3",
-	"description": "Expressive Code Plugin for TwoSlash",
+	"description": "Add Twoslash support to your Expressive Code TypeScript code blocks.",
 	"author": {
 		"email": "adam@matthiesen.xyz",
 		"name": "Adam Matthiesen",
@@ -31,9 +31,7 @@
 		"default": "./dist/index.js"
 	},
 	"types": "./dist/index.d.ts",
-	"files": [
-		"dist"
-	],
+	"files": ["dist"],
 	"scripts": {
 		"build": "tsup ./src/index.ts --format esm --dts --sourcemap --clean",
 		"watch": "pnpm build --watch src"
