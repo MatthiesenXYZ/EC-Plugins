@@ -14,7 +14,7 @@
 		"ec-plugin",
 		"twoslash"
 	],
-	"homepage": "https://github.com/MatthiesenXYZ/EC-Plugins/blob/main/packages/twoslash/README.md",
+	"homepage": "https://twoslash.matthiesen.dev",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/MatthiesenXYZ/EC-Plugins",
