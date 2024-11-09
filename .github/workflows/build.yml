@@ -1,4 +1,4 @@
-name: Build
+name: CI - Build & Preview
 
 on: [pull_request]
 
@@ -15,11 +15,14 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18.19.0
+          node-version: 20.x
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm ci:install
 
-      - name: Build
-        run: pnpm --filter package-name build
+      - name: Build EC-Twoslash
+        run: pnpm ci:build:twoslash
+  
+      - name: Publish packages
+        run: pnpx pkg-pr-new publish --pnpm './packages/*'
