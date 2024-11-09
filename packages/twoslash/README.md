@@ -1,6 +1,6 @@
 # `expressive-code-twoslash`
 
-An Expressive Code plugin to add TwoSlash support
+Add Twoslash support to your Expressive Code TypeScript code blocks.
 
 ## Documentation
 
