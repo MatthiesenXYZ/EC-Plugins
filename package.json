@@ -13,7 +13,9 @@
 		"lint": "biome check .",
 		"lint:fix": "biome check --apply .",
 		"ci:install": "pnpm install --frozen-lockfile",
-		"ci:build": "pnpm twoslash:build"
+		"ci:version": "changeset version",
+		"ci:publish": "changeset publish",
+		"ci:build:twoslash": "pnpm twoslash:build"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",

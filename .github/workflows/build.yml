@@ -19,7 +19,7 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm ci:install
 
-      - name: Build
-        run: pnpm ci:build
+      - name: Build EC-Twoslash
+        run: pnpm ci:build:twoslash
