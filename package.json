@@ -16,7 +16,7 @@
 		"ci:version": "changeset version",
 		"ci:publish": "changeset publish",
 		"ci:build:twoslash": "pnpm twoslash:build",
-		"ci:docs-twoslash:build": "pnpm --filter docs-twoslash build"
+		"ci:docs-twoslash:build": "pnpm twoslash:build && pnpm --filter docs-twoslash build"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
