@@ -2,6 +2,28 @@ import type {
 	ExpressiveCodeBlock,
 	ExpressiveCodeLine,
 } from "@expressive-code/core";
+import type { Element, ElementContent } from "@expressive-code/core/hast";
+import { fromMarkdown } from "mdast-util-from-markdown";
+import { gfmFromMarkdown } from "mdast-util-gfm";
+import { toHast } from "mdast-util-to-hast";
+import type {
+	NodeCompletion,
+	NodeError,
+	TwoslashInstance,
+	TwoslashOptions,
+	TwoslashReturn,
+} from "twoslash";
+import ts, { type CompilerOptions } from "typescript";
+import {
+	TwoslashCompletionAnnotation,
+	TwoslashCustomTagsAnnotation,
+	TwoslashErrorBoxAnnotation,
+	TwoslashErrorUnderlineAnnotation,
+	TwoslashHighlightAnnotation,
+	TwoslashHoverAnnotation,
+	TwoslashStaticAnnotation,
+} from "./annotation";
+import { completionIcons } from "./completionIcons";
 import {
 	reFunctionCleanup,
 	reImportStatement,
@@ -13,29 +35,7 @@ import {
 	reTypeCleanup,
 	twoslashDefaultTags,
 } from "./regex";
-import type {
-	NodeCompletion,
-	NodeError,
-	TwoslashInstance,
-	TwoslashOptions,
-	TwoslashReturn,
-} from "twoslash";
-import { completionIcons } from "./completionIcons";
-import {
-	TwoslashCompletionAnnotation,
-	TwoslashCustomTagsAnnotation,
-	TwoslashErrorBoxAnnotation,
-	TwoslashErrorUnderlineAnnotation,
-	TwoslashHighlightAnnotation,
-	TwoslashHoverAnnotation,
-	TwoslashStaticAnnotation,
-} from "./annotation";
-import ts, { type CompilerOptions } from "typescript";
-import type { CompletionItem, CompletionIcon, TwoslashTag } from "./types";
-import type { Element, ElementContent } from "@expressive-code/core/hast";
-import { fromMarkdown } from "mdast-util-from-markdown";
-import { gfmFromMarkdown } from "mdast-util-gfm";
-import { toHast } from "mdast-util-to-hast";
+import type { CompletionIcon, CompletionItem, TwoslashTag } from "./types";
 
 /**
  * Converts a markdown string into an array of ElementContent objects.

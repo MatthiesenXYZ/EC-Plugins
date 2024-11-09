@@ -1,7 +1,5 @@
-import { definePlugin, type ExpressiveCodePlugin } from "@expressive-code/core";
+import { type ExpressiveCodePlugin, definePlugin } from "@expressive-code/core";
 import { createTwoslasher } from "twoslash";
-import popupModule from "./module-code/popup.min";
-import { getTwoSlashBaseStyles, twoSlashStyleSettings } from "./styles";
 import {
 	addCompletionAnnotations,
 	addCustomTagAnnotations,
@@ -10,9 +8,11 @@ import {
 	addHoverOrStaticAnnotations,
 	buildMetaChecker,
 	checkForCustomTagsAndMerge,
-	replaceECBlockWithTwoslashBlock,
 	ecTwoslasher,
+	replaceECBlockWithTwoslashBlock,
 } from "./helpers";
+import popupModule from "./module-code/popup.min";
+import { getTwoSlashBaseStyles, twoSlashStyleSettings } from "./styles";
 import type { PluginTwoslashOptions } from "./types";
 
 /**

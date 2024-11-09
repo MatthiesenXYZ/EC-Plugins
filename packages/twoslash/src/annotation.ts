@@ -1,9 +1,9 @@
 import {
+	type AnnotationRenderOptions,
 	ExpressiveCodeAnnotation,
 	type ExpressiveCodeLine,
-	type AnnotationRenderOptions,
 } from "@expressive-code/core";
-import { h, type Root, type Element } from "@expressive-code/core/hast";
+import { type Element, type Root, h } from "@expressive-code/core/hast";
 import type {
 	NodeCompletion,
 	NodeError,
@@ -12,7 +12,6 @@ import type {
 	NodeQuery,
 	NodeTag,
 } from "twoslash";
-import type { CompletionItem, CustomTagsIcon, TwoslashTag } from "./types";
 import { customTagsIcons } from "./customTagsIcons";
 import {
 	defaultHoverInfoProcessor,
@@ -25,6 +24,7 @@ import {
 	renderMarkdown,
 	renderMarkdownInline,
 } from "./helpers";
+import type { CompletionItem, CustomTagsIcon, TwoslashTag } from "./types";
 
 export class TwoslashErrorUnderlineAnnotation extends ExpressiveCodeAnnotation {
 	constructor(readonly error: NodeError) {

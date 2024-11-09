@@ -8,10 +8,10 @@
 	"scripts": {
 		"playground:dev": "pnpm --filter playground dev",
 		"twoslash:build": "pnpm --filter expressive-code-twoslash build",
-		"docs:dev": "pnpm --filter docs dev",
+		"docs:dev": "pnpm --filter docs-twoslash dev",
 		"changeset": "changeset",
 		"lint": "biome check .",
-		"lint:fix": "biome check --apply .",
+		"lint:fix": "biome check --write .",
 		"ci:install": "pnpm install --frozen-lockfile",
 		"ci:version": "changeset version",
 		"ci:publish": "changeset publish",

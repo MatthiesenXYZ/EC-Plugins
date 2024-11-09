@@ -13,6 +13,7 @@
 		}
 	},
 	"files": {
+		"include": ["packages/**/*"],
 		"ignore": ["dist", ".astro"]
 	}
 }
