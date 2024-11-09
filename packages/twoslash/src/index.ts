@@ -1,9 +1,5 @@
-import { definePlugin, type ExpressiveCodePlugin } from "@expressive-code/core";
-import { createTwoslasher, type TwoslashOptions } from "twoslash";
-import ts from "typescript";
-import type { CompilerOptions } from "typescript";
-import popupModule from "./module-code/popup.min";
-import { getTwoSlashBaseStyles, twoSlashStyleSettings } from "./styles";
+import { type ExpressiveCodePlugin, definePlugin } from "@expressive-code/core";
+import { createTwoslasher } from "twoslash";
 import {
 	addCompletionAnnotations,
 	addCustomTagAnnotations,
@@ -11,97 +7,13 @@ import {
 	addHighlightAnnotations,
 	addHoverOrStaticAnnotations,
 	buildMetaChecker,
-	cleanFlags,
-	processCutOffPoints,
+	checkForCustomTagsAndMerge,
+	ecTwoslasher,
+	replaceECBlockWithTwoslashBlock,
 } from "./helpers";
-import { twoslashDefaultTags } from "./regex";
-
-/**
- * Default TypeScript compiler options used in TwoSlash.
- *
- * @constant
- * @type {CompilerOptions}
- * @property {boolean} strict - Enable all strict type-checking options.
- * @property {ts.ScriptTarget} target - Specify ECMAScript target version.
- * @property {boolean} exactOptionalPropertyTypes - Ensure optional property types are exactly as declared.
- * @property {boolean} downlevelIteration - Provide full support for iterables in ES5/ES3.
- * @property {boolean} skipLibCheck - Skip type checking of declaration files.
- * @property {string[]} lib - List of library files to be included in the compilation.
- * @property {boolean} noEmit - Do not emit outputs.
- */
-const defaultCompilerOptions: CompilerOptions = {
-	strict: true,
-	target: ts.ScriptTarget.ES2022,
-	exactOptionalPropertyTypes: true,
-	downlevelIteration: true,
-	skipLibCheck: true,
-	lib: ["ES2022", "DOM", "DOM.Iterable"],
-	noEmit: true,
-};
-
-/**
- * Interface representing the options for the PluginTwoslash.
- */
-export interface PluginTwoslashOptions {
-	/**
-	 * If `true`, requires `twoslash` to be present in the code block meta for
-	 * this transformer to be applied.
-	 *
-	 * If a `RegExp`, requires the `RegExp` to match a directive in the code
-	 * block meta for this transformer to be applied.
-	 *
-	 * If `false`, this transformer will be applied to all code blocks.
-	 *
-	 * @default true
-	 */
-	readonly explicitTrigger?: boolean | RegExp;
-
-	/**
-	 * If `true`, includes JSDoc comments in the hover popup.
-	 *
-	 * @default true
-	 */
-	readonly includeJsDoc?: boolean;
-
-	/**
-	 * The languages to apply this transformer to.
-	 *
-	 * @default ["ts", "tsx"]
-	 */
-	readonly languages?: ReadonlyArray<string>;
-
-	/**
-	 * Options to forward to `twoslash`.
-	 *
-	 * @default {}
-	 */
-	readonly twoslashOptions?: TwoslashOptions;
-}
-
-/**
- * Merges custom tags from the provided `twoslashOptions` with the default tags.
- * Ensures that there are no duplicate tags in the final list.
- *
- * @param twoslashOptions - The options object containing custom tags to be merged.
- * @returns A new `TwoslashOptions` object with merged custom tags.
- */
-export function checkForCustomTagsAndMerge(twoslashOptions: TwoslashOptions) {
-	const customTags = twoslashOptions.customTags ?? [];
-	const defaultTags = twoslashDefaultTags;
-
-	const allTags: string[] = [...defaultTags];
-
-	for (const tag of customTags) {
-		if (!allTags.includes(tag)) {
-			allTags.push(tag);
-		}
-	}
-
-	return {
-		...twoslashOptions,
-		customTags: allTags,
-	} as TwoslashOptions;
-}
+import popupModule from "./module-code/popup.min";
+import { getTwoSlashBaseStyles, twoSlashStyleSettings } from "./styles";
+import type { PluginTwoslashOptions } from "./types";
 
 /**
  * A Expressive Code Plugin that transforms code blocks with Twoslash annotations.
@@ -148,7 +60,7 @@ export default function ecTwoSlash(
 		explicitTrigger = true,
 		languages = ["ts", "tsx"],
 		includeJsDoc = true,
-		twoslashOptions = checkForCustomTagsAndMerge(options.twoslashOptions ?? {}),
+		twoslashOptions = checkForCustomTagsAndMerge(options.twoslashOptions),
 	} = options;
 
 	/**
@@ -166,45 +78,39 @@ export default function ecTwoSlash(
 		styleSettings: twoSlashStyleSettings,
 		baseStyles: (context) => getTwoSlashBaseStyles(context),
 		hooks: {
-			preprocessCode(context) {
-				if (shouldTransform(context.codeBlock)) {
+			preprocessCode({ codeBlock }) {
+				if (shouldTransform(codeBlock)) {
 					// Run twoslash on the code block
-					const twoslash = twoslasher(
-						context.codeBlock.code,
-						context.codeBlock.language,
-						{
-							...twoslashOptions,
-							compilerOptions: {
-								...defaultCompilerOptions,
-								...(twoslashOptions?.compilerOptions ?? {}),
-							},
-						},
-					);
+					const twoslash = ecTwoslasher(twoslasher, twoslashOptions, codeBlock);
 
-					// Clean TypeScript and TwoSlash flags
-					cleanFlags(context.codeBlock);
+					// Hippo, I'm sorry for this function, but without it, the twoslash code
+					// overlays could find themselves in the wrong place of the codeblock
+					// depending on how much is going on in the code block.
 
-					// Process cut-off points
-					processCutOffPoints(context.codeBlock);
+					// Most users should not need to worry about this, as it is only used in the
+					// codeblocks that have the `twoslash` meta tag, and this tag is configured as
+					// an explicit trigger in the plugin options by default.
 
-					// Generate the Custom Tag annotations
-					addCustomTagAnnotations(twoslash, context.codeBlock);
+					// This hack simply replaces the existing codeblock lines with the twoslash code output.
+					// (This is how `shiki-twoslash` works, by REPLACING the shiki highlighter function with its own when active)
+
+					// Replace the EC code block with the twoslash code block
+					replaceECBlockWithTwoslashBlock(twoslash, codeBlock);
 
 					// Generate the error annotations
-					addErrorAnnotations(twoslash, context.codeBlock);
+					addErrorAnnotations(twoslash, codeBlock);
 
 					// Generate the Hover and Static Annotations
-					addHoverOrStaticAnnotations(
-						twoslash,
-						context.codeBlock,
-						includeJsDoc,
-					);
+					addHoverOrStaticAnnotations(twoslash, codeBlock, includeJsDoc);
 
 					// Generate the Completion annotations
-					addCompletionAnnotations(twoslash, context.codeBlock);
+					addCompletionAnnotations(twoslash, codeBlock);
 
 					// Generate the Twoslash Highlight annotations
-					addHighlightAnnotations(twoslash, context.codeBlock);
+					addHighlightAnnotations(twoslash, codeBlock);
+
+					// Generate the Custom Tag annotations
+					addCustomTagAnnotations(twoslash, codeBlock);
 				}
 			},
 		},

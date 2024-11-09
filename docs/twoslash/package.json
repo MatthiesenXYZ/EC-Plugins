@@ -1,5 +1,5 @@
 {
-	"name": "docs",
+	"name": "docs-twoslash",
 	"type": "module",
 	"version": "0.0.1",
 	"private": true,
@@ -11,24 +11,18 @@
 		"astro": "astro"
 	},
 	"dependencies": {
-		"@astrojs/tailwind": "^5.1.2",
-		"@astrojs/starlight": "^0.28.5",
-		"astro": "^4.16.8",
+		"@astrojs/starlight": "^0.29.0",
+		"astro": "^4.16.10",
 		"astro-integration-kit": "^0.17.0",
 		"astro-expressive-code": "^0.38.3",
 		"tailwindcss": "^3.4.14",
-		"expressive-code-twoslash": "workspace:*"
+		"expressive-code-twoslash": "workspace:*",
+		"starlight-package-managers": "^0.8.0",
+		"rehype-expressive-code": "^0.38.3"
 	},
 	"devDependencies": {
 		"@astrojs/check": "^0.9.4",
 		"@types/node": "^20.17.1",
 		"typescript": "^5.6.3"
-	},
-	"overrides": {
-		"@astrojs/starlight": {
-			"dependencies": {
-				"astro-expressive-code": "^0.38.3"
-			}
-		}
 	}
 }

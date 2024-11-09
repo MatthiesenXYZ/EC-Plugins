@@ -1,0 +1,45 @@
+---
+title: Show Emitted Files
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type='danger' title='Not Currently Supported'>
+While `twoslash`, and `shiki-twoslash` supports showing emitted files, it is not currently supported in the Expressive Code plugin. Attempting to use this feature will cause an error.
+
+This page is a placeholder for when the feature is implemented.
+</Aside>
+
+Running a Twoslash code sample is a full TypeScript compiler run, and that run will create files inside the virtual file system. You can replace the contents of your code sample with the results of running TypeScript over the project.
+
+## `@showEmit`
+
+`// @showEmit` is the main command to tell Twoslash that you want to replace the output of your code sample with the equivalent `.js` file.
+
+```md
+**No example available**
+```
+
+Would show the `.js` file which this `.ts` file represents. You can see TypeScript add 'use strict' and `: string` is removed from the output.
+
+## `@showEmittedFile: [file]`
+
+While the `.js` file is probably the most useful file out of the box, TypeScript does emit other files if you have the right flags enabled (`.d.ts` and `.map`) but also when you have a multi-file code sample - you might need to tell Twoslash which file to show. For all these cases you can also add `@showEmittedFile: [file]` to tell Twoslash which file you want to show.
+
+### `.d.ts` files
+
+```md
+**No example available**
+```
+
+### `.map` for `.d.ts` files
+
+```md
+**No example available**
+```
+
+### Multi-file code samples
+
+```md
+**No example available**
+```

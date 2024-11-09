@@ -1,0 +1,67 @@
+---
+title: Basic Usage
+sidebar:
+  order: 2
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+[TypeScript Twoslash](https://www.typescriptlang.org/dev/twoslash/) is a pre-processor that enhances your code-samples. It is a markup language for JavaScript and TypeScript.
+
+It leverages the compiler APIs used by text editors to offer type-driven hover information, precise error messages, and type callouts.
+
+Using the homepage as an example, here is a simple code sample:
+
+<Tabs>
+
+<TabItem label='Before'>
+
+``````md
+
+```ts twoslash
+// @errors: 2540
+
+console.log((1 + 2 + 3 + 4).toFixed(2))
+//                            ^|
+
+/** A Basic Todo interface*/
+interface Todo {
+  title: string;
+}
+
+const todo: Readonly<Todo> = {
+  title: 'Delete inactive users',
+//  ^?
+}
+
+todo.title = 'Hello'
+```
+
+``````
+
+</TabItem>
+
+<TabItem label="After">
+
+```ts twoslash
+// @errors: 2540
+
+console.log((1 + 2 + 3 + 4).toFixed(2))
+//                            ^|
+
+/** A Basic Todo interface*/
+interface Todo {
+  title: string;
+}
+
+const todo: Readonly<Todo> = {
+  title: 'Delete inactive users',
+//  ^?
+}
+
+todo.title = 'Hello'
+```
+
+</TabItem>
+
+</Tabs>

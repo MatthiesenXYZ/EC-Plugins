@@ -25,4 +25,5 @@ jobs:
         run: pnpm ci:build:twoslash
   
       - name: Publish packages
-        run: pnpx pkg-pr-new publish --pnpm './packages/*'
+        run: pnpx pkg-pr-new publish --pnpm --compact './packages/*'
+

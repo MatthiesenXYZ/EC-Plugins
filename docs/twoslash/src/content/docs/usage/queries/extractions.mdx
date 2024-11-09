@@ -1,0 +1,37 @@
+---
+title: Type Extraction
+sidebar:
+  order: 1
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Using `// ^?` you can pull out type information about a particular identifier in the line of code above it.
+
+<Tabs>
+
+<TabItem label="Output">
+
+```ts twoslash
+const hi = 'Hello'
+const msg = `${hi}, world`
+//    ^?
+```
+
+</TabItem>
+
+<TabItem label='Markdown'>
+
+``````md
+
+```ts twoslash
+const hi = 'Hello'
+const msg = `${hi}, world`
+//    ^?
+```
+
+``````
+
+</TabItem>
+
+</Tabs>

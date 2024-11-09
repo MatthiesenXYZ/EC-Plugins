@@ -1,15 +1,7 @@
-import { type Element, h } from "@expressive-code/core/hast";
+import { h } from "@expressive-code/core/hast";
+import type { CompletionIcons } from "./types";
 
-export const completionIcons: {
-	module: Element;
-	class: Element;
-	method: Element;
-	property: Element;
-	constructor: Element;
-	interface: Element;
-	function: Element;
-	string: Element;
-} = {
+export const completionIcons: CompletionIcons = {
 	module: h("svg", { viewBox: "0 0 32 32", width: "1rem", height: "auto" }, [
 		h("path", { fill: "currentColor", d: "M11 2H2v9h2V4h7V2z" }, []),
 		h("path", { fill: "currentColor", d: "M2 21v9h9v-2H4v-7H2z" }, []),
@@ -136,5 +128,3 @@ export const completionIcons: {
 		),
 	]),
 };
-
-export type CompletionIcon = keyof typeof completionIcons;

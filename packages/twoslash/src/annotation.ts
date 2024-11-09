@@ -1,14 +1,9 @@
 import {
+	type AnnotationRenderOptions,
 	ExpressiveCodeAnnotation,
 	type ExpressiveCodeLine,
-	type AnnotationRenderOptions,
 } from "@expressive-code/core";
-import {
-	h,
-	type Root,
-	type Element,
-	type ElementContent,
-} from "@expressive-code/core/hast";
+import { type Element, type Root, h } from "@expressive-code/core/hast";
 import type {
 	NodeCompletion,
 	NodeError,
@@ -17,159 +12,34 @@ import type {
 	NodeQuery,
 	NodeTag,
 } from "twoslash";
-import { fromMarkdown } from "mdast-util-from-markdown";
-import { gfmFromMarkdown } from "mdast-util-gfm";
-import { toHast } from "mdast-util-to-hast";
+import { customTagsIcons } from "./customTagsIcons";
 import {
-	reFunctionCleanup,
-	reImportStatement,
-	reInterfaceOrNamespace,
-	reJsDocLink,
-	reJsDocTagFilter,
-	reLeadingPropertyMethod,
-	reTypeCleanup,
-} from "./regex";
-import type { CompletionItem } from "./helpers";
-import { type CustomTagsIcon, customTagsIcons } from "./customTagsIcons";
+	defaultHoverInfoProcessor,
+	filterTags,
+	getCustomTagClass,
+	getCustomTagString,
+	getErrorLevelClass,
+	getErrorLevelString,
+	getTextWidthInPixels,
+	renderMarkdown,
+	renderMarkdownInline,
+} from "./helpers";
+import type { CompletionItem, CustomTagsIcon, TwoslashTag } from "./types";
 
-/**
- * The default hover info processor, which will do some basic cleanup
- */
-function defaultHoverInfoProcessor(type: string): string {
-	let content = type
-		// remove leading `(property)` or `(method)` on each line
-		.replace(reLeadingPropertyMethod, "")
-		// remove import statement
-		.replace(reImportStatement, "")
-		// remove interface or namespace lines with only the name
-		.replace(reInterfaceOrNamespace, "")
-		.trim();
-
-	// Add `type` or `function` keyword if needed
-	if (content.match(reTypeCleanup)) content = `type ${content}`;
-	else if (content.match(reFunctionCleanup)) content = `function ${content}`;
-
-	return content;
-}
-
-/**
- * Converts a markdown string into an array of ElementContent objects.
- *
- * This function processes the input markdown string, replacing JSDoc links with their
- * corresponding text, and then parses the markdown into an MDAST (Markdown Abstract Syntax Tree).
- * The MDAST is then transformed into a HAST (Hypertext Abstract Syntax Tree) and the children
- * of the resulting HAST element are returned.
- *
- * @param md - The markdown string to be converted.
- * @returns An array of ElementContent objects representing the parsed markdown.
- */
-function renderMarkdown(md: string): ElementContent[] {
-	const mdast = fromMarkdown(
-		md.replace(reJsDocLink, "$1"), // replace jsdoc links
-		{ mdastExtensions: [gfmFromMarkdown()] },
-	);
-
-	return (
-		toHast(mdast, {
-			handlers: {
-				// code: (state, node) => {
-				//     const lang = node.lang || '';
-				//     if (lang) {
-				//         return {
-				//             type: 'element',
-				//             tagName: 'code',
-				//             properties: {},
-				//             children: this.codeToHast(node.value, {
-				//                 ...this.options,
-				//                 transformers: [],
-				//                 lang,
-				//                 structure: node.value.trim().includes('\n') ? 'classic' : 'inline',
-				//             }).children,
-				//         } as Element;
-				//     }
-				//     return defaultHandlers.code(state, node);
-				// },
+export class TwoslashErrorUnderlineAnnotation extends ExpressiveCodeAnnotation {
+	constructor(readonly error: NodeError) {
+		super({
+			inlineRange: {
+				columnStart: error.character,
+				columnEnd: error.character + error.length,
 			},
-		}) as Element
-	).children;
-}
-
-/**
- * Renders the given markdown string as an array of ElementContent.
- * If the rendered markdown consists of a single paragraph element,
- * it returns the children of that paragraph instead.
- *
- * @param md - The markdown string to render.
- * @returns An array of ElementContent representing the rendered markdown.
- */
-function renderMarkdownInline(md: string): ElementContent[] {
-	const betterMD = md;
-
-	const children = renderMarkdown(betterMD);
-	if (
-		children.length === 1 &&
-		children[0].type === "element" &&
-		children[0].tagName === "p"
-	)
-		return children[0].children;
-	return children;
-}
-
-/**
- * Filters tags based on specific keywords.
- *
- * @param tag - The tag string to be checked.
- * @returns A boolean indicating whether the tag includes any of the specified keywords: "param", "returns", "type", or "template".
- */
-function filterTags(tag: string) {
-	return reJsDocTagFilter.test(tag);
-}
-
-/**
- * Returns a CSS class name based on the error level of the provided NodeError.
- *
- * @param error - The NodeError object containing the error level.
- * @returns A string representing the CSS class name corresponding to the error level.
- *
- * The possible error levels and their corresponding CSS class names are:
- * - "warning" -> "twoslash-error-level-warning"
- * - "suggestion" -> "twoslash-error-level-suggestion"
- * - "message" -> "twoslash-error-level-message"
- * - Any other value -> "twoslash-error-level-error"
- */
-function getErrorLevelClass(error: NodeError): string {
-	switch (error.level) {
-		case "warning":
-			return "twoslash-error-level-warning";
-		case "suggestion":
-			return "twoslash-error-level-suggestion";
-		case "message":
-			return "twoslash-error-level-message";
-		default:
-			return "twoslash-error-level-error";
+		});
 	}
-}
 
-/**
- * Returns a string representation of the error level.
- *
- * @param error - The error object containing the level property.
- * @returns A string that represents the error level. Possible values are:
- * - "Warning" for level "warning"
- * - "Suggestion" for level "suggestion"
- * - "Message" for level "message"
- * - "Error" for any other level
- */
-function getErrorLevelString(error: NodeError): string {
-	switch (error.level) {
-		case "warning":
-			return "Warning";
-		case "suggestion":
-			return "Suggestion";
-		case "message":
-			return "Message";
-		default:
-			return "Error";
+	render({ nodesToTransform }: AnnotationRenderOptions): Element[] {
+		return nodesToTransform.map((node) => {
+			return h("span.twoslash.twoslash-error-underline", [node]);
+		});
 	}
 }
 
@@ -229,51 +99,6 @@ export class TwoslashErrorBoxAnnotation extends ExpressiveCodeAnnotation {
 	}
 }
 
-type TwoslashTag = "annotate" | "log" | "warn" | "error";
-
-/**
- * Returns a string representation of a custom tag.
- *
- * @param tag - The custom tag to convert to a string. Can be one of "warn", "annotate", or "log".
- * @returns A string that represents the custom tag. Returns "Warning" for "warn", "Message" for "annotate",
- * "Log" for "log", and "Error" for any other value.
- */
-function getCustomTagString(tag: TwoslashTag): string {
-	switch (tag) {
-		case "warn":
-			return "Warning";
-		case "annotate":
-			return "Message";
-		case "log":
-			return "Log";
-		default:
-			return "Error";
-	}
-}
-
-/**
- * Returns a custom CSS class name based on the provided TwoslashTag.
- *
- * @param tag - The TwoslashTag to get the custom class for. Possible values are "warn", "annotate", "log", or any other string.
- * @returns The corresponding CSS class name as a string.
- *          - "twoslash-custom-level-warning" for "warn"
- *          - "twoslash-custom-level-suggestion" for "annotate"
- *          - "twoslash-custom-level-message" for "log"
- *          - "twoslash-custom-level-error" for any other value
- */
-function getCustomTagClass(tag: TwoslashTag): string {
-	switch (tag) {
-		case "warn":
-			return "twoslash-custom-level-warning";
-		case "annotate":
-			return "twoslash-custom-level-suggestion";
-		case "log":
-			return "twoslash-custom-level-message";
-		default:
-			return "twoslash-custom-level-error";
-	}
-}
-
 /**
  * Represents a custom annotation for Twoslash tags.
  * Extends the `ExpressiveCodeAnnotation` class to provide custom rendering for Twoslash tags.
@@ -325,22 +150,6 @@ export class TwoslashCustomTagsAnnotation extends ExpressiveCodeAnnotation {
 }
 
 /**
- * Calculates the width of a given text in pixels based on the character location, font size, and character width.
- *
- * @param textLoc - The location of the text (number of characters).
- * @param fontSize - The font size in pixels. Defaults to 16.
- * @param charWidth - The width of a single character in pixels. Defaults to 8.
- * @returns The width of the text in pixels.
- */
-function getTextWidthInPixels(
-	textLoc: number,
-	fontSize = 16,
-	charWidth = 8,
-): number {
-	return textLoc * charWidth * (fontSize / 16);
-}
-
-/**
  * Represents a static annotation for Twoslash.
  * Extends the ExpressiveCodeAnnotation class.
  */
@@ -367,6 +176,20 @@ export class TwoslashStaticAnnotation extends ExpressiveCodeAnnotation {
 		});
 	}
 
+	private getHoverInfo(text: string) {
+		const info = defaultHoverInfoProcessor(text);
+
+		if (info === false) {
+			return [];
+		}
+
+		if (typeof info === "string") {
+			return h("code.twoslash-popup-code", [
+				h("span.twoslash-popup-code-type", info),
+			]);
+		}
+	}
+
 	/**
 	 * Renders the static annotation.
 	 * @param nodesToTransform - The nodes to transform with the error box annotation.
@@ -385,12 +208,7 @@ export class TwoslashStaticAnnotation extends ExpressiveCodeAnnotation {
 					},
 					[
 						h("div.twoslash-static-container.not-content", [
-							h("code.twoslash-popup-code", [
-								h(
-									"span.twoslash-popup-code-type",
-									defaultHoverInfoProcessor(this.hover.text),
-								),
-							]),
+							this.getHoverInfo(this.hover.text),
 							...(this.hover.docs && this.includeJsDoc
 								? [
 										h("div.twoslash-popup-docs", [
@@ -482,6 +300,20 @@ export class TwoslashHoverAnnotation extends ExpressiveCodeAnnotation {
 		});
 	}
 
+	private getHoverInfo(text: string) {
+		const info = defaultHoverInfoProcessor(text);
+
+		if (info === false) {
+			return [];
+		}
+
+		if (typeof info === "string") {
+			return h("code.twoslash-popup-code", [
+				h("span.twoslash-popup-code-type", info),
+			]);
+		}
+	}
+
 	/**
 	 * Renders the hover annotation.
 	 * @param nodesToTransform - The nodes to be transformed with hover annotations.
@@ -496,12 +328,7 @@ export class TwoslashHoverAnnotation extends ExpressiveCodeAnnotation {
 							"div.twoslash-popup-container.not-content",
 
 							[
-								h("code.twoslash-popup-code", node.properties, [
-									h(
-										"span.twoslash-popup-code-type",
-										defaultHoverInfoProcessor(this.hover.text),
-									),
-								]),
+								this.getHoverInfo(this.hover.text),
 								...(this.hover.docs && this.includeJsDoc
 									? [
 											h("div.twoslash-popup-docs", [
@@ -559,11 +386,12 @@ export class TwoslashCompletionAnnotation extends ExpressiveCodeAnnotation {
 	constructor(
 		readonly completion: CompletionItem,
 		readonly query: NodeCompletion,
+		readonly line: ExpressiveCodeLine,
 	) {
 		super({
 			inlineRange: {
 				columnStart: completion.startCharacter,
-				columnEnd: completion.startCharacter + completion.length,
+				columnEnd: completion.startCharacter + line.text.length,
 			},
 		});
 	}
@@ -575,8 +403,9 @@ export class TwoslashCompletionAnnotation extends ExpressiveCodeAnnotation {
 	 */
 	render({ nodesToTransform }: AnnotationRenderOptions) {
 		return nodesToTransform.map((node) => {
-			return h("span", [
+			return h("span.twoslash-noline", [
 				h("span.twoslash-cursor", [" "]),
+				node,
 				h(
 					"div.twoslash-completion",
 					{

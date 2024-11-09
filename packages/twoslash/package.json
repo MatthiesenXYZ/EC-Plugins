@@ -14,7 +14,7 @@
 		"ec-plugin",
 		"twoslash"
 	],
-	"homepage": "https://github.com/MatthiesenXYZ/EC-Plugins/blob/main/packages/twoslash/README.md",
+	"homepage": "https://twoslash.matthiesen.dev",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/MatthiesenXYZ/EC-Plugins",
@@ -31,9 +31,7 @@
 		"default": "./dist/index.js"
 	},
 	"types": "./dist/index.d.ts",
-	"files": [
-		"dist"
-	],
+	"files": ["dist"],
 	"scripts": {
 		"build": "tsup ./src/index.ts --format esm --dts --sourcemap --clean",
 		"watch": "pnpm build --watch src"
@@ -46,10 +44,7 @@
 		"twoslash": "^0.2.12"
 	},
 	"peerDependencies": {
-		"@expressive-code/core": "^0.35.6",
+		"@expressive-code/core": "^0.38.3",
 		"typescript": "^5.5"
-	},
-	"devDependencies": {
-		"@expressive-code/core": "^0.35.6"
 	}
 }

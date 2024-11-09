@@ -1,0 +1,41 @@
+---
+title: Code Completions
+sidebar:
+  order: 2
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+What happens is that Twoslash makes a request to TypeScript to get the auto-complete at the point of the `^`, and then filters the possible outputs based on the letters following the `.`. Up to 5 results will be shown inline, and if a completion is marked as deprecated - that will be respected in the output.
+
+So, in this case, Twoslash asks TypeScript for completions of console, then filters down to completions which start with `c`. Note that the compiler flag for `// @noErrors` is set, because `console.c` is a failing TypeScript code sample but we don't really care about that.
+
+<Tabs>
+
+<TabItem label="Output">
+
+```ts twoslash
+// @noErrors
+
+console.c
+//       ^|
+```
+
+</TabItem>
+
+<TabItem label='Markdown'>
+
+``````md
+
+```ts twoslash
+// @noErrors
+
+console.c
+//       ^|
+```
+
+``````
+
+</TabItem>
+
+</Tabs>
