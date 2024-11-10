@@ -13,6 +13,7 @@ output.push(
 	'---',
 	'# Warning: This file is generated automatically. Do not edit!',
 	'title: Release Notes',
+	'editUrl: false',
     'sideBar:',
     '  order: 3',
 	'---',
