@@ -1,5 +1,11 @@
 # expressive-code-twoslash
 
+## 0.1.6
+
+### Patch Changes
+
+- [#10](https://github.com/MatthiesenXYZ/EC-Plugins/pull/10) [`d761ccc`](https://github.com/MatthiesenXYZ/EC-Plugins/commit/d761cccef66c9410d4c8ff5e6a44594b75a5ccc1) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - fix small css issue
+
 ## 0.1.5
 
 ### Patch Changes
