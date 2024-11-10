@@ -16,32 +16,14 @@ import { getTwoSlashBaseStyles, twoSlashStyleSettings } from "./styles";
 import type { PluginTwoslashOptions } from "./types";
 
 /**
- * A Expressive Code Plugin that transforms code blocks with Twoslash annotations.
+ * Add Twoslash support to your Expressive Code TypeScript code blocks.
  *
- * @param options - Configuration options for the plugin.
- * @param options.explicitTrigger - A boolean or RegExp to explicitly trigger the transformation. Defaults to `true`.
- * @param options.languages - An array of languages to apply the transformation to. Defaults to `["ts", "tsx"]`.
- * @param options.twoslashOptions - Additional options to pass to the twoslasher.
- *
- * @example
- * ```ts
- * import { defineConfig } from "astro/config";
- * import starlight from "@astrojs/starlight";
- * import ecTwoSlash from "expressive-code-twoslash";
- *
- * // https://astro.build/config
- * export default defineConfig({
- *   integrations: [
- *     starlight({
- *       title: "Starlight",
- *       expressiveCode: {
- *         plugins: [ecTwoSlash()],
- *       },
- *     }),
- *   ],
- * });
- * ```
- *
+ * @param {PluginTwoslashOptions} options - Configuration options for the plugin.
+ * @param {Boolean | RegExp} options.explicitTrigger - Settings for the explicit trigger.
+ * @param {String[]} options.languages - The languages to apply this transformer to.
+ * @param {Boolean} options.includeJsDoc - If `true`, includes JSDoc comments in the hover popup.
+ * @param {PluginTwoslashOptions['twoslashOptions']} options.twoslashOptions - Options to forward to `twoslash`.
+ * @see https://twoslash.matthiesen.dev for the full documentation.
  * @returns A plugin object with the specified configuration.
  */
 export default function ecTwoSlash(
@@ -49,12 +31,6 @@ export default function ecTwoSlash(
 ): ExpressiveCodePlugin {
 	/**
 	 * Destructures the options object to extract configuration settings.
-	 *
-	 * @param options - The options object containing configuration settings.
-	 * @param options.explicitTrigger - Determines if the trigger should be explicit. Defaults to `true`.
-	 * @param options.languages - An array of languages to be included. Defaults to `["ts", "tsx"]`.
-	 * @param options.includeJsDoc - Indicates whether to include JSDoc comments. Defaults to `true`.
-	 * @param options.twoslashOptions - Additional options for the twoslash plugin.
 	 */
 	const {
 		explicitTrigger = true,
@@ -97,9 +73,6 @@ export default function ecTwoSlash(
 					// Replace the EC code block with the twoslash code block
 					replaceECBlockWithTwoslashBlock(twoslash, codeBlock);
 
-					// Generate the error annotations
-					addErrorAnnotations(twoslash, codeBlock);
-
 					// Generate the Hover and Static Annotations
 					addHoverOrStaticAnnotations(twoslash, codeBlock, includeJsDoc);
 
@@ -108,6 +81,9 @@ export default function ecTwoSlash(
 
 					// Generate the Twoslash Highlight annotations
 					addHighlightAnnotations(twoslash, codeBlock);
+
+					// Generate the error annotations
+					addErrorAnnotations(twoslash, codeBlock);
 
 					// Generate the Custom Tag annotations
 					addCustomTagAnnotations(twoslash, codeBlock);

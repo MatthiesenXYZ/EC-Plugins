@@ -1,4 +1,5 @@
 import {
+	lighten,
 	PluginStyleSettings,
 	type ResolverContext,
 	type StyleResolverFn,
@@ -18,22 +19,34 @@ declare module "@expressive-code/core" {
 export const twoSlashStyleSettings = new PluginStyleSettings({
 	defaultValues: {
 		twoSlash: {
-			// Highlight settings
+			// Main styles
+			borderColor: ({ theme }) =>
+				theme.colors["titleBar.border"] ||
+				lighten(
+					theme.colors["editor.background"],
+					theme.type === "dark" ? 0.5 : -0.15,
+				) ||
+				"transparent",
+			background: ({ theme }) => theme.colors["editor.background"] || theme.bg,
+			hoverUnderlineColor: ({ theme }) => theme.fg || "#888",
+
+			// Popup docs Extra styles
+			popupDocsMaxHeight: "200px",
+
+			// JS Doc Tag styles (`@param`, `@returns`, etc.)
+			// tagColorDark: ({ theme }) => theme.colors["terminal.ansiBlue"],
+			tagColor: ({ theme }) => theme.colors["terminal.ansiBrightBlue"],
+
+			// Temp styles till we can use the EC Code Engine to process
+			titleColor: ({ theme }) => theme.colors["terminal.ansiMagenta"],
+
+			// Highlight settings & styles
 			highlightHue: "284",
 			highlightDefaultLuminance: ["32%", "75%"],
 			highlightDefaultChroma: "40",
 			highlightBackgroundOpacity: "50%",
 			highlightBorderLuminance: "48%",
 			highlightBorderOpacity: "81.6%",
-
-			// Main styles
-			borderColor: ({ theme }) => theme.colors["panel.border"],
-			titleColorDark: ({ theme }) => theme.colors["terminal.ansiBrightMagenta"],
-			titleColor: ({ theme }) => theme.colors["terminal.ansiMagenta"],
-			tagColorDark: ({ theme }) => theme.colors["terminal.ansiBlue"],
-			tagColor: ({ theme }) => theme.colors["terminal.ansiBrightBlue"],
-
-			// Highlight styles
 			highlightBackground: (context) => resolveHighlight(context).background,
 			highlightBorderColor: (context) => resolveHighlight(context).border,
 
@@ -46,15 +59,23 @@ export const twoSlashStyleSettings = new PluginStyleSettings({
 			// Completion main styles
 			cursorColor: ({ theme }) => theme.colors["editorCursor.foreground"],
 			completionBoxBackground: ({ theme }) =>
-				theme.colors["editorSuggestWidget.background"],
+				theme.colors["editorSuggestWidget.background"] ||
+				theme.colors["twoSlash.background"],
 			completionBoxBorder: ({ theme }) =>
-				theme.colors["editorSuggestWidget.border"],
+				theme.colors["editorSuggestWidget.border"] ||
+				theme.colors["twoslash.borderColor"],
 			completionBoxColor: ({ theme }) =>
-				theme.colors["editorSuggestWidget.foreground"],
+				theme.colors["editorSuggestWidget.foreground"] ||
+				theme.colors["editor.foreground"] ||
+				theme.fg,
 			completionBoxMatchedColor: ({ theme }) =>
-				theme.colors["editorSuggestWidget.highlightForeground"],
+				theme.colors["editorSuggestWidget.highlightForeground"] ||
+				theme.colors["editor.findMatchBackground"] ||
+				theme.colors["terminal.ansiBrightCyan"],
 			completionBoxHoverBackground: ({ theme }) =>
-				theme.colors["editorSuggestWidget.selectedBackground"],
+				theme.colors["editorSuggestWidget.selectedBackground"] ||
+				theme.colors["editor.findMatchHighlightBackground"] ||
+				"#888",
 
 			// Completion icon colors
 			completionIconClass: "#EE9D28",
@@ -91,37 +112,13 @@ export const twoSlashStyleSettings = new PluginStyleSettings({
  */
 export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
 	const baseCSS = `
-    :root[data-theme="dark"] {
-        .twoslash-popup-code {
-            color: var(--1, inherit);
-        }
-        
-        .twoslash-popup-docs-tag-name {
-            color: ${cssVar("twoSlash.tagColor")};
-        }
-        .twoslash-popup-code-type {
-            color: ${cssVar("twoSlash.titleColorDark")} !important;
-        }
-    }
     :root {
-        --twoslash-font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-		'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-		'Segoe UI Symbol', 'Noto Color Emoji';
-        --twoslash-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-
-        --twoslash-underline-color: currentColor;
-        --twoslash-popup-container-bg: var(--ec-frm-edBg);
-        --twoslash-popup-docs-code-brd: var(--ec-brdCol);
-        --twoslash-popup-code-light: var(--0);
-        --twoslash-font-size: var(--sl-text-code), 0.875rem;
-        --twoslash-line-height: var(--sl-line-height), 1.75;
-
         .main-pane { 
             z-index: 1; 
         }
 
-        .expressive-code:hover .twoslash-hover {
-            border-color: ${cssVar("twoSlash.borderColor")};
+        .expressive-code:hover .twoslash-hover:not(.twoslash-hover:hover) {
+            border-color: rgba(from ${cssVar("twoSlash.hoverUnderlineColor")} r g b / 0.4);
         }
     }
     `;
@@ -134,7 +131,7 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             left: 3px;
             border-top: 1px solid ${cssVar("twoSlash.borderColor")};
             border-right: 1px solid ${cssVar("twoSlash.borderColor")};
-            background: var(--twoslash-popup-container-bg);
+            background: ${cssVar("twoSlash.background")};
             transform: rotate(-45deg);
             width: 8px;
             height: 8px;
@@ -146,7 +143,7 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             position: absolute;
             z-index: 999 !important;
             height: max-content;
-            background: var(--twoslash-popup-container-bg);
+            background: ${cssVar("twoSlash.background")};
             border: 1px solid ${cssVar("twoSlash.borderColor")};
             border-radius: 4px;
             font-size: 90%;
@@ -168,7 +165,7 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         .twoslash-static-container {
             display: block;
             z-index: 10;
-            background: var(--twoslash-popup-container-bg);
+            background: ${cssVar("twoSlash.background")};
             border: 1px solid ${cssVar("twoSlash.borderColor")};
             border-radius: 4px;
             font-size: 90%;
@@ -185,7 +182,7 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             left: 2px;
             border-top: 1px solid ${cssVar("twoSlash.borderColor")};
             border-right: 1px solid ${cssVar("twoSlash.borderColor")};
-            background: var(--twoslash-popup-container-bg);
+            background: ${cssVar("twoSlash.background")};
             transform: rotate(-45deg);
             width: 10px;
             height: 10px;
@@ -215,13 +212,13 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
 
         .twoslash .twoslash-hover {
             position: relative;
-            border-bottom: 1px dotted transparent;
+            border-bottom: 1px dashed transparent;
             transition-timing-function: ease;
             transition: border-color 0.3s;
         }
 
         .twoslash:hover .twoslash-hover {
-            border-color: var(--twoslash-underline-color);
+            border-color: ${cssVar("twoSlash.hoverUnderlineColor")};
         }
 
         .twoslash-popup-code {
@@ -230,31 +227,52 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             max-width: 600px;
             min-width: 100%;
             padding: 6px 12px;
-            color: var(--twoslash-popup-code-light);
-            font-size: var(--twoslash-font-size);
+            font-size: ${cssVar("codeFontSize")};
             font-weight: 400;
-            line-height: var(--twoslash-line-height);
+            line-height: ${cssVar("codeLineHeight")};
             white-space: pre-wrap;
+        }
+
+        .twoslash-popup-code::-webkit-scrollbar,
+        .twoslash-popup-code::-webkit-scrollbar-track,
+        .twoslash-popup-docs::-webkit-scrollbar,
+        .twoslash-popup-docs::-webkit-scrollbar-track {
+			background-color: inherit;
+			border-radius: calc(${cssVar("borderRadius")} + ${cssVar("borderWidth")});
+			border-top-left-radius: 0;
+			border-top-right-radius: 0;
+        }
+
+        .twoslash-popup-code::-webkit-scrollbar-thumb,
+        .twoslash-popup-docs::-webkit-scrollbar-thumb {
+			background-color: ${cssVar("scrollbarThumbColor")};
+			border: 4px solid transparent;
+			background-clip: content-box;
+			border-radius: 10px;
+        }
+
+        .twoslash-popup-code::-webkit-scrollbar-thumb:hover,
+        .twoslash-popup-docs::-webkit-scrollbar-thumb:hover {
+			background-color: ${cssVar("scrollbarThumbHoverColor")};
+        }
+
+        .twoslash-popup-code,
+        .twoslash-popup-docs {
+            max-height: ${cssVar("twoSlash.popupDocsMaxHeight")} !important;
+            overflow: auto !important;
         }
 
         .twoslash-popup-docs {
             max-width: 600px;
-            max-height: 200%;
             padding-left: 12px;
             padding-right: 12px;
             padding-top: 6px;
             padding-bottom: 6px;
             border-top: 1px solid ${cssVar("twoSlash.borderColor")};
-            font-size: var(--twoslash-font-size);
+            font-size: ${cssVar("codeFontSize")};
             font-weight: 400;
-            line-height: var(--twoslash-line-height);
+            line-height: ${cssVar("codeLineHeight")};
             text-wrap: balance;
-        }
-
-        .twoslash-popup-code,
-        .twoslash-popup-docs {
-            max-height: 200px !important;
-            overflow: auto !important;
         }
 
         .twoslash-popup-docs * {
@@ -262,26 +280,32 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         }
 
         .twoslash-popup-docs-tag-name {
-            color: ${cssVar("twoSlash.tagColorDark")};
+            color: ${cssVar("twoSlash.tagColor")};
             font-style: italic;
             --shiki-dark-font-style: italic;
             font-weight: 500;
         }
 
-        .twoslash-popup-docs code:not(:has(.shiki)) {
-            background-color: var(--twoslash-popup-container-bg) !important;
+        .twoslash-popup-code,
+        .twoslash-popup-code span {
+            white-space: preserve !important;
+        }
+
+        .twoslash-popup-docs pre {
+            width: 100%;
+            background-color: ${cssVar("twoSlash.background")} !important;
             padding: .15rem;
             border-radius: 4px !important;
             position: relative !important;
-            font-family: var(--twoslash-font-mono);
+            font-family: ${cssVar("codeFontFamily")};
             display: inline-block !important;
             line-height: 1 !important;
-            border: 2px solid var(--twoslash-popup-docs-code-brd) !important;
+            border: 2px solid ${cssVar("twoSlash.borderColor")} !important;
         }
 
         .twoslash-popup-code-type {
             color: ${cssVar("twoSlash.titleColor")} !important;
-            font-family: var(--twoslash-font-mono);
+            font-family: ${cssVar("codeFontFamily")};
             font-weight: 600;
         }
 

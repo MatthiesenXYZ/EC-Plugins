@@ -101,13 +101,35 @@ export function renderMarkdownInline(md: string): ElementContent[] {
 }
 
 /**
+ * Checks if the given markdown string consists of a single paragraph element.
+ *
+ * @param md - The markdown string to check.
+ * @param filterTags - A boolean indicating whether to filter tags.
+ * @returns A boolean indicating if the markdown string is a single paragraph element.
+ */
+export function checkIfSingleParagraph(
+	md: string,
+	filterTags: boolean,
+): boolean {
+	const children = renderMarkdownInline(md);
+	if (filterTags) {
+		return !(
+			children.length === 1 &&
+			children[0].type === "element" &&
+			children[0].tagName === "p"
+		);
+	}
+	return false;
+}
+
+/**
  * Filters tags based on specific keywords.
  *
  * @param tag - The tag string to be checked.
- * @returns A boolean indicating whether the tag includes any of the specified keywords: "param", "returns", "type", or "template".
+ * @returns A boolean indicating whether the tag includes any of the specified keywords
  */
 export function filterTags(tag: string) {
-	return reJsDocTagFilter.test(tag);
+	return !reJsDocTagFilter.test(tag);
 }
 
 /**
@@ -345,6 +367,7 @@ export function addErrorAnnotations(
 		const line = codeBlock.getLine(error.line);
 
 		if (line) {
+			removeHoverFromError(line, error);
 			line.addAnnotation(new TwoslashErrorUnderlineAnnotation(error));
 			line.addAnnotation(new TwoslashErrorBoxAnnotation(error, line));
 		}
@@ -494,6 +517,29 @@ export function removeHoverFromCompletions(
 			if (
 				annotation.hover.start === proccessed.startCharacter &&
 				annotation.hover.length === proccessed.length
+			) {
+				line.deleteAnnotation(annotation);
+			}
+		}
+	}
+}
+
+/**
+ * Removes a hover annotation from a line if it matches the specified error.
+ *
+ * @param line - The line from which to remove the hover annotation.
+ * @param error - The error to match against the hover annotation.
+ */
+export function removeHoverFromError(
+	line: ExpressiveCodeLine,
+	error: NodeError,
+) {
+	for (const annotation of line.getAnnotations()) {
+		if (annotation instanceof TwoslashHoverAnnotation) {
+			if (
+				annotation.hover.start === error.start &&
+				annotation.hover.character === error.character &&
+				annotation.hover.length === error.length
 			) {
 				line.deleteAnnotation(annotation);
 			}

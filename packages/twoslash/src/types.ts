@@ -14,7 +14,10 @@ export interface PluginTwoslashOptions {
 	 * If a `RegExp`, requires the `RegExp` to match a directive in the code
 	 * block meta for this transformer to be applied.
 	 *
-	 * If `false`, this transformer will be applied to all code blocks.
+	 * If `false`, this transformer will be applied to all code blocks that match
+	 * the specified languages.
+	 *
+	 * It is recommended to keep this as `true` to avoid unnecessary processing.
 	 *
 	 * @default true
 	 */
@@ -53,11 +56,12 @@ export interface TwoSlashStyleSettings {
 	highlightBorderLuminance: string;
 	highlightBorderOpacity: string;
 	borderColor: string;
+	background: string;
 	tagColor: string;
-	tagColorDark: string;
 	titleColor: string;
-	titleColorDark: string;
 	highlightBackground: string;
+	popupDocsMaxHeight: string;
+	hoverUnderlineColor: string;
 	highlightBorderColor: string;
 	errorColor: string;
 	warnColor: string;

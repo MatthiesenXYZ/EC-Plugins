@@ -15,7 +15,6 @@
 		"astro": "^4.16.10",
 		"astro-integration-kit": "^0.17.0",
 		"astro-expressive-code": "^0.38.3",
-		"tailwindcss": "^3.4.14",
 		"expressive-code-twoslash": "workspace:*"
 	},
 	"devDependencies": {

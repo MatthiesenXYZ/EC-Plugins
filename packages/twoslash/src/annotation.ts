@@ -14,6 +14,7 @@ import type {
 } from "twoslash";
 import { customTagsIcons } from "./customTagsIcons";
 import {
+	checkIfSingleParagraph,
 	defaultHoverInfoProcessor,
 	filterTags,
 	getCustomTagClass,
@@ -25,8 +26,11 @@ import {
 	renderMarkdownInline,
 } from "./helpers";
 import type { CompletionItem, CustomTagsIcon, TwoslashTag } from "./types";
+import { jsdocTags } from "./regex";
 
 export class TwoslashErrorUnderlineAnnotation extends ExpressiveCodeAnnotation {
+	readonly name = "twoslash-error-underline";
+
 	constructor(readonly error: NodeError) {
 		super({
 			inlineRange: {
@@ -48,6 +52,8 @@ export class TwoslashErrorUnderlineAnnotation extends ExpressiveCodeAnnotation {
  * Extends the `ExpressiveCodeAnnotation` class.
  */
 export class TwoslashErrorBoxAnnotation extends ExpressiveCodeAnnotation {
+	readonly name = "twoslash-error-box";
+
 	/**
 	 * Creates an instance of `TwoslashErrorBoxAnnotation`.
 	 *
@@ -104,6 +110,8 @@ export class TwoslashErrorBoxAnnotation extends ExpressiveCodeAnnotation {
  * Extends the `ExpressiveCodeAnnotation` class to provide custom rendering for Twoslash tags.
  */
 export class TwoslashCustomTagsAnnotation extends ExpressiveCodeAnnotation {
+	readonly name = "twoslash-custom-tags";
+
 	/**
 	 * Creates an instance of TwoslashCustomTagsAnnotation.
 	 * @param tag - The NodeTag object representing the Twoslash tag.
@@ -154,6 +162,7 @@ export class TwoslashCustomTagsAnnotation extends ExpressiveCodeAnnotation {
  * Extends the ExpressiveCodeAnnotation class.
  */
 export class TwoslashStaticAnnotation extends ExpressiveCodeAnnotation {
+	readonly name = "twoslash-static-annotation";
 	/**
 	 * Creates an instance of TwoslashStaticAnnotation.
 	 *
@@ -219,25 +228,30 @@ export class TwoslashStaticAnnotation extends ExpressiveCodeAnnotation {
 							...(this.hover.tags && this.includeJsDoc
 								? [
 										h("div.twoslash-popup-docs.twoslash-popup-docs-tags", [
-											h("p", [
-												...this.hover.tags.map((tag) =>
-													h("p", [
-														h(
-															"span.twoslash-popup-docs-tag-name",
-															`@${tag[0]}`,
-														),
-														tag[1]
-															? [
-																	filterTags(tag[0]) ? " ― " : " ",
-																	h(
-																		"span.twoslash-popup-docs-tag-value",
-																		renderMarkdownInline(tag[1]),
-																	),
-																]
-															: [],
-													]),
-												),
-											]),
+											...this.hover.tags.map((tag) =>
+												jsdocTags.includes(tag[0])
+													? h("p", [
+															h(
+																"span.twoslash-popup-docs-tag-name",
+																`@${tag[0]}`,
+															),
+															tag[1]
+																? [
+																		checkIfSingleParagraph(
+																			tag[1],
+																			filterTags(tag[0]),
+																		)
+																			? " ― "
+																			: " ",
+																		h(
+																			"span.twoslash-popup-docs-tag-value",
+																			renderMarkdownInline(tag[1]),
+																		),
+																	]
+																: [],
+														])
+													: [],
+											),
 										]),
 									]
 								: []),
@@ -254,6 +268,7 @@ export class TwoslashStaticAnnotation extends ExpressiveCodeAnnotation {
  * Extends the `ExpressiveCodeAnnotation` class.
  */
 export class TwoslashHighlightAnnotation extends ExpressiveCodeAnnotation {
+	readonly name = "twoslash-highlight-annotation";
 	/**
 	 * Creates an instance of `TwoslashHighlightAnnotation`.
 	 * @param highlight - The highlight details including start position and length.
@@ -284,6 +299,7 @@ export class TwoslashHighlightAnnotation extends ExpressiveCodeAnnotation {
  * Extends the `ExpressiveCodeAnnotation` class to provide hover functionality.
  */
 export class TwoslashHoverAnnotation extends ExpressiveCodeAnnotation {
+	readonly name = "twoslash-hover-annotation";
 	/**
 	 * Creates an instance of `TwoslashHoverAnnotation`.
 	 * @param hover - The hover information including character position and text.
@@ -339,25 +355,30 @@ export class TwoslashHoverAnnotation extends ExpressiveCodeAnnotation {
 								...(this.hover.tags && this.includeJsDoc
 									? [
 											h("div.twoslash-popup-docs.twoslash-popup-docs-tags", [
-												h("p", [
-													...this.hover.tags.map((tag) =>
-														h("p", [
-															h(
-																"span.twoslash-popup-docs-tag-name",
-																`@${tag[0]}`,
-															),
-															tag[1]
-																? [
-																		filterTags(tag[0]) ? " ― " : " ",
-																		h(
-																			"span.twoslash-popup-docs-tag-value",
-																			renderMarkdownInline(tag[1]),
-																		),
-																	]
-																: [],
-														]),
-													),
-												]),
+												...this.hover.tags.map((tag) =>
+													jsdocTags.includes(tag[0])
+														? h("p", [
+																h(
+																	"span.twoslash-popup-docs-tag-name",
+																	`@${tag[0]}`,
+																),
+																tag[1]
+																	? [
+																			checkIfSingleParagraph(
+																				tag[1],
+																				filterTags(tag[0]),
+																			)
+																				? " ― "
+																				: " ",
+																			h(
+																				"span.twoslash-popup-docs-tag-value",
+																				renderMarkdownInline(tag[1]),
+																			),
+																		]
+																	: [],
+															])
+														: [],
+												),
 											]),
 										]
 									: []),
@@ -377,6 +398,7 @@ export class TwoslashHoverAnnotation extends ExpressiveCodeAnnotation {
  * Extends the `ExpressiveCodeAnnotation` class.
  */
 export class TwoslashCompletionAnnotation extends ExpressiveCodeAnnotation {
+	readonly name = "twoslash-completion-annotation";
 	/**
 	 * Creates an instance of TwoslashCompletionAnnotation.
 	 *
