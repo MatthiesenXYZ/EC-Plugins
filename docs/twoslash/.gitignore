@@ -20,4 +20,4 @@ pnpm-debug.log*
 # macOS-specific files
 .DS_Store
 
-content/docs/changelog.md
+src/content/docs/getting-started/changelog.md
