@@ -60,10 +60,16 @@ export const twoSlashStyleSettings = new PluginStyleSettings({
 			cursorColor: ({ theme }) => theme.colors["editorCursor.foreground"],
 			completionBoxBackground: ({ theme }) =>
 				theme.colors["editorSuggestWidget.background"] ||
-				theme.colors["twoSlash.background"],
+				theme.colors["editor.background"] ||
+				theme.bg,
 			completionBoxBorder: ({ theme }) =>
 				theme.colors["editorSuggestWidget.border"] ||
-				theme.colors["twoslash.borderColor"],
+				theme.colors["titleBar.border"] ||
+				lighten(
+					theme.colors["editor.background"],
+					theme.type === "dark" ? 0.5 : -0.15,
+				) ||
+				"transparent",
 			completionBoxColor: ({ theme }) =>
 				theme.colors["editorSuggestWidget.foreground"] ||
 				theme.colors["editor.foreground"] ||
