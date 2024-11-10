@@ -44,7 +44,9 @@ export default function ecTwoSlash(
 	 *
 	 * @returns {Twoslasher} A new instance of the Twoslasher.
 	 */
-	const twoslasher = createTwoslasher();
+	const twoslasher = createTwoslasher({
+		...twoslashOptions,
+	});
 
 	const shouldTransform = buildMetaChecker(languages, explicitTrigger);
 

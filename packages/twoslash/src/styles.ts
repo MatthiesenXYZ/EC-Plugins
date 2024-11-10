@@ -29,12 +29,18 @@ export const twoSlashStyleSettings = new PluginStyleSettings({
 				"transparent",
 			background: ({ theme }) => theme.colors["editor.background"] || theme.bg,
 			hoverUnderlineColor: ({ theme }) => theme.fg || "#888",
+			textColor: ({ theme }) => theme.colors["editor.foreground"] || theme.fg,
+
+			linkColor: ({ theme }) => theme.colors["terminal.ansiBrightBlue"],
+			linkColorVisited: ({ theme }) =>
+				theme.colors["terminal.ansiBrightMagenta"],
+			linkColorHover: ({ theme }) => theme.colors["terminal.ansiBrightCyan"],
+			linkColorActive: ({ theme }) => theme.colors["terminal.ansiBrightGreen"],
 
 			// Popup docs Extra styles
 			popupDocsMaxHeight: "200px",
 
 			// JS Doc Tag styles (`@param`, `@returns`, etc.)
-			// tagColorDark: ({ theme }) => theme.colors["terminal.ansiBlue"],
 			tagColor: ({ theme }) => theme.colors["terminal.ansiBrightBlue"],
 
 			// Temp styles till we can use the EC Code Engine to process
@@ -158,6 +164,23 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             overflow-wrap: normal !important;
             width: max-content !important;
             margin-top: 0.5rem;
+            color: ${cssVar("twoSlash.textColor")};
+        }
+
+        .twoslash-popup-container a:link {
+            color: ${cssVar("twoSlash.linkColor")};
+        }
+
+        .twoslash-popup-container a:hover {
+            color: ${cssVar("twoSlash.linkColorHover")};
+        }
+
+        .twoslash-popup-container a:visited {
+            color: ${cssVar("twoSlash.linkColorVisited")};
+        }
+
+        .twoslash-popup-container a:active {
+            color: ${cssVar("twoSlash.linkColorActive")};
         }
 
         .twoslash-popup-container * {
