@@ -4,11 +4,12 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
-		"dev": "astro dev",
+		"dev": "pnpm make-changelog && astro dev",
 		"start": "astro dev",
-		"build": "astro build",
+		"build": "pnpm make-changelog && astro build",
 		"preview": "astro preview",
-		"astro": "astro"
+		"astro": "astro",
+		"make-changelog": "tsm --require=./scripts/lib/filter-warnings.cjs ./scripts/changelog.ts"
 	},
 	"dependencies": {
 		"@astrojs/starlight": "^0.29.0",
@@ -18,7 +19,13 @@
 		"sharp": "^0.33.5",
 		"expressive-code-twoslash": "workspace:*",
 		"starlight-package-managers": "^0.8.0",
-		"rehype-expressive-code": "^0.38.3"
+		"rehype-expressive-code": "^0.38.3",
+		"mdast-util-to-markdown": "^2.1.2",
+		"mdast-util-to-string": "4.0.0",
+		"mdast-util-from-markdown": "^2.0.2",
+		"mdast": "^3.0.0",
+		"@types/mdast": "^4.0.4",
+		"unist-util-visit": "^5.0.0"
 	},
 	"devDependencies": {
 		"@astrojs/check": "^0.9.4",
