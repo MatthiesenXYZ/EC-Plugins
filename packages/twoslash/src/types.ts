@@ -58,9 +58,7 @@ export interface TwoSlashStyleSettings {
 	borderColor: string;
 	background: string;
 	tagColor: string;
-	tagColorDark: string;
 	titleColor: string;
-	titleColorDark: string;
 	highlightBackground: string;
 	popupDocsMaxHeight: string;
 	hoverUnderlineColor: string;

@@ -34,11 +34,10 @@ export const twoSlashStyleSettings = new PluginStyleSettings({
 			popupDocsMaxHeight: "200px",
 
 			// JS Doc Tag styles (`@param`, `@returns`, etc.)
-			tagColorDark: ({ theme }) => theme.colors["terminal.ansiBlue"],
+			// tagColorDark: ({ theme }) => theme.colors["terminal.ansiBlue"],
 			tagColor: ({ theme }) => theme.colors["terminal.ansiBrightBlue"],
 
 			// Temp styles till we can use the EC Code Engine to process
-			titleColorDark: ({ theme }) => theme.colors["terminal.ansiBrightMagenta"],
 			titleColor: ({ theme }) => theme.colors["terminal.ansiMagenta"],
 
 			// Highlight settings & styles
@@ -113,21 +112,7 @@ export const twoSlashStyleSettings = new PluginStyleSettings({
  */
 export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
 	const baseCSS = `
-    :root[data-theme="dark"] {
-        .twoslash-popup-code {
-            color: var(--1, inherit);
-        }
-        
-        .twoslash-popup-docs-tag-name {
-            color: ${cssVar("twoSlash.tagColor")};
-        }
-        .twoslash-popup-code-type {
-            color: ${cssVar("twoSlash.titleColorDark")} !important;
-        }
-    }
     :root {
-        --twoslash-popup-code-light: var(--0);
-
         .main-pane { 
             z-index: 1; 
         }
@@ -242,11 +227,39 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             max-width: 600px;
             min-width: 100%;
             padding: 6px 12px;
-            color: var(--twoslash-popup-code-light);
             font-size: ${cssVar("codeFontSize")};
             font-weight: 400;
             line-height: ${cssVar("codeLineHeight")};
             white-space: pre-wrap;
+        }
+
+        .twoslash-popup-code::-webkit-scrollbar,
+        .twoslash-popup-code::-webkit-scrollbar-track,
+        .twoslash-popup-docs::-webkit-scrollbar,
+        .twoslash-popup-docs::-webkit-scrollbar-track {
+			background-color: inherit;
+			border-radius: calc(${cssVar("borderRadius")} + ${cssVar("borderWidth")});
+			border-top-left-radius: 0;
+			border-top-right-radius: 0;
+        }
+
+        .twoslash-popup-code::-webkit-scrollbar-thumb,
+        .twoslash-popup-docs::-webkit-scrollbar-thumb {
+			background-color: ${cssVar("scrollbarThumbColor")};
+			border: 4px solid transparent;
+			background-clip: content-box;
+			border-radius: 10px;
+        }
+
+        .twoslash-popup-code::-webkit-scrollbar-thumb:hover,
+        .twoslash-popup-docs::-webkit-scrollbar-thumb:hover {
+			background-color: ${cssVar("scrollbarThumbHoverColor")};
+        }
+
+        .twoslash-popup-code,
+        .twoslash-popup-docs {
+            max-height: ${cssVar("twoSlash.popupDocsMaxHeight")} !important;
+            overflow: auto !important;
         }
 
         .twoslash-popup-docs {
@@ -262,48 +275,24 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             text-wrap: balance;
         }
 
-        .twoslash-popup-docs::-webkit-scrollbar,
-        .twoslash-popup-docs::-webkit-scrollbar-track {
-			background-color: inherit;
-			border-radius: calc(${cssVar("borderRadius")} + ${cssVar("borderWidth")});
-			border-top-left-radius: 0;
-			border-top-right-radius: 0;
-        }
-
-        .twoslash-popup-docs::-webkit-scrollbar-thumb {
-			background-color: ${cssVar("scrollbarThumbColor")};
-			border: 4px solid transparent;
-			background-clip: content-box;
-			border-radius: 10px;
-        }
-
-        .twoslash-popup-docs::-webkit-scrollbar-thumb:hover {
-			background-color: ${cssVar("scrollbarThumbHoverColor")};
-        }
-            
-        .twoslash-popup-docs {
-            --sb-thumb-color: ${cssVar("twoSlash.borderColor")};
-            --sb-track-color: ${cssVar("twoSlash.background")};
-        }
-
-        .twoslash-popup-code,
-        .twoslash-popup-docs {
-            max-height: ${cssVar("twoSlash.popupDocsMaxHeight")} !important;
-            overflow: auto !important;
-        }
-
         .twoslash-popup-docs * {
             overflow-x: unset;
         }
 
         .twoslash-popup-docs-tag-name {
-            color: ${cssVar("twoSlash.tagColorDark")};
+            color: ${cssVar("twoSlash.tagColor")};
             font-style: italic;
             --shiki-dark-font-style: italic;
             font-weight: 500;
         }
 
-        .twoslash-popup-docs code:not(:has(.shiki)) {
+        .twoslash-popup-code,
+        .twoslash-popup-code span {
+            white-space: preserve !important;
+        }
+
+        .twoslash-popup-docs pre {
+            width: 100%;
             background-color: ${cssVar("twoSlash.background")} !important;
             padding: .15rem;
             border-radius: 4px !important;
