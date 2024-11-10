@@ -12,7 +12,7 @@ export default defineConfig({
 			tagline: "Twoslash support for Expressive Code",
 			favicon: "/favicon.svg",
 			logo: {
-				src: "./src/assets/twoslash.svg",
+				src: "./src/assets/twoslash.png",
 				alt: "EC Twoslash Logo",
 			},
 			credits: true,
