@@ -53,6 +53,7 @@ export interface TwoSlashStyleSettings {
 	highlightBorderLuminance: string;
 	highlightBorderOpacity: string;
 	borderColor: string;
+	background: string;
 	tagColor: string;
 	tagColorDark: string;
 	titleColor: string;
