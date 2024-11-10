@@ -28,6 +28,10 @@ export const twoSlashStyleSettings = new PluginStyleSettings({
 				) ||
 				"transparent",
 			background: ({ theme }) => theme.colors["editor.background"] || theme.bg,
+			hoverUnderlineColor: ({ theme }) => theme.fg || "#888",
+
+			// Popup docs Extra styles
+			popupDocsMaxHeight: "200px",
 
 			// JS Doc Tag styles (`@param`, `@returns`, etc.)
 			tagColorDark: ({ theme }) => theme.colors["terminal.ansiBlue"],
@@ -122,15 +126,14 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         }
     }
     :root {
-        --twoslash-underline-color: currentColor;
         --twoslash-popup-code-light: var(--0);
 
         .main-pane { 
             z-index: 1; 
         }
 
-        .expressive-code:hover .twoslash .twoslash-hover {
-            border-color: rgba(from var(--twoslash-underline-color) / 0.2) !important;
+        .expressive-code:hover .twoslash-hover:not(.twoslash-hover:hover) {
+            border-color: rgba(from ${cssVar("twoSlash.hoverUnderlineColor")} r g b / 0.4);
         }
     }
     `;
@@ -224,13 +227,13 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
 
         .twoslash .twoslash-hover {
             position: relative;
-            border-bottom: 1px dotted transparent;
+            border-bottom: 1px dashed transparent;
             transition-timing-function: ease;
             transition: border-color 0.3s;
         }
 
         .twoslash:hover .twoslash-hover {
-            border-color: var(--twoslash-underline-color);
+            border-color: ${cssVar("twoSlash.hoverUnderlineColor")};
         }
 
         .twoslash-popup-code {
@@ -248,7 +251,6 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
 
         .twoslash-popup-docs {
             max-width: 600px;
-            max-height: 200%;
             padding-left: 12px;
             padding-right: 12px;
             padding-top: 6px;
@@ -286,7 +288,7 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
 
         .twoslash-popup-code,
         .twoslash-popup-docs {
-            max-height: 200px !important;
+            max-height: ${cssVar("twoSlash.popupDocsMaxHeight")} !important;
             overflow: auto !important;
         }
 

@@ -345,6 +345,7 @@ export function addErrorAnnotations(
 		const line = codeBlock.getLine(error.line);
 
 		if (line) {
+			removeHoverFromError(line, error);
 			line.addAnnotation(new TwoslashErrorUnderlineAnnotation(error));
 			line.addAnnotation(new TwoslashErrorBoxAnnotation(error, line));
 		}
@@ -494,6 +495,29 @@ export function removeHoverFromCompletions(
 			if (
 				annotation.hover.start === proccessed.startCharacter &&
 				annotation.hover.length === proccessed.length
+			) {
+				line.deleteAnnotation(annotation);
+			}
+		}
+	}
+}
+
+/**
+ * Removes a hover annotation from a line if it matches the specified error.
+ *
+ * @param line - The line from which to remove the hover annotation.
+ * @param error - The error to match against the hover annotation.
+ */
+export function removeHoverFromError(
+	line: ExpressiveCodeLine,
+	error: NodeError,
+) {
+	for (const annotation of line.getAnnotations()) {
+		if (annotation instanceof TwoslashHoverAnnotation) {
+			if (
+				annotation.hover.start === error.start &&
+				annotation.hover.character === error.character &&
+				annotation.hover.length === error.length
 			) {
 				line.deleteAnnotation(annotation);
 			}

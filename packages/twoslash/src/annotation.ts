@@ -27,6 +27,8 @@ import {
 import type { CompletionItem, CustomTagsIcon, TwoslashTag } from "./types";
 
 export class TwoslashErrorUnderlineAnnotation extends ExpressiveCodeAnnotation {
+	readonly name = "twoslash-error-underline";
+
 	constructor(readonly error: NodeError) {
 		super({
 			inlineRange: {
@@ -48,6 +50,8 @@ export class TwoslashErrorUnderlineAnnotation extends ExpressiveCodeAnnotation {
  * Extends the `ExpressiveCodeAnnotation` class.
  */
 export class TwoslashErrorBoxAnnotation extends ExpressiveCodeAnnotation {
+	readonly name = "twoslash-error-box";
+
 	/**
 	 * Creates an instance of `TwoslashErrorBoxAnnotation`.
 	 *
@@ -104,6 +108,8 @@ export class TwoslashErrorBoxAnnotation extends ExpressiveCodeAnnotation {
  * Extends the `ExpressiveCodeAnnotation` class to provide custom rendering for Twoslash tags.
  */
 export class TwoslashCustomTagsAnnotation extends ExpressiveCodeAnnotation {
+	readonly name = "twoslash-custom-tags";
+
 	/**
 	 * Creates an instance of TwoslashCustomTagsAnnotation.
 	 * @param tag - The NodeTag object representing the Twoslash tag.
@@ -154,6 +160,7 @@ export class TwoslashCustomTagsAnnotation extends ExpressiveCodeAnnotation {
  * Extends the ExpressiveCodeAnnotation class.
  */
 export class TwoslashStaticAnnotation extends ExpressiveCodeAnnotation {
+	readonly name = "twoslash-static-annotation";
 	/**
 	 * Creates an instance of TwoslashStaticAnnotation.
 	 *
@@ -254,6 +261,7 @@ export class TwoslashStaticAnnotation extends ExpressiveCodeAnnotation {
  * Extends the `ExpressiveCodeAnnotation` class.
  */
 export class TwoslashHighlightAnnotation extends ExpressiveCodeAnnotation {
+	readonly name = "twoslash-highlight-annotation";
 	/**
 	 * Creates an instance of `TwoslashHighlightAnnotation`.
 	 * @param highlight - The highlight details including start position and length.
@@ -284,6 +292,7 @@ export class TwoslashHighlightAnnotation extends ExpressiveCodeAnnotation {
  * Extends the `ExpressiveCodeAnnotation` class to provide hover functionality.
  */
 export class TwoslashHoverAnnotation extends ExpressiveCodeAnnotation {
+	readonly name = "twoslash-hover-annotation";
 	/**
 	 * Creates an instance of `TwoslashHoverAnnotation`.
 	 * @param hover - The hover information including character position and text.
@@ -377,6 +386,7 @@ export class TwoslashHoverAnnotation extends ExpressiveCodeAnnotation {
  * Extends the `ExpressiveCodeAnnotation` class.
  */
 export class TwoslashCompletionAnnotation extends ExpressiveCodeAnnotation {
+	readonly name = "twoslash-completion-annotation";
 	/**
 	 * Creates an instance of TwoslashCompletionAnnotation.
 	 *
