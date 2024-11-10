@@ -260,6 +260,30 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             text-wrap: balance;
         }
 
+        .twoslash-popup-docs::-webkit-scrollbar,
+        .twoslash-popup-docs::-webkit-scrollbar-track {
+			background-color: inherit;
+			border-radius: calc(${cssVar("borderRadius")} + ${cssVar("borderWidth")});
+			border-top-left-radius: 0;
+			border-top-right-radius: 0;
+        }
+
+        .twoslash-popup-docs::-webkit-scrollbar-thumb {
+			background-color: ${cssVar("scrollbarThumbColor")};
+			border: 4px solid transparent;
+			background-clip: content-box;
+			border-radius: 10px;
+        }
+
+        .twoslash-popup-docs::-webkit-scrollbar-thumb:hover {
+			background-color: ${cssVar("scrollbarThumbHoverColor")};
+        }
+            
+        .twoslash-popup-docs {
+            --sb-thumb-color: ${cssVar("twoSlash.borderColor")};
+            --sb-track-color: ${cssVar("twoSlash.background")};
+        }
+
         .twoslash-popup-code,
         .twoslash-popup-docs {
             max-height: 200px !important;
