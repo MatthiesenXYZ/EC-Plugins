@@ -18,26 +18,12 @@ import type { PluginTwoslashOptions } from "./types";
 /**
  * Add Twoslash support to your Expressive Code TypeScript code blocks.
  *
- * @param options - Configuration options for the plugin.
- *
- * @example
- * ```ts
- * import { defineConfig } from "astro/config";
- * import starlight from "@astrojs/starlight";
- * import ecTwoSlash from "expressive-code-twoslash";
- *
- * // https://astro.build/config
- * export default defineConfig({
- *   integrations: [
- *     starlight({
- *       title: "Starlight",
- *       expressiveCode: {
- *         plugins: [ecTwoSlash()],
- *       },
- *     }),
- *   ],
- * });
- * ```
+ * @param {PluginTwoslashOptions} options - Configuration options for the plugin.
+ * @param {Boolean | RegExp} options.explicitTrigger - Settings for the explicit trigger.
+ * @param {String[]} options.languages - The languages to apply this transformer to.
+ * @param {Boolean} options.includeJsDoc - If `true`, includes JSDoc comments in the hover popup.
+ * @param {PluginTwoslashOptions['twoslashOptions']} options.twoslashOptions - Options to forward to `twoslash`.
+ * @see https://twoslash.matthiesen.dev for the full documentation.
  * @returns A plugin object with the specified configuration.
  */
 export default function ecTwoSlash(

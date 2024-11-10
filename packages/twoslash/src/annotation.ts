@@ -14,6 +14,7 @@ import type {
 } from "twoslash";
 import { customTagsIcons } from "./customTagsIcons";
 import {
+	checkIfSingleParagraph,
 	defaultHoverInfoProcessor,
 	filterTags,
 	getCustomTagClass,
@@ -25,6 +26,7 @@ import {
 	renderMarkdownInline,
 } from "./helpers";
 import type { CompletionItem, CustomTagsIcon, TwoslashTag } from "./types";
+import { jsdocTags } from "./regex";
 
 export class TwoslashErrorUnderlineAnnotation extends ExpressiveCodeAnnotation {
 	readonly name = "twoslash-error-underline";
@@ -226,25 +228,30 @@ export class TwoslashStaticAnnotation extends ExpressiveCodeAnnotation {
 							...(this.hover.tags && this.includeJsDoc
 								? [
 										h("div.twoslash-popup-docs.twoslash-popup-docs-tags", [
-											h("p", [
-												...this.hover.tags.map((tag) =>
-													h("p", [
-														h(
-															"span.twoslash-popup-docs-tag-name",
-															`@${tag[0]}`,
-														),
-														tag[1]
-															? [
-																	filterTags(tag[0]) ? " ― " : " ",
-																	h(
-																		"span.twoslash-popup-docs-tag-value",
-																		renderMarkdownInline(tag[1]),
-																	),
-																]
-															: [],
-													]),
-												),
-											]),
+											...this.hover.tags.map((tag) =>
+												jsdocTags.includes(tag[0])
+													? h("p", [
+															h(
+																"span.twoslash-popup-docs-tag-name",
+																`@${tag[0]}`,
+															),
+															tag[1]
+																? [
+																		checkIfSingleParagraph(
+																			tag[1],
+																			filterTags(tag[0]),
+																		)
+																			? " ― "
+																			: " ",
+																		h(
+																			"span.twoslash-popup-docs-tag-value",
+																			renderMarkdownInline(tag[1]),
+																		),
+																	]
+																: [],
+														])
+													: [],
+											),
 										]),
 									]
 								: []),
@@ -348,25 +355,30 @@ export class TwoslashHoverAnnotation extends ExpressiveCodeAnnotation {
 								...(this.hover.tags && this.includeJsDoc
 									? [
 											h("div.twoslash-popup-docs.twoslash-popup-docs-tags", [
-												h("p", [
-													...this.hover.tags.map((tag) =>
-														h("p", [
-															h(
-																"span.twoslash-popup-docs-tag-name",
-																`@${tag[0]}`,
-															),
-															tag[1]
-																? [
-																		filterTags(tag[0]) ? " ― " : " ",
-																		h(
-																			"span.twoslash-popup-docs-tag-value",
-																			renderMarkdownInline(tag[1]),
-																		),
-																	]
-																: [],
-														]),
-													),
-												]),
+												...this.hover.tags.map((tag) =>
+													jsdocTags.includes(tag[0])
+														? h("p", [
+																h(
+																	"span.twoslash-popup-docs-tag-name",
+																	`@${tag[0]}`,
+																),
+																tag[1]
+																	? [
+																			checkIfSingleParagraph(
+																				tag[1],
+																				filterTags(tag[0]),
+																			)
+																				? " ― "
+																				: " ",
+																			h(
+																				"span.twoslash-popup-docs-tag-value",
+																				renderMarkdownInline(tag[1]),
+																			),
+																		]
+																	: [],
+															])
+														: [],
+												),
 											]),
 										]
 									: []),

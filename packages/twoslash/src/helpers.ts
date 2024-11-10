@@ -101,13 +101,35 @@ export function renderMarkdownInline(md: string): ElementContent[] {
 }
 
 /**
+ * Checks if the given markdown string consists of a single paragraph element.
+ *
+ * @param md - The markdown string to check.
+ * @param filterTags - A boolean indicating whether to filter tags.
+ * @returns A boolean indicating if the markdown string is a single paragraph element.
+ */
+export function checkIfSingleParagraph(
+	md: string,
+	filterTags: boolean,
+): boolean {
+	const children = renderMarkdownInline(md);
+	if (filterTags) {
+		return !(
+			children.length === 1 &&
+			children[0].type === "element" &&
+			children[0].tagName === "p"
+		);
+	}
+	return false;
+}
+
+/**
  * Filters tags based on specific keywords.
  *
  * @param tag - The tag string to be checked.
- * @returns A boolean indicating whether the tag includes any of the specified keywords: "param", "returns", "type", or "template".
+ * @returns A boolean indicating whether the tag includes any of the specified keywords
  */
 export function filterTags(tag: string) {
-	return reJsDocTagFilter.test(tag);
+	return !reJsDocTagFilter.test(tag);
 }
 
 /**
