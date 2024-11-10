@@ -46,15 +46,20 @@ export const twoSlashStyleSettings = new PluginStyleSettings({
 			// Completion main styles
 			cursorColor: ({ theme }) => theme.colors["editorCursor.foreground"],
 			completionBoxBackground: ({ theme }) =>
-				theme.colors["editorSuggestWidget.background"],
+				theme.colors["editorSuggestWidget.background"] ||
+				theme.colors["editor.background"],
 			completionBoxBorder: ({ theme }) =>
-				theme.colors["editorSuggestWidget.border"],
+				theme.colors["editorSuggestWidget.border"] ||
+				theme.colors["panel.border"],
 			completionBoxColor: ({ theme }) =>
-				theme.colors["editorSuggestWidget.foreground"],
+				theme.colors["editorSuggestWidget.foreground"] ||
+				theme.colors["editor.foreground"],
 			completionBoxMatchedColor: ({ theme }) =>
-				theme.colors["editorSuggestWidget.highlightForeground"],
+				theme.colors["editorSuggestWidget.highlightForeground"] ||
+				theme.colors["editor.findMatchBackground"],
 			completionBoxHoverBackground: ({ theme }) =>
-				theme.colors["editorSuggestWidget.selectedBackground"],
+				theme.colors["editorSuggestWidget.selectedBackground"] ||
+				theme.colors["editor.findMatchHighlightBackground"],
 
 			// Completion icon colors
 			completionIconClass: "#EE9D28",
