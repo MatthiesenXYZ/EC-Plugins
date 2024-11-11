@@ -13,7 +13,9 @@ import {
 } from "./helpers";
 import popupModule from "./module-code/popup.min";
 import { getTwoSlashBaseStyles, twoSlashStyleSettings } from "./styles";
-import type { PluginTwoslashOptions } from "./types";
+import type { PluginTwoslashOptions, TwoSlashStyleSettings } from "./types";
+
+export type { PluginTwoslashOptions, TwoSlashStyleSettings };
 
 /**
  * Add Twoslash support to your Expressive Code TypeScript code blocks.

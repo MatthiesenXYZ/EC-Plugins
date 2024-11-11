@@ -57,6 +57,7 @@ export function renderMarkdown(md: string): ElementContent[] {
 	return (
 		toHast(mdast, {
 			handlers: {
+				// Replace this section with EC processing once it's available
 				// code: (state, node) => {
 				//     const lang = node.lang || '';
 				//     if (lang) {

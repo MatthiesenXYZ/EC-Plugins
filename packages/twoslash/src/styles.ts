@@ -31,6 +31,7 @@ export const twoSlashStyleSettings = new PluginStyleSettings({
 			hoverUnderlineColor: ({ theme }) => theme.fg || "#888",
 			textColor: ({ theme }) => theme.colors["editor.foreground"] || theme.fg,
 
+			// Link styles
 			linkColor: ({ theme }) => theme.colors["terminal.ansiBrightBlue"],
 			linkColorVisited: ({ theme }) =>
 				theme.colors["terminal.ansiBrightMagenta"],
@@ -202,6 +203,22 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             word-break: normal !important;
             overflow-wrap: normal !important;
             width: max-content !important;
+        }
+
+        .twoslash-static-container a:link {
+            color: ${cssVar("twoSlash.linkColor")};
+        }
+
+        .twoslash-static-container a:hover {
+            color: ${cssVar("twoSlash.linkColorHover")};
+        }
+
+        .twoslash-static-container a:visited {
+            color: ${cssVar("twoSlash.linkColorVisited")};
+        }
+
+        .twoslash-static-container a:active {
+            color: ${cssVar("twoSlash.linkColorActive")};
         }
 
         .twoslash-static-container:before {
