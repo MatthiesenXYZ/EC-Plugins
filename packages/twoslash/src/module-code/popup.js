@@ -5,7 +5,6 @@
 import {
 	computePosition,
 	size,
-	shift,
 } from "https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.6.10/+esm";
 
 /**
@@ -56,7 +55,6 @@ function setupTooltip(ToolTip, isMobileScreen) {
 								});
 							},
 						}),
-						shift(),
 					],
 				}),
 			)
