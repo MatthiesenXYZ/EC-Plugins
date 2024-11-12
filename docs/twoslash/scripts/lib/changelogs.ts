@@ -1,5 +1,4 @@
-import { readdirSync, statSync, existsSync, readFileSync } from 'fs'
-import { join } from 'path'
+import { readFileSync } from 'fs'
 import { fromMarkdown } from 'mdast-util-from-markdown'
 import { toString } from 'mdast-util-to-string'
 import { visit } from 'unist-util-visit'

@@ -33,7 +33,7 @@
 	"types": "./dist/index.d.ts",
 	"files": ["dist"],
 	"scripts": {
-		"build-js-module": "tsm --require=./scripts/lib/filter-warnings.cjs ./scripts/minify.ts",
+		"build-js-module": "tsm --require=../../scripts/filter-warnings.cjs ./scripts/minify.ts",
 		"build": "pnpm build-js-module && tsup ./src/index.ts --format esm --dts --sourcemap --clean",
 		"watch": "pnpm build --watch src"
 	},
