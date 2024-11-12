@@ -22,5 +22,6 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: `Thank you for submitting your Pull Request, the following links will become available for preview shortly:\n
-              - [`expressive-code-twoslash` Docs](https://${context.payload.pull_request.number}-twoslash.matthiesen.dev)
+              - [expressive-code-twoslash Docs](https://${context.payload.pull_request.number}-twoslash.matthiesen.dev)
+              `
             })
