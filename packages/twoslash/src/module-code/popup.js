@@ -2,12 +2,10 @@
 // It uses the floating-ui library to position the popup
 // It also uses the MutationObserver to update the popups when the page changes
 // It also listens for the astro:page-load event to update the popups when the page is loaded
-
-// To minify this file, use: https://www.toptal.com/developers/javascript-minifier
-
 import {
 	computePosition,
 	size,
+	shift,
 } from "https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.6.10/+esm";
 
 /**
@@ -26,7 +24,7 @@ import {
  *
  * The tooltip will be shown on mouse enter and hidden on mouse leave.
  */
-function setupTooltip(ToolTip) {
+function setupTooltip(ToolTip, isMobileScreen) {
 	const hoverAnnotation = ToolTip.querySelector(".twoslash-popup-container");
 	const expressiveCodeBlock = hoverAnnotation.closest(".expressive-code");
 
@@ -48,23 +46,24 @@ function setupTooltip(ToolTip) {
 		)
 			.then(() =>
 				computePosition(ToolTip, hoverAnnotation, {
-					placement: "bottom-start",
+					placement: isMobileScreen ? "bottom" : "bottom-start",
 					middleware: [
 						size({
 							apply({ availableWidth }) {
 								Object.assign(hoverAnnotation.style, {
-									maxWidth: `${Math.max(0, availableWidth)}px`,
+									maxWidth: `${Math.max(0, isMobileScreen ? 300 : availableWidth)}px`,
 									maxHeight: "100%",
 								});
 							},
 						}),
+						shift(),
 					],
 				}),
 			)
 			.then(({ x, y }) => {
 				Object.assign(hoverAnnotation.style, {
 					display: "block",
-					left: `${x}px`,
+					left: `${isMobileScreen ? 50 : x}px`,
 					top: `${y}px`,
 				});
 			});
@@ -120,6 +119,8 @@ function setupTooltip(ToolTip) {
 	}
 }
 
+const isMobileScreen = window.matchMedia("(max-width: 768px)").matches;
+
 /**
  * Initializes tooltips for elements with the class "twoslash" within the specified container.
  *
@@ -128,7 +129,7 @@ function setupTooltip(ToolTip) {
 function initTwoslashPopups(container) {
 	// biome-ignore lint/complexity/noForEach: <explanation>
 	container.querySelectorAll?.(".twoslash-hover").forEach((el) => {
-		setupTooltip(el);
+		setupTooltip(el, isMobileScreen);
 	});
 }
 
