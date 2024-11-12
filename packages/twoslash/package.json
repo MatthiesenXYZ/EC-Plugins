@@ -34,7 +34,8 @@
 	"files": ["dist"],
 	"scripts": {
 		"build-js-module": "tsm --require=../../scripts/filter-warnings.cjs ./scripts/minify.ts",
-		"build": "pnpm build-js-module && tsup ./src/index.ts --format esm --dts --sourcemap --clean",
+		"compile": "tsup ./src/index.ts --format esm --dts --sourcemap --clean",
+		"build": "pnpm build-js-module && pnpm compile",
 		"watch": "pnpm build --watch src"
 	},
 	"type": "module",
@@ -44,10 +45,13 @@
 		"mdast-util-to-hast": "^13.2.0",
 		"twoslash": "^0.2.12"
 	},
+	"devDependencies": {
+		"@floating-ui/dom": "1.6.12",
+		"@types/uglify-js": "^3.17.5",
+		"uglify-js": "^3.19.3"
+	},
 	"peerDependencies": {
 		"@expressive-code/core": "^0.38.3",
-		"typescript": "^5.5",
-		"uglify-js": "^3.19.3",
-		"@types/uglify-js": "^3.17.5"
+		"typescript": "^5.5"
 	}
 }

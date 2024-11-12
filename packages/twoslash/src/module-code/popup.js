@@ -5,7 +5,7 @@
 import {
 	computePosition,
 	size,
-} from "https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.6.10/+esm";
+} from "https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.6.12/+esm";
 
 /**
  * Sets up a tooltip for the given reference node. The tooltip will be displayed
