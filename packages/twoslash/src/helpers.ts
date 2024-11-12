@@ -1,7 +1,4 @@
-import type {
-	ExpressiveCodeBlock,
-	ExpressiveCodeLine,
-} from "@expressive-code/core";
+import type { ExpressiveCodeBlock } from "@expressive-code/core";
 import type { Element, ElementContent } from "@expressive-code/core/hast";
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { gfmFromMarkdown } from "mdast-util-gfm";
@@ -9,20 +6,9 @@ import { toHast } from "mdast-util-to-hast";
 import type {
 	NodeCompletion,
 	NodeError,
-	TwoslashInstance,
+	TwoslashNode,
 	TwoslashOptions,
-	TwoslashReturn,
 } from "twoslash";
-import ts, { type CompilerOptions } from "typescript";
-import {
-	TwoslashCompletionAnnotation,
-	TwoslashCustomTagsAnnotation,
-	TwoslashErrorBoxAnnotation,
-	TwoslashErrorUnderlineAnnotation,
-	TwoslashHighlightAnnotation,
-	TwoslashHoverAnnotation,
-	TwoslashStaticAnnotation,
-} from "./annotation";
 import { completionIcons } from "./completionIcons";
 import {
 	reFunctionCleanup,
@@ -241,43 +227,6 @@ export function getErrorLevelString(error: NodeError): string {
 }
 
 /**
- * Default TypeScript compiler options used in TwoSlash.
- *
- * @constant
- * @type {CompilerOptions}
- * @property {boolean} strict - Enable all strict type-checking options.
- * @property {ts.ScriptTarget} target - Specify ECMAScript target version.
- * @property {boolean} exactOptionalPropertyTypes - Ensure optional property types are exactly as declared.
- * @property {boolean} downlevelIteration - Provide full support for iterables in ES5/ES3.
- * @property {boolean} skipLibCheck - Skip type checking of declaration files.
- * @property {string[]} lib - List of library files to be included in the compilation.
- * @property {boolean} noEmit - Do not emit outputs.
- */
-const defaultCompilerOptions: CompilerOptions = {
-	strict: true,
-	target: ts.ScriptTarget.ES2022,
-	exactOptionalPropertyTypes: true,
-	downlevelIteration: true,
-	skipLibCheck: true,
-	lib: ["ES2022", "DOM", "DOM.Iterable"],
-	noEmit: true,
-};
-
-export function ecTwoslasher(
-	twoslasher: TwoslashInstance,
-	twoslashOptions: TwoslashOptions,
-	codeBlock: ExpressiveCodeBlock,
-) {
-	return twoslasher(codeBlock.code, codeBlock.language, {
-		...twoslashOptions,
-		compilerOptions: {
-			...defaultCompilerOptions,
-			...(twoslashOptions?.compilerOptions ?? {}),
-		},
-	});
-}
-
-/**
  * Merges custom tags from the provided `twoslashOptions` with the default tags.
  * Ensures that there are no duplicate tags in the final list.
  *
@@ -330,127 +279,16 @@ export function buildMetaChecker(
 }
 
 /**
- * Adds completion annotations to the provided code block based on the twoslash completions.
+ * Splits the given code string into an array of objects, each containing the line index and the line content.
  *
- * @param twoslash - The TwoslashReturn object containing completion information.
- * @param codeBlock - The ExpressiveCodeBlock object representing the code block to annotate.
+ * @param code - The code string to be split into lines.
+ * @returns An array of objects, each with an `index` representing the line number and a `line` containing the line content.
  */
-export function addCompletionAnnotations(
-	twoslash: TwoslashReturn,
-	codeBlock: ExpressiveCodeBlock,
-) {
-	for (const completion of twoslash.completions) {
-		const proccessed = processCompletion(completion);
-		const line = codeBlock.getLine(completion.line);
-		if (line) {
-			// Remove any Hover annotations that match the completion
-			// This is to avoid `any` type completions being shown as hovers for completions
-			removeHoverFromCompletions(line, proccessed);
-
-			line.addAnnotation(
-				new TwoslashCompletionAnnotation(proccessed, completion, line),
-			);
-		}
-	}
-}
-
-/**
- * Adds error annotations to the given code block based on the errors found in the Twoslash return object.
- *
- * @param twoslash - The Twoslash return object containing error information.
- * @param codeBlock - The code block to which error annotations will be added.
- */
-export function addErrorAnnotations(
-	twoslash: TwoslashReturn,
-	codeBlock: ExpressiveCodeBlock,
-) {
-	for (const error of twoslash.errors) {
-		const line = codeBlock.getLine(error.line);
-
-		if (line) {
-			removeHoverFromError(line, error);
-			line.addAnnotation(new TwoslashErrorUnderlineAnnotation(error));
-			line.addAnnotation(new TwoslashErrorBoxAnnotation(error, line));
-		}
-	}
-}
-
-/**
- * Replaces the code in an ExpressiveCodeBlock with the code from a TwoslashReturn object.
- *
- * @param twoslash - The TwoslashReturn object containing the new code.
- * @param codeBlock - The ExpressiveCodeBlock object to be updated.
- */
-export function replaceECBlockWithTwoslashBlock(
-	twoslash: TwoslashReturn,
-	codeBlock: ExpressiveCodeBlock,
-) {
-	const ecCodeBlock = codeBlock.code.split("\n").map((line, index) => {
-		return { index, line };
-	});
-	const twoslashCodeBlock = twoslash.code.split("\n").map((line, index) => {
-		return { index, line };
-	});
-
-	for (const line of twoslashCodeBlock) {
-		const ln = codeBlock.getLine(line.index);
-
-		if (ln) {
-			ln.editText(0, ln.text.length, line.line);
-		}
-	}
-
-	if (twoslashCodeBlock.length < ecCodeBlock.length) {
-		for (let i = twoslashCodeBlock.length; i < ecCodeBlock.length; i++) {
-			codeBlock.deleteLine(twoslashCodeBlock.length);
-		}
-	}
-}
-
-/**
- * Adds custom tag annotations to the provided code block based on the tags found in the twoslash return object.
- *
- * @param twoslash - The TwoslashReturn object containing the tags to be added as annotations.
- * @param codeBlock - The ExpressiveCodeBlock object representing the code block to which annotations will be added.
- */
-export function addCustomTagAnnotations(
-	twoslash: TwoslashReturn,
-	codeBlock: ExpressiveCodeBlock,
-) {
-	for (const tag of twoslash.tags) {
-		const line = codeBlock.getLine(tag.line);
-
-		if (line) {
-			line.addAnnotation(new TwoslashCustomTagsAnnotation(tag, line));
-		}
-	}
-}
-
-/**
- * Adds hover or static annotations to the provided code block based on the twoslash results.
- *
- * @param twoslash - The result object from running twoslash, containing hover and query information.
- * @param codeBlock - The code block to which annotations will be added.
- * @param includeJsDoc - A boolean indicating whether to include JSDoc comments in the annotations.
- */
-export function addHoverOrStaticAnnotations(
-	twoslash: TwoslashReturn,
-	codeBlock: ExpressiveCodeBlock,
-	includeJsDoc: boolean,
-) {
-	for (const hover of twoslash.hovers) {
-		const line = codeBlock.getLine(hover.line);
-		if (line) {
-			const query = twoslash.queries.find((q) => q.text === hover.text);
-			if (query) {
-				line.addAnnotation(
-					new TwoslashStaticAnnotation(hover, line, includeJsDoc, query),
-				);
-			} else {
-				line.addAnnotation(new TwoslashHoverAnnotation(hover, includeJsDoc));
-			}
-		}
-	}
+export function splitCodeToLines(code: string): {
+	index: number;
+	line: string;
+}[] {
+	return code.split("\n").map((line, index) => ({ index, line }));
 }
 
 /**
@@ -475,77 +313,6 @@ export function defaultHoverInfoProcessor(type: string): string | boolean {
 	}
 
 	return content;
-}
-
-/**
- * Adds highlight annotations to the given code block based on the highlights from the twoslash return object.
- *
- * @param twoslash - The object containing the highlights information.
- * @param codeBlock - The code block to which the highlight annotations will be added.
- */
-export function addHighlightAnnotations(
-	twoslash: TwoslashReturn,
-	codeBlock: ExpressiveCodeBlock,
-) {
-	for (const highlight of twoslash.highlights) {
-		const line = codeBlock.getLine(highlight.line);
-		if (line) {
-			line.addAnnotation(new TwoslashHighlightAnnotation(highlight));
-		}
-	}
-}
-
-/**
- * Removes hover annotations from a given line of code if they match the start character and length of the processed completion item.
- *
- * @param line - The line of code from which hover annotations should be removed.
- * @param proccessed - The completion item containing the start character and length to match against hover annotations.
- */
-export function removeHoverFromCompletions(
-	line: ExpressiveCodeLine,
-	proccessed: CompletionItem,
-) {
-	for (const annotation of line.getAnnotations()) {
-		if (annotation instanceof TwoslashHoverAnnotation) {
-			const annotationInlineRange = annotation.inlineRange;
-			const processedStart = proccessed.startCharacter;
-			if (annotationInlineRange) {
-				const { columnStart, columnEnd } = annotationInlineRange;
-				if (processedStart >= columnStart && processedStart <= columnEnd) {
-					annotation.inlineRange.columnStart = proccessed.startCharacter;
-				}
-			}
-			if (
-				annotation.hover.start === proccessed.startCharacter &&
-				annotation.hover.length === proccessed.length
-			) {
-				line.deleteAnnotation(annotation);
-			}
-		}
-	}
-}
-
-/**
- * Removes a hover annotation from a line if it matches the specified error.
- *
- * @param line - The line from which to remove the hover annotation.
- * @param error - The error to match against the hover annotation.
- */
-export function removeHoverFromError(
-	line: ExpressiveCodeLine,
-	error: NodeError,
-) {
-	for (const annotation of line.getAnnotations()) {
-		if (annotation instanceof TwoslashHoverAnnotation) {
-			if (
-				annotation.hover.start === error.start &&
-				annotation.hover.character === error.character &&
-				annotation.hover.length === error.length
-			) {
-				line.deleteAnnotation(annotation);
-			}
-		}
-	}
 }
 
 /**
@@ -585,4 +352,63 @@ export function processCompletion(completion: NodeCompletion): CompletionItem {
 		length,
 		items,
 	};
+}
+
+/**
+ * Checks if the given node is of type `NodeCompletion`.
+ *
+ * @param node - The node to check.
+ * @returns True if the node is of type `NodeCompletion`, otherwise false.
+ */
+function isNodeCompletion(node: TwoslashNode): node is NodeCompletion {
+	return node.type === "completion";
+}
+
+/**
+ * Compares two TwoslashNode objects based on specified criteria.
+ *
+ * @param node1 - The first TwoslashNode to compare.
+ * @param node2 - The second TwoslashNode to compare.
+ * @param checks - An object specifying which properties to check for equality.
+ * @param checks.line - If true, compares the line property of the nodes.
+ * @param checks.start - If true, compares the start property of the nodes.
+ * @param checks.character - If true, compares the character property of the nodes.
+ * @param checks.length - If true, compares the length property of the nodes.
+ * @param checks.text - If true, compares the text property of the nodes.
+ * @returns A boolean indicating whether the nodes are considered equal based on the specified criteria.
+ */
+export function compareNodes(
+	node1: TwoslashNode,
+	node2: TwoslashNode,
+	checks: {
+		line?: boolean;
+		start?: boolean;
+		character?: boolean;
+		length?: boolean;
+		text?: boolean;
+	},
+) {
+	if (checks.line && node1.line !== node2.line) {
+		return false;
+	}
+	if (checks.start && node1.start !== node2.start) {
+		return false;
+	}
+	if (checks.character && node1.character !== node2.character) {
+		return false;
+	}
+	if (checks.length && node1.length !== node2.length) {
+		return false;
+	}
+	if (
+		!isNodeCompletion(node1) &&
+		!isNodeCompletion(node2) &&
+		checks.text &&
+		node1.text !== node2.text
+	) {
+		return false;
+	}
+
+	// If no checks failed, the nodes are considered equal
+	return true;
 }
