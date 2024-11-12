@@ -1,5 +1,16 @@
 # expressive-code-twoslash
 
+## 0.2.0
+
+### Minor Changes
+
+- [#12](https://github.com/MatthiesenXYZ/EC-Plugins/pull/12) [`7e4711d`](https://github.com/MatthiesenXYZ/EC-Plugins/commit/7e4711daebf5cc34d1e1aae9efd375203e8bcc96) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - Refactor code to be simpiler and small CSS tweaks
+
+  - Add Twoslash includes map
+  - Pass user defined Twoslash options to `createTwoslasher()`
+  - Remove excess functions and move code back to main EC function
+  - Add link color styles inside of Hover/Static docs
+
 ## 0.1.6
 
 ### Patch Changes
