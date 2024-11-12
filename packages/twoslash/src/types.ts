@@ -58,6 +58,11 @@ export interface TwoSlashStyleSettings {
 	borderColor: string;
 	background: string;
 	tagColor: string;
+	textColor: string;
+	linkColor: string;
+	linkColorHover: string;
+	linkColorVisited: string;
+	linkColorActive: string;
 	titleColor: string;
 	highlightBackground: string;
 	popupDocsMaxHeight: string;

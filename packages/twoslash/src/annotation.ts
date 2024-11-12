@@ -172,15 +172,14 @@ export class TwoslashStaticAnnotation extends ExpressiveCodeAnnotation {
 	 * @param query - The query information for the node.
 	 */
 	constructor(
-		readonly hover: NodeHover,
+		readonly query: NodeQuery,
 		readonly line: ExpressiveCodeLine,
 		readonly includeJsDoc: boolean,
-		readonly query: NodeQuery,
 	) {
 		super({
 			inlineRange: {
 				columnStart: line.text.length,
-				columnEnd: line.text.length + hover.length,
+				columnEnd: line.text.length + query.length,
 			},
 		});
 	}
@@ -217,18 +216,18 @@ export class TwoslashStaticAnnotation extends ExpressiveCodeAnnotation {
 					},
 					[
 						h("div.twoslash-static-container.not-content", [
-							this.getHoverInfo(this.hover.text),
-							...(this.hover.docs && this.includeJsDoc
+							this.getHoverInfo(this.query.text),
+							...(this.query.docs && this.includeJsDoc
 								? [
 										h("div.twoslash-popup-docs", [
-											h("p", [renderMarkdown(this.hover.docs)]),
+											h("p", [renderMarkdown(this.query.docs)]),
 										]),
 									]
 								: []),
-							...(this.hover.tags && this.includeJsDoc
+							...(this.query.tags && this.includeJsDoc
 								? [
 										h("div.twoslash-popup-docs.twoslash-popup-docs-tags", [
-											...this.hover.tags.map((tag) =>
+											...this.query.tags.map((tag) =>
 												jsdocTags.includes(tag[0])
 													? h("p", [
 															h(

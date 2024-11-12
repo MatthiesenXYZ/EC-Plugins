@@ -1,19 +1,51 @@
 import { type ExpressiveCodePlugin, definePlugin } from "@expressive-code/core";
 import { createTwoslasher } from "twoslash";
 import {
-	addCompletionAnnotations,
-	addCustomTagAnnotations,
-	addErrorAnnotations,
-	addHighlightAnnotations,
-	addHoverOrStaticAnnotations,
 	buildMetaChecker,
 	checkForCustomTagsAndMerge,
-	ecTwoslasher,
-	replaceECBlockWithTwoslashBlock,
+	processCompletion,
+	splitCodeToLines,
+	compareNodes,
 } from "./helpers";
 import popupModule from "./module-code/popup.min";
 import { getTwoSlashBaseStyles, twoSlashStyleSettings } from "./styles";
-import type { PluginTwoslashOptions } from "./types";
+import type { PluginTwoslashOptions, TwoSlashStyleSettings } from "./types";
+import { parseIncludeMeta, TwoslashIncludesManager } from "./includes";
+import ts, { type CompilerOptions } from "typescript";
+import {
+	TwoslashCompletionAnnotation,
+	TwoslashCustomTagsAnnotation,
+	TwoslashErrorBoxAnnotation,
+	TwoslashErrorUnderlineAnnotation,
+	TwoslashHighlightAnnotation,
+	TwoslashHoverAnnotation,
+	TwoslashStaticAnnotation,
+} from "./annotation";
+
+export type { PluginTwoslashOptions, TwoSlashStyleSettings };
+
+/**
+ * Default TypeScript compiler options used in TwoSlash.
+ *
+ * @constant
+ * @type {CompilerOptions}
+ * @property {boolean} strict - Enable all strict type-checking options.
+ * @property {ts.ScriptTarget} target - Specify ECMAScript target version.
+ * @property {boolean} exactOptionalPropertyTypes - Ensure optional property types are exactly as declared.
+ * @property {boolean} downlevelIteration - Provide full support for iterables in ES5/ES3.
+ * @property {boolean} skipLibCheck - Skip type checking of declaration files.
+ * @property {string[]} lib - List of library files to be included in the compilation.
+ * @property {boolean} noEmit - Do not emit outputs.
+ */
+const defaultCompilerOptions: CompilerOptions = {
+	strict: true,
+	target: ts.ScriptTarget.ES2022,
+	exactOptionalPropertyTypes: true,
+	downlevelIteration: true,
+	skipLibCheck: true,
+	lib: ["ES2022", "DOM", "DOM.Iterable"],
+	noEmit: true,
+};
 
 /**
  * Add Twoslash support to your Expressive Code TypeScript code blocks.
@@ -44,9 +76,13 @@ export default function ecTwoSlash(
 	 *
 	 * @returns {Twoslasher} A new instance of the Twoslasher.
 	 */
-	const twoslasher = createTwoslasher();
+	const twoslasher = createTwoslasher({
+		...twoslashOptions,
+	});
 
 	const shouldTransform = buildMetaChecker(languages, explicitTrigger);
+
+	const includesMap = new Map();
 
 	return definePlugin({
 		name: "expressive-code-twoslash",
@@ -56,37 +92,160 @@ export default function ecTwoSlash(
 		hooks: {
 			preprocessCode({ codeBlock }) {
 				if (shouldTransform(codeBlock)) {
-					// Run twoslash on the code block
-					const twoslash = ecTwoslasher(twoslasher, twoslashOptions, codeBlock);
+					// Create a new instance of the TwoslashIncludesManager
+					const includes = new TwoslashIncludesManager(includesMap);
 
-					// Hippo, I'm sorry for this function, but without it, the twoslash code
-					// overlays could find themselves in the wrong place of the codeblock
-					// depending on how much is going on in the code block.
+					// Apply the includes to the code block
+					const codeWithIncludes = includes.applyInclude(codeBlock.code);
 
-					// Most users should not need to worry about this, as it is only used in the
-					// codeblocks that have the `twoslash` meta tag, and this tag is configured as
-					// an explicit trigger in the plugin options by default.
+					// Parse the include meta
+					const include = parseIncludeMeta(codeBlock.meta);
 
-					// This hack simply replaces the existing codeblock lines with the twoslash code output.
-					// (This is how `shiki-twoslash` works, by REPLACING the shiki highlighter function with its own when active)
+					// Add the include to the includes map if it exists
+					if (include) includes.add(include, codeWithIncludes);
 
-					// Replace the EC code block with the twoslash code block
-					replaceECBlockWithTwoslashBlock(twoslash, codeBlock);
+					// Twoslash the code block
+					const twoslash = twoslasher(codeWithIncludes, codeBlock.language, {
+						...twoslashOptions,
+						compilerOptions: {
+							...defaultCompilerOptions,
+							...(twoslashOptions?.compilerOptions ?? {}),
+						},
+					});
 
-					// Generate the Hover and Static Annotations
-					addHoverOrStaticAnnotations(twoslash, codeBlock, includeJsDoc);
+					// Update EC code block with the twoslash information
+					if (twoslash.extension) {
+						codeBlock.language = twoslash.extension;
+					}
 
-					// Generate the Completion annotations
-					addCompletionAnnotations(twoslash, codeBlock);
+					// Get the EC and Twoslash code blocks
+					const ecCodeBlock = splitCodeToLines(codeWithIncludes);
+					const twoslashCodeBlock = splitCodeToLines(twoslash.code);
 
-					// Generate the Twoslash Highlight annotations
-					addHighlightAnnotations(twoslash, codeBlock);
+					// Replace the EC code block with the Twoslash code block
+					for (const line of twoslashCodeBlock) {
+						const ln = codeBlock.getLine(line.index);
+						if (ln) ln.editText(0, ln.text.length, line.line);
+					}
 
-					// Generate the error annotations
-					addErrorAnnotations(twoslash, codeBlock);
+					// Remove any extra lines from the EC code block
+					if (twoslashCodeBlock.length < ecCodeBlock.length) {
+						for (
+							let i = twoslashCodeBlock.length;
+							i < ecCodeBlock.length;
+							i++
+						) {
+							codeBlock.deleteLine(twoslashCodeBlock.length);
+						}
+					}
 
-					// Generate the Custom Tag annotations
-					addCustomTagAnnotations(twoslash, codeBlock);
+					// Process the Twoslash Error Annotations
+					for (const node of twoslash.errors) {
+						const line = codeBlock.getLine(node.line);
+
+						if (line) {
+							line.addAnnotation(new TwoslashErrorUnderlineAnnotation(node));
+							line.addAnnotation(new TwoslashErrorBoxAnnotation(node, line));
+						}
+					}
+
+					// Process the Twoslash Static (Query) Annotations
+					for (const node of twoslash.queries) {
+						const line = codeBlock.getLine(node.line);
+
+						if (line) {
+							line.addAnnotation(
+								new TwoslashStaticAnnotation(node, line, includeJsDoc),
+							);
+						}
+					}
+
+					// Process the Twoslash Highlight Annotations
+					for (const node of twoslash.highlights) {
+						const line = codeBlock.getLine(node.line);
+						if (line) {
+							line.addAnnotation(new TwoslashHighlightAnnotation(node));
+						}
+					}
+
+					// Process the Twoslash Hover Annotations
+					for (const node of twoslash.hovers) {
+						// Check if the node is already added as a static
+						const query = twoslash.queries.find((q) =>
+							compareNodes(q, node, { line: true, text: true }),
+						);
+
+						// Check if the node is already added as an error
+						const error = twoslash.errors.find((e) =>
+							compareNodes(e, node, {
+								line: true,
+								start: true,
+								length: true,
+								character: true,
+							}),
+						);
+
+						// Skip if the node is already added as a static or error annotation
+						if (query || error) {
+							continue;
+						}
+
+						const line = codeBlock.getLine(node.line);
+
+						if (line) {
+							line.addAnnotation(
+								new TwoslashHoverAnnotation(node, includeJsDoc),
+							);
+						}
+					}
+
+					// Process the Twoslash Completion Annotations
+					for (const node of twoslash.completions) {
+						// Process the completion item
+						const proccessed = processCompletion(node);
+						const line = codeBlock.getLine(node.line);
+
+						if (line) {
+							// Check if the node has a hover annotation
+							const currentHoverAnnotations = line
+								.getAnnotations()
+								.filter((a) => a instanceof TwoslashHoverAnnotation);
+
+							// Modify the inline range of the hover annotation
+							for (const annotation of currentHoverAnnotations) {
+								if (annotation.inlineRange) {
+									const { columnStart, columnEnd } = annotation.inlineRange;
+									if (
+										proccessed.startCharacter >= columnStart &&
+										proccessed.startCharacter <= columnEnd
+									) {
+										annotation.inlineRange.columnStart =
+											proccessed.startCharacter;
+									}
+								}
+
+								if (
+									annotation.hover.start === proccessed.startCharacter &&
+									annotation.hover.length === proccessed.length
+								) {
+									line.deleteAnnotation(annotation);
+								}
+							}
+
+							line.addAnnotation(
+								new TwoslashCompletionAnnotation(proccessed, node, line),
+							);
+						}
+					}
+
+					// Process the Twoslash Custom Tags Annotations
+					for (const node of twoslash.tags) {
+						const line = codeBlock.getLine(node.line);
+
+						if (line) {
+							line.addAnnotation(new TwoslashCustomTagsAnnotation(node, line));
+						}
+					}
 				}
 			},
 		},
