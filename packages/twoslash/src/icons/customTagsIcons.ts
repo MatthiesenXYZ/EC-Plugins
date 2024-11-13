@@ -1,5 +1,5 @@
 import { h } from "@expressive-code/core/hast";
-import type { CustomTagsIcons } from "./types";
+import type { CustomTagsIcons } from "../types";
 
 export const customTagsIcons: CustomTagsIcons = {
 	log: h("svg", { viewBox: "0 0 32 32", width: "1rem", height: "auto" }, [

@@ -138,7 +138,7 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
 
 	const popupDocsCSS = `
 
-        @media (min-width: 768px) {
+        @media (min-width: 500px) {
             .twoslash-popup-container:before {
                 content: "";
                 position: absolute;

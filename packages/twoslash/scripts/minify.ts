@@ -6,8 +6,12 @@ import UglifyJS from "uglify-js";
 const output: string[] = [];
 
 output.push(
-	// Add release notes frontmatter to output
-	"// Warning: This file is generated automatically. Do not edit!",
+	"/*",
+	"	GENERATED FILE - DO NOT EDIT",
+	"	----------------------------",
+	'	This JS module code was built from the source file "popup.js".',
+	"	To change it, modify the source file and then re-run the build script.",
+	"*/",
 	"",
 );
 
@@ -21,4 +25,4 @@ const result = UglifyJS.minify(file);
 output.push(`export default '${result.code}';`);
 
 // Write output to file
-writeFileSync("./src/module-code/popup.min.ts", output.join("\n"));
+writeFileSync("./src/module-code/popup.min.js", output.join("\n"));

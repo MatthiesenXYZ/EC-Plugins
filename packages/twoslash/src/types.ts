@@ -1,7 +1,7 @@
 import type { Element } from "@expressive-code/core/hast";
 import type { TwoslashOptions } from "twoslash";
-import type { completionIcons } from "./completionIcons";
-import type { customTagsIcons } from "./customTagsIcons";
+import type { completionIcons } from "./icons/completionIcons";
+import type { customTagsIcons } from "./icons/customTagsIcons";
 
 /**
  * Interface representing the options for the PluginTwoslash.

@@ -1,5 +1,5 @@
 import { h } from "@expressive-code/core/hast";
-import type { CompletionIcons } from "./types";
+import type { CompletionIcons } from "../types";
 
 export const completionIcons: CompletionIcons = {
 	module: h("svg", { viewBox: "0 0 32 32", width: "1rem", height: "auto" }, [

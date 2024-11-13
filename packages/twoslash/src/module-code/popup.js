@@ -7,35 +7,24 @@ import {
 	size,
 } from "https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.6.12/+esm";
 
-/**
- * Sets up a tooltip for the given reference node. The tooltip will be displayed
- * when the user hovers over the reference node and will be positioned using the
- * Popper.js library.
- *
- * @param {HTMLElement} referenceNode - The DOM element to which the tooltip is attached.
- *
- * The tooltip will be appended to the `.main-pane` element if it exists, otherwise
- * it will be appended to the document body. The tooltip's position will be updated
- * dynamically based on the reference node's position.
- *
- * The tooltip will have a unique identifier for the `aria-describedby` attribute,
- * which is used for accessibility purposes.
- *
- * The tooltip will be shown on mouse enter and hidden on mouse leave.
- */
 function setupTooltip(ToolTip, isMobileScreen) {
 	const hoverAnnotation = ToolTip.querySelector(".twoslash-popup-container");
 	const expressiveCodeBlock = hoverAnnotation.closest(".expressive-code");
 
-	// Compute a unique identifier to use for the aria-describedby attribute
+	// Ensure each tooltip has a unique ID for `aria-describedby`
 	const randomId = `twoslash_popup_${[Math.random(), Date.now()].map((n) => n.toString(36).substring(2, 10)).join("_")}`;
 
-	// biome-ignore lint/complexity/useOptionalChain: <explanation>
-	if (hoverAnnotation && hoverAnnotation.parentNode) {
+	// Set role and tabindex for accessibility
+	hoverAnnotation.setAttribute("role", "tooltip");
+	hoverAnnotation.setAttribute("tabindex", "-1");
+
+	if (hoverAnnotation?.parentNode) {
 		hoverAnnotation.parentNode.removeChild(hoverAnnotation);
 	}
 
+	// Helper function to update tooltip position
 	function updatePosition() {
+		// Ensure `hoverAnnotation` remains attached to the expressiveCodeBlock for each tooltip
 		expressiveCodeBlock.appendChild(hoverAnnotation);
 
 		new Promise((resolve) =>
@@ -69,11 +58,11 @@ function setupTooltip(ToolTip, isMobileScreen) {
 
 	let isMouseOverTooltip = false;
 	let hideTimeout;
-
 	const TimeoutDelay = 100; // ms
 
-	ToolTip.addEventListener("mouseenter", () => {
-		clearTimeout(hideTimeout); // Clear any previous hide timeouts
+	// Show tooltip
+	function showTooltip() {
+		clearTimeout(hideTimeout);
 		updatePosition();
 		hoverAnnotation.setAttribute("aria-hidden", "false");
 		ToolTip.querySelector(".twoslash-hover span")?.setAttribute(
@@ -81,49 +70,47 @@ function setupTooltip(ToolTip, isMobileScreen) {
 			randomId,
 		);
 		hoverAnnotation.setAttribute("id", randomId);
-	});
+	}
 
-	ToolTip.addEventListener("mouseleave", () => {
-		// Set a timeout to hide the tooltip after a short delay
-		hideTimeout = setTimeout(() => {
-			if (!isMouseOverTooltip) {
-				hideTooltip();
-			}
-		}, TimeoutDelay);
-	});
-
-	hoverAnnotation.addEventListener("mouseenter", () => {
-		clearTimeout(hideTimeout); // Clear the hide timeout if hovering over the tooltip
-		isMouseOverTooltip = true;
-	});
-
-	hoverAnnotation.addEventListener("mouseleave", () => {
-		isMouseOverTooltip = false;
-		// Set a timeout to hide the tooltip if not over the reference node
-		hideTimeout = setTimeout(() => {
-			if (!ToolTip.matches(":hover")) {
-				hideTooltip();
-			}
-		}, TimeoutDelay);
-	});
-
+	// Hide tooltip
 	function hideTooltip() {
 		hoverAnnotation.setAttribute("aria-hidden", "true");
 		ToolTip.querySelector(".twoslash-hover span")?.removeAttribute(
 			"aria-describedby",
 		);
 		hoverAnnotation.removeAttribute("id");
-		expressiveCodeBlock.removeChild(hoverAnnotation);
+		hoverAnnotation.style.display = "none"; // Hide instead of removing from DOM
 	}
+
+	// Event listeners for both mouse and keyboard accessibility
+	ToolTip.addEventListener("mouseenter", showTooltip);
+	ToolTip.addEventListener("mouseleave", () => {
+		hideTimeout = setTimeout(() => {
+			if (!isMouseOverTooltip) hideTooltip();
+		}, TimeoutDelay);
+	});
+
+	hoverAnnotation.addEventListener("mouseenter", () => {
+		clearTimeout(hideTimeout);
+		isMouseOverTooltip = true;
+	});
+
+	hoverAnnotation.addEventListener("mouseleave", () => {
+		isMouseOverTooltip = false;
+		hideTimeout = setTimeout(() => {
+			if (!ToolTip.matches(":hover")) hideTooltip();
+		}, TimeoutDelay);
+	});
+
+	ToolTip.addEventListener("focus", showTooltip);
+	ToolTip.addEventListener("blur", hideTooltip);
+
+	// Initial hide for tooltip
+	hideTooltip();
 }
 
-const isMobileScreen = window.matchMedia("(max-width: 768px)").matches;
+const isMobileScreen = window.matchMedia("(max-width: 500px)").matches;
 
-/**
- * Initializes tooltips for elements with the class "twoslash" within the specified container.
- *
- * @param {HTMLElement} container - The container element in which to search for elements with the class "twoslash".
- */
 function initTwoslashPopups(container) {
 	// biome-ignore lint/complexity/noForEach: <explanation>
 	container.querySelectorAll?.(".twoslash-hover").forEach((el) => {
@@ -133,13 +120,6 @@ function initTwoslashPopups(container) {
 
 initTwoslashPopups(document);
 
-/**
- * Creates a new MutationObserver to observe changes in the DOM and initialize twoslash popups for newly added nodes.
- *
- * @constant {MutationObserver} newTwoslashPopupObserver - The MutationObserver instance that watches for added nodes.
- * @param {MutationRecord[]} mutations - Array of mutation records.
- * @param {MutationRecord} mutations[].addedNodes - List of nodes that were added.
- */
 const newTwoslashPopupObserver = new MutationObserver((mutations) =>
 	// biome-ignore lint/complexity/noForEach: <explanation>
 	mutations.forEach((mutation) =>
@@ -156,5 +136,5 @@ newTwoslashPopupObserver.observe(document.body, {
 });
 
 document.addEventListener("astro:page-load", () => {
-	initTwoslashPopups(document);
+	initTwoslashPopups(document.body);
 });
