@@ -1,0 +1,33 @@
+name: New Plugin Idea
+about: Suggest an idea for this repo
+title: 'Plugin Request: [NAME]'
+labels: idea
+assignees: ''
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing a new idea for our repo!
+  - type: textarea
+    id: idea
+    attributes:
+      label: Describe your idea
+      desctiption: Try to give as much detail as possible.
+      placeholder: Tell us what you want!
+    validations:
+      required: true
+  - type: textarea
+    id: examples
+    attributes:
+      label: Other examples?
+      desctiption: Has there been something similar made for other highlighters such as Shiki?
+      placeholder: If not just respond no
+    validations:
+      required: true
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      desctiption: Add any other context or screenshots about the plugin request here.
+    validations:
+      required: false
