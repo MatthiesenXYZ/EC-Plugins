@@ -1,5 +1,11 @@
 # expressive-code-twoslash
 
+## 0.2.1
+
+### Patch Changes
+
+- [#14](https://github.com/MatthiesenXYZ/EC-Plugins/pull/14) [`596bfbf`](https://github.com/MatthiesenXYZ/EC-Plugins/commit/596bfbfba26bef59ea3ee3e39bf7d1e6dd56954d) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - Update popups and popup script handling
+
 ## 0.2.0
 
 ### Minor Changes
