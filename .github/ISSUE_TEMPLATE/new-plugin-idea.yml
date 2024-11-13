@@ -1,8 +1,7 @@
 name: New Plugin Idea
-about: Suggest an idea for this repo
+description: Suggest an idea for this repo
 title: 'Plugin Request: [NAME]'
 labels: idea
-assignees: ''
 body:
   - type: markdown
     attributes:
