@@ -137,19 +137,22 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
     `;
 
 	const popupDocsCSS = `
-        .twoslash-popup-container:before {
-            content: "";
-            position: absolute;
-            top: -5px;
-            left: 3px;
-            border-top: 1px solid ${cssVar("twoSlash.borderColor")};
-            border-right: 1px solid ${cssVar("twoSlash.borderColor")};
-            background: ${cssVar("twoSlash.background")};
-            transform: rotate(-45deg);
-            width: 8px;
-            height: 8px;
-            pointer-events: none;
-            display: inline-block;
+
+        @media (min-width: 500px) {
+            .twoslash-popup-container:before {
+                content: "";
+                position: absolute;
+                top: -5px;
+                left: 3px;
+                border-top: 1px solid ${cssVar("twoSlash.borderColor")};
+                border-right: 1px solid ${cssVar("twoSlash.borderColor")};
+                background: ${cssVar("twoSlash.background")};
+                transform: rotate(-45deg);
+                width: 8px;
+                height: 8px;
+                pointer-events: none;
+                display: inline-block;
+            }
         }
 
         .twoslash-popup-container {

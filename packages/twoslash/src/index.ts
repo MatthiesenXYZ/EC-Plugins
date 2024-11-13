@@ -20,7 +20,7 @@ import {
 	TwoslashHighlightAnnotation,
 	TwoslashHoverAnnotation,
 	TwoslashStaticAnnotation,
-} from "./annotation";
+} from "./annotations";
 
 export type { PluginTwoslashOptions, TwoSlashStyleSettings };
 

@@ -9,7 +9,7 @@ import type {
 	TwoslashNode,
 	TwoslashOptions,
 } from "twoslash";
-import { completionIcons } from "./completionIcons";
+import { completionIcons } from "./icons/completionIcons";
 import {
 	reFunctionCleanup,
 	reImportStatement,
