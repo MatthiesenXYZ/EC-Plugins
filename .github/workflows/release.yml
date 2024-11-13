@@ -1,4 +1,4 @@
-name: Release
+name: Create PR or Publish packages
 
 on:
   push:
