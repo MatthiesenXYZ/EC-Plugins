@@ -7,7 +7,9 @@ import {
 	splitCodeToLines,
 	compareNodes,
 } from "./helpers";
-import popupModule from "./module-code/popup.min";
+import floatingUiCore from "./module-code/floating-ui-core.min";
+import floatingUiDom from "./module-code/floating-ui-dom.min";
+import hoverDocsManager from "./module-code/popup.min";
 import { getTwoSlashBaseStyles, twoSlashStyleSettings } from "./styles";
 import type { PluginTwoslashOptions, TwoSlashStyleSettings } from "./types";
 import { parseIncludeMeta, TwoslashIncludesManager } from "./includes";
@@ -86,7 +88,7 @@ export default function ecTwoSlash(
 
 	return definePlugin({
 		name: "expressive-code-twoslash",
-		jsModules: [popupModule],
+		jsModules: [floatingUiCore, floatingUiDom, hoverDocsManager],
 		styleSettings: twoSlashStyleSettings,
 		baseStyles: (context) => getTwoSlashBaseStyles(context),
 		hooks: {

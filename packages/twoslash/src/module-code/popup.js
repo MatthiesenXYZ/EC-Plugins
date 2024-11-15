@@ -2,10 +2,6 @@
 // It uses the floating-ui library to position the popup
 // It also uses the MutationObserver to update the popups when the page changes
 // It also listens for the astro:page-load event to update the popups when the page is loaded
-import {
-	computePosition,
-	size,
-} from "https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.6.12/+esm";
 
 function setupTooltip(ToolTip, isMobileScreen) {
 	const hoverAnnotation = ToolTip.querySelector(".twoslash-popup-container");
@@ -33,10 +29,10 @@ function setupTooltip(ToolTip, isMobileScreen) {
 			}),
 		)
 			.then(() =>
-				computePosition(ToolTip, hoverAnnotation, {
+				FloatingUIDOM.computePosition(ToolTip, hoverAnnotation, {
 					placement: isMobileScreen ? "bottom" : "bottom-start",
 					middleware: [
-						size({
+						FloatingUIDOM.size({
 							apply({ availableWidth }) {
 								Object.assign(hoverAnnotation.style, {
 									maxWidth: `${Math.max(0, isMobileScreen ? 300 : availableWidth)}px`,
