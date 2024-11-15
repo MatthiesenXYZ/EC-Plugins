@@ -1,5 +1,11 @@
 # expressive-code-twoslash
 
+## 0.2.2
+
+### Patch Changes
+
+- [#17](https://github.com/MatthiesenXYZ/EC-Plugins/pull/17) [`8c1413a`](https://github.com/MatthiesenXYZ/EC-Plugins/commit/8c1413a45f7477d36d6a1570fbfcfe03d5221b43) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - Remove usage of CDN for FloatingUI
+
 ## 0.2.1
 
 ### Patch Changes
