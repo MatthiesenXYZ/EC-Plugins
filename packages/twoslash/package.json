@@ -31,9 +31,7 @@
 		"default": "./dist/index.js"
 	},
 	"types": "./dist/index.d.ts",
-	"files": [
-		"dist"
-	],
+	"files": ["dist"],
 	"scripts": {
 		"build-js-module": "tsm --require=../../scripts/filter-warnings.cjs ./scripts/minify.ts",
 		"compile": "tsup ./src/index.ts --format esm --dts --sourcemap --clean",
@@ -48,7 +46,6 @@
 		"twoslash": "^0.2.12"
 	},
 	"devDependencies": {
-		"@floating-ui/dom": "1.6.12",
 		"@types/uglify-js": "^3.17.5",
 		"uglify-js": "^3.19.3"
 	},
