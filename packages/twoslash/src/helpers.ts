@@ -1,16 +1,22 @@
-import type { ExpressiveCodeBlock } from "@expressive-code/core";
-import type { Element, ElementContent } from "@expressive-code/core/hast";
+import type {
+	ExpressiveCodeBlock,
+	ResolvedExpressiveCodeEngineConfig,
+} from "@expressive-code/core";
+import { h, type Element } from "@expressive-code/core/hast";
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { gfmFromMarkdown } from "mdast-util-gfm";
 import { toHast } from "mdast-util-to-hast";
 import type {
 	NodeCompletion,
 	NodeError,
+	NodeHover,
+	NodeQuery,
 	TwoslashNode,
 	TwoslashOptions,
 } from "twoslash";
 import { completionIcons } from "./icons/completionIcons";
 import {
+	jsdocTags,
 	reFunctionCleanup,
 	reImportStatement,
 	reInterfaceOrNamespace,
@@ -21,63 +27,109 @@ import {
 	reTypeCleanup,
 	twoslashDefaultTags,
 } from "./regex";
-import type { CompletionIcon, CompletionItem, TwoslashTag } from "./types";
+import type {
+	CompletionIcon,
+	CompletionItem,
+	RenderJSDocs,
+	TwoslashTag,
+} from "./types";
+import type { ExpressiveCode, ExpressiveCodeConfig } from "expressive-code";
 
 /**
- * Converts a markdown string into an array of ElementContent objects.
+ * Renders markdown content with code blocks using ExpressiveCode.
  *
- * This function processes the input markdown string, replacing JSDoc links with their
- * corresponding text, and then parses the markdown into an MDAST (Markdown Abstract Syntax Tree).
- * The MDAST is then transformed into a HAST (Hypertext Abstract Syntax Tree) and the children
- * of the resulting HAST element are returned.
+ * This function processes the given markdown string, converts it to an MDAST (Markdown Abstract Syntax Tree),
+ * and then transforms it into HAST (Hypertext Abstract Syntax Tree) with custom handlers for code blocks.
+ * It then uses ExpressiveCode to render the code blocks with syntax highlighting and other features.
  *
- * @param md - The markdown string to be converted.
- * @returns An array of ElementContent objects representing the parsed markdown.
+ * @param md - The markdown string to be processed.
+ * @param ec - An instance of ExpressiveCode used to render the code blocks.
+ * @returns A promise that resolves to an array of HAST nodes representing the processed markdown content.
  */
-export function renderMarkdown(md: string): ElementContent[] {
+export async function renderMarkdownWithCodeBlocks(
+	md: string,
+	ec: ExpressiveCode,
+) {
 	const mdast = fromMarkdown(
 		md.replace(reJsDocLink, "$1"), // replace jsdoc links
 		{ mdastExtensions: [gfmFromMarkdown()] },
 	);
 
-	return (
-		toHast(mdast, {
-			handlers: {
-				// Replace this section with EC processing once it's available
-				// code: (state, node) => {
-				//     const lang = node.lang || '';
-				//     if (lang) {
-				//         return {
-				//             type: 'element',
-				//             tagName: 'code',
-				//             properties: {},
-				//             children: this.codeToHast(node.value, {
-				//                 ...this.options,
-				//                 transformers: [],
-				//                 lang,
-				//                 structure: node.value.trim().includes('\n') ? 'classic' : 'inline',
-				//             }).children,
-				//         } as Element;
-				//     }
-				//     return defaultHandlers.code(state, node);
-				// },
+	const nodes = toHast(mdast, {
+		handlers: {
+			code: (state, node) => {
+				const lang = node.lang || "";
+				if (lang) {
+					return {
+						type: "element",
+						tagName: "code",
+						properties: {
+							class: "expressive-code",
+							"data-lang": lang,
+						},
+						children: [
+							{
+								type: "text",
+								value: node.value,
+							},
+						],
+					} as Element;
+				}
+				return {
+					type: "element",
+					tagName: "code",
+					properties: {
+						class: "expressive-code",
+					},
+					children: [
+						{
+							type: "text",
+							value: node.value,
+						},
+					],
+				} as Element;
 			},
-		}) as Element
-	).children;
+		},
+	}) as Element;
+
+	const codeBlocks = nodes.children
+		? nodes.children.filter(
+				(node) => node.type === "element" && node.tagName === "code",
+			)
+		: [];
+
+	for (const codeBlock of codeBlocks) {
+		if (codeBlock.type === "element") {
+			codeBlock.children =
+				codeBlock.type === "element" && codeBlock.children[0].type === "text"
+					? (
+							await ec.render({
+								code: codeBlock.children[0].value,
+								language:
+									(codeBlock.properties["data-lang"] as string) || "plaintext",
+							})
+						).renderedGroupAst.children
+					: [];
+		}
+	}
+
+	return nodes.children;
 }
 
 /**
- * Renders the given markdown string as an array of ElementContent.
- * If the rendered markdown consists of a single paragraph element,
- * it returns the children of that paragraph instead.
+ * Renders the given markdown string inline using the ExpressiveCode instance.
  *
- * @param md - The markdown string to render.
- * @returns An array of ElementContent representing the rendered markdown.
+ * This function processes the markdown string and returns the rendered children.
+ * If the rendered children contain a single paragraph element, it returns the children of that paragraph.
+ * Otherwise, it returns the entire rendered children array.
+ *
+ * @param md - The markdown string to be rendered.
+ * @param ec - The ExpressiveCode instance used for rendering.
+ * @returns A promise that resolves to the rendered children.
  */
-export function renderMarkdownInline(md: string): ElementContent[] {
-	const betterMD = md;
+export async function renderMDInline(md: string, ec: ExpressiveCode) {
+	const children = await renderMarkdownWithCodeBlocks(md, ec);
 
-	const children = renderMarkdown(betterMD);
 	if (
 		children.length === 1 &&
 		children[0].type === "element" &&
@@ -88,17 +140,76 @@ export function renderMarkdownInline(md: string): ElementContent[] {
 }
 
 /**
+ * Renders JSDoc comments for a given hover node.
+ *
+ * @param hover - The hover node containing documentation and tags.
+ * @param includeJsDoc - A boolean indicating whether to include JSDoc comments.
+ * @param ec - The ExpressiveCode instance used for rendering.
+ * @returns A promise that resolves to an object containing rendered documentation and tags.
+ */
+export async function renderJSDocs(
+	hover: NodeHover | NodeQuery,
+	includeJsDoc: boolean,
+	ec: ExpressiveCode,
+): Promise<RenderJSDocs> {
+	if (!includeJsDoc) return { docs: [], tags: [] };
+	return {
+		docs: hover.docs
+			? h("div.twoslash-popup-docs", [
+					h(
+						"p",
+						hover.docs
+							? await renderMarkdownWithCodeBlocks(hover.docs, ec)
+							: [],
+					),
+				])
+			: [],
+		tags: hover.tags
+			? h("div.twoslash-popup-docs.twoslash-popup-docs-tags", [
+					...(await Promise.all(
+						hover.tags
+							? hover.tags.map(async (tag) =>
+									jsdocTags.includes(tag[0])
+										? h("p", [
+												h("span.twoslash-popup-docs-tag-name", `@${tag[0]}`),
+												tag[1]
+													? [
+															(await checkIfSingleParagraph(
+																tag[1],
+																filterTags(tag[0]),
+																ec,
+															))
+																? " ― "
+																: " ",
+															h(
+																"span.twoslash-popup-docs-tag-value",
+																await renderMDInline(tag[1], ec),
+															),
+														]
+													: [],
+											])
+										: [],
+								)
+							: [],
+					)),
+				])
+			: [],
+	};
+}
+
+/**
  * Checks if the given markdown string consists of a single paragraph element.
  *
  * @param md - The markdown string to check.
  * @param filterTags - A boolean indicating whether to filter tags.
  * @returns A boolean indicating if the markdown string is a single paragraph element.
  */
-export function checkIfSingleParagraph(
+export async function checkIfSingleParagraph(
 	md: string,
 	filterTags: boolean,
-): boolean {
-	const children = renderMarkdownInline(md);
+	ec: ExpressiveCode,
+): Promise<boolean> {
+	const children = await renderMDInline(md, ec);
 	if (filterTags) {
 		return !(
 			children.length === 1 &&
@@ -411,4 +522,48 @@ export function compareNodes(
 
 	// If no checks failed, the nodes are considered equal
 	return true;
+}
+
+export const ecConfig = (
+	config: ResolvedExpressiveCodeEngineConfig,
+): ExpressiveCodeConfig => {
+	return {
+		cascadeLayer: config.cascadeLayer,
+		customizeTheme: config.customizeTheme,
+		defaultLocale: config.defaultLocale,
+		defaultProps: config.defaultProps,
+		logger: config.logger,
+		minSyntaxHighlightingColorContrast:
+			config.minSyntaxHighlightingColorContrast,
+		styleOverrides: config.styleOverrides,
+		themeCssRoot: config.themeCssRoot,
+		themeCssSelector: config.themeCssSelector,
+		themes: config.themes,
+		useDarkModeMediaQuery: config.useDarkModeMediaQuery,
+		useStyleReset: config.useStyleReset,
+		useThemedScrollbars: config.useThemedScrollbars,
+		useThemedSelectionColors: config.useThemedSelectionColors,
+		frames: {
+			showCopyToClipboardButton: false,
+			extractFileNameFromCode: false,
+		},
+	};
+};
+
+export async function renderType(text: string, ec: ExpressiveCode) {
+	const info = defaultHoverInfoProcessor(text);
+	if (typeof info === "string") {
+		const { renderedGroupAst } = await ec.render({
+			code: info,
+			language: "ts",
+			meta: "",
+		});
+		return renderedGroupAst;
+	}
+	const { renderedGroupAst } = await ec.render({
+		code: text,
+		language: "ts",
+		meta: "",
+	});
+	return renderedGroupAst;
 }

@@ -8,7 +8,6 @@ Add Twoslash support to your Expressive Code TypeScript code blocks.
 
 ### TODO
 - [ ] Make Annotations accessible
-- [ ] Implement Annotation code processesing (Requires support from EC (Planned))
 - [ ] Use EC's Markdown processing system once released. (Requires support from EC (Planned))
 - [ ] Figure out how to work with TwoslashVFS and setup support for "Showing Emitted Files"
 
