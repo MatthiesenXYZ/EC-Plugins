@@ -1,5 +1,11 @@
 # expressive-code-twoslash
 
+## 0.2.3
+
+### Patch Changes
+
+- [#19](https://github.com/MatthiesenXYZ/EC-Plugins/pull/19) [`31a47d3`](https://github.com/MatthiesenXYZ/EC-Plugins/commit/31a47d3abd1e3c08b3a28114ce342408ff90daf9) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - Add codeblock and type processing to Hover/Static annotations
+
 ## 0.2.2
 
 ### Patch Changes
