@@ -6,6 +6,9 @@ import {
 	processCompletion,
 	splitCodeToLines,
 	compareNodes,
+	ecConfig,
+	renderType,
+	renderJSDocs,
 } from "./helpers";
 import floatingUiCore from "./module-code/floating-ui-core.min";
 import floatingUiDom from "./module-code/floating-ui-dom.min";
@@ -23,6 +26,7 @@ import {
 	TwoslashHoverAnnotation,
 	TwoslashStaticAnnotation,
 } from "./annotations";
+import { ExpressiveCode } from "expressive-code";
 
 export type { PluginTwoslashOptions, TwoSlashStyleSettings };
 
@@ -92,10 +96,13 @@ export default function ecTwoSlash(
 		styleSettings: twoSlashStyleSettings,
 		baseStyles: (context) => getTwoSlashBaseStyles(context),
 		hooks: {
-			preprocessCode({ codeBlock }) {
+			async preprocessCode({ codeBlock, config }) {
 				if (shouldTransform(codeBlock)) {
 					// Create a new instance of the TwoslashIncludesManager
 					const includes = new TwoslashIncludesManager(includesMap);
+
+					// Create a new instance of the Expressive Code Engine for use in the plugin
+					const ecEngine = new ExpressiveCode(ecConfig(config));
 
 					// Apply the includes to the code block
 					const codeWithIncludes = includes.applyInclude(codeBlock.code);
@@ -157,7 +164,12 @@ export default function ecTwoSlash(
 
 						if (line) {
 							line.addAnnotation(
-								new TwoslashStaticAnnotation(node, line, includeJsDoc),
+								new TwoslashStaticAnnotation(
+									node,
+									line,
+									await renderType(node.text, ecEngine),
+									await renderJSDocs(node, includeJsDoc, ecEngine),
+								),
 							);
 						}
 					}
@@ -196,7 +208,11 @@ export default function ecTwoSlash(
 
 						if (line) {
 							line.addAnnotation(
-								new TwoslashHoverAnnotation(node, includeJsDoc),
+								new TwoslashHoverAnnotation(
+									node,
+									await renderType(node.text, ecEngine),
+									await renderJSDocs(node, includeJsDoc, ecEngine),
+								),
 							);
 						}
 					}

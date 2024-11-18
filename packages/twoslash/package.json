@@ -31,9 +31,7 @@
 		"default": "./dist/index.js"
 	},
 	"types": "./dist/index.d.ts",
-	"files": [
-		"dist"
-	],
+	"files": ["dist"],
 	"scripts": {
 		"build-js-module": "tsm --require=../../scripts/filter-warnings.cjs ./scripts/minify.ts",
 		"compile": "tsup ./src/index.ts --format esm --dts --sourcemap --clean",
@@ -45,7 +43,8 @@
 		"mdast-util-from-markdown": "^2.0.2",
 		"mdast-util-gfm": "^3.0.0",
 		"mdast-util-to-hast": "^13.2.0",
-		"twoslash": "^0.2.12"
+		"twoslash": "^0.2.12",
+		"expressive-code": "^0.38.3"
 	},
 	"devDependencies": {
 		"@types/uglify-js": "^3.17.5",

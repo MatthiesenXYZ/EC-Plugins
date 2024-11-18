@@ -3,17 +3,10 @@ import {
 	ExpressiveCodeAnnotation,
 	type ExpressiveCodeLine,
 } from "@expressive-code/core";
-import { h } from "@expressive-code/core/hast";
+import { type Element, h } from "@expressive-code/core/hast";
 import type { NodeQuery } from "twoslash";
-import {
-	defaultHoverInfoProcessor,
-	getTextWidthInPixels,
-	renderMarkdown,
-	checkIfSingleParagraph,
-	filterTags,
-	renderMarkdownInline,
-} from "../helpers";
-import { jsdocTags } from "../regex";
+import { getTextWidthInPixels } from "../helpers";
+import type { RenderJSDocs } from "../types";
 
 /**
  * Represents a static annotation for Twoslash.
@@ -32,7 +25,8 @@ export class TwoslashStaticAnnotation extends ExpressiveCodeAnnotation {
 	constructor(
 		readonly query: NodeQuery,
 		readonly line: ExpressiveCodeLine,
-		readonly includeJsDoc: boolean,
+		readonly codeType: Element,
+		readonly renderedDocs: RenderJSDocs,
 	) {
 		super({
 			inlineRange: {
@@ -40,20 +34,6 @@ export class TwoslashStaticAnnotation extends ExpressiveCodeAnnotation {
 				columnEnd: line.text.length + query.length,
 			},
 		});
-	}
-
-	private getHoverInfo(text: string) {
-		const info = defaultHoverInfoProcessor(text);
-
-		if (info === false) {
-			return [];
-		}
-
-		if (typeof info === "string") {
-			return h("code.twoslash-popup-code", [
-				h("span.twoslash-popup-code-type", info),
-			]);
-		}
 	}
 
 	/**
@@ -74,44 +54,11 @@ export class TwoslashStaticAnnotation extends ExpressiveCodeAnnotation {
 					},
 					[
 						h("div.twoslash-static-container.not-content", [
-							this.getHoverInfo(this.query.text),
-							...(this.query.docs && this.includeJsDoc
-								? [
-										h("div.twoslash-popup-docs", [
-											h("p", [renderMarkdown(this.query.docs)]),
-										]),
-									]
-								: []),
-							...(this.query.tags && this.includeJsDoc
-								? [
-										h("div.twoslash-popup-docs.twoslash-popup-docs-tags", [
-											...this.query.tags.map((tag) =>
-												jsdocTags.includes(tag[0])
-													? h("p", [
-															h(
-																"span.twoslash-popup-docs-tag-name",
-																`@${tag[0]}`,
-															),
-															tag[1]
-																? [
-																		checkIfSingleParagraph(
-																			tag[1],
-																			filterTags(tag[0]),
-																		)
-																			? " ― "
-																			: " ",
-																		h(
-																			"span.twoslash-popup-docs-tag-value",
-																			renderMarkdownInline(tag[1]),
-																		),
-																	]
-																: [],
-														])
-													: [],
-											),
-										]),
-									]
-								: []),
+							h("code.twoslash-popup-code", [
+								h("span.twoslash-popup-code-type", this.codeType),
+							]),
+							this.renderedDocs.docs,
+							this.renderedDocs.tags,
 						]),
 					],
 				),

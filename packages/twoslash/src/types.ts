@@ -135,3 +135,8 @@ export type CompletionIcons = {
 export type CompletionIcon = keyof typeof completionIcons;
 
 export type TwoslashTag = "annotate" | "log" | "warn" | "error";
+
+export type RenderJSDocs = {
+	docs: Element | never[];
+	tags: Element | never[];
+};

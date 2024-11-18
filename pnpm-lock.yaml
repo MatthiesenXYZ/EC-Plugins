@@ -93,6 +93,9 @@ importers:
       '@expressive-code/core':
         specifier: ^0.38.3
         version: 0.38.3
+      expressive-code:
+        specifier: ^0.38.3
+        version: 0.38.3
       mdast-util-from-markdown:
         specifier: ^2.0.2
         version: 2.0.2

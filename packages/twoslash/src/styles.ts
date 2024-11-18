@@ -282,6 +282,33 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             white-space: pre-wrap;
         }
 
+        .twoslash-popup-code,
+        .twoslash-popup-code span {
+            white-space: preserve !important;
+        }
+
+        .twoslash-popup-code-type {
+            color: ${cssVar("twoSlash.titleColor")} !important;
+            font-family: ${cssVar("codeFontFamily")};
+            font-weight: 600;
+        }
+
+        .twoslash-popup-code-type .frame pre {
+            display: contents !important;
+        }
+
+        .twoslash-popup-code-type .frame .ec-line .code {
+            padding-inline-start: 0 !important;
+        }
+
+        .twoslash-popup-code-type .frame pre > code {
+            padding: 0 !important;
+        }
+
+        .twoslash-popup-code-type .frame .header::before {
+            border: none !important;
+        }
+
         .twoslash-popup-code::-webkit-scrollbar,
         .twoslash-popup-code::-webkit-scrollbar-track,
         .twoslash-popup-docs::-webkit-scrollbar,
@@ -335,14 +362,9 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             font-weight: 500;
         }
 
-        .twoslash-popup-code,
-        .twoslash-popup-code span {
-            white-space: preserve !important;
-        }
-
         .twoslash-popup-docs pre {
             width: 100%;
-            background-color: ${cssVar("twoSlash.background")} !important;
+            background-color: var(--ec-frm-edBg) !important;
             padding: .15rem;
             border-radius: 4px !important;
             position: relative !important;
@@ -350,12 +372,6 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             display: inline-block !important;
             line-height: 1 !important;
             border: 2px solid ${cssVar("twoSlash.borderColor")} !important;
-        }
-
-        .twoslash-popup-code-type {
-            color: ${cssVar("twoSlash.titleColor")} !important;
-            font-family: ${cssVar("codeFontFamily")};
-            font-weight: 600;
         }
 
         .twoslash-popup-docs.twoslash-popup-docs-tags {
@@ -381,7 +397,7 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
 
         .twoslash-popup-docs code {
             margin: 0 !important;
-            background-color: transparent !important;
+            background-color: var(--ec-frm-edBg) !important;
             line-height: normal !important;
         }
 

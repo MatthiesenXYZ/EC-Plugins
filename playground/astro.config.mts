@@ -8,7 +8,7 @@ export default defineConfig({
 		starlight({
 			title: "Starlight",
 			expressiveCode: {
-				themes: ['github-dark-dimmed'],
+				// themes: ['github-dark-dimmed'],
 				plugins: [ectwoslash()],
 			},
 		}),
