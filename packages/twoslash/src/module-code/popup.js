@@ -35,7 +35,7 @@ function setupTooltip(ToolTip, isMobileScreen) {
 						FloatingUIDOM.size({
 							apply({ availableWidth }) {
 								Object.assign(hoverAnnotation.style, {
-									maxWidth: `${Math.max(0, isMobileScreen ? 300 : availableWidth)}px`,
+									maxWidth: `${Math.max(300, availableWidth)}px`,
 									maxHeight: "100%",
 								});
 							},
@@ -46,7 +46,7 @@ function setupTooltip(ToolTip, isMobileScreen) {
 			.then(({ x, y }) => {
 				Object.assign(hoverAnnotation.style, {
 					display: "block",
-					left: `${isMobileScreen ? 50 : x}px`,
+					left: `${isMobileScreen ? 20 : x}px`,
 					top: `${y}px`,
 				});
 			});
