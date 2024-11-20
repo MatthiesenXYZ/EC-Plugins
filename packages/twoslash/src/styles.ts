@@ -402,7 +402,10 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             line-height: 1 !important;
         }
 
-        .twoslash-popup-docs-tag-value code {
+        .twoslash-popup-docs-tag-value code,
+        .twoslash-popup-docs > p > code,
+        .twoslash-popup-docs > p > a > code,
+        .twoslash-popup-docs > ul > li > code {
             border: 1px solid ${cssVar("twoSlash.borderColor")};
             border-radius: 4px;
         }
