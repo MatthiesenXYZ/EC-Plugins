@@ -272,9 +272,8 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
 
         .twoslash-popup-code {
             display: block;
-            width: fit-content;
+            width: 100%;
             max-width: 600px;
-            min-width: 100%;
             padding: 6px 12px;
             font-size: ${cssVar("codeFontSize")};
             font-weight: 400;
@@ -330,6 +329,13 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         .twoslash-popup-code::-webkit-scrollbar-thumb:hover,
         .twoslash-popup-docs::-webkit-scrollbar-thumb:hover {
 			background-color: ${cssVar("scrollbarThumbHoverColor")};
+        }
+
+        .twoslash-popup-code::-webkit-scrollbar-corner,
+        .twoslash-popup-docs::-webkit-scrollbar-corner {
+            background: transparent;
+            width: 0;
+            height: 0;
         }
 
         .twoslash-popup-code,
