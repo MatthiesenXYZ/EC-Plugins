@@ -30,6 +30,8 @@ export const twoSlashStyleSettings = new PluginStyleSettings({
 			background: ({ theme }) => theme.colors["editor.background"] || theme.bg,
 			hoverUnderlineColor: ({ theme }) => theme.fg || "#888",
 			textColor: ({ theme }) => theme.colors["editor.foreground"] || theme.fg,
+			popupDocsMaxHeight: "200px",
+			tagColor: ({ theme }) => theme.colors["terminal.ansiBrightBlue"],
 
 			// Link styles
 			linkColor: ({ theme }) => theme.colors["terminal.ansiBrightBlue"],
@@ -37,15 +39,6 @@ export const twoSlashStyleSettings = new PluginStyleSettings({
 				theme.colors["terminal.ansiBrightMagenta"],
 			linkColorHover: ({ theme }) => theme.colors["terminal.ansiBrightCyan"],
 			linkColorActive: ({ theme }) => theme.colors["terminal.ansiBrightGreen"],
-
-			// Popup docs Extra styles
-			popupDocsMaxHeight: "200px",
-
-			// JS Doc Tag styles (`@param`, `@returns`, etc.)
-			tagColor: ({ theme }) => theme.colors["terminal.ansiBrightBlue"],
-
-			// Temp styles till we can use the EC Code Engine to process
-			titleColor: ({ theme }) => theme.colors["terminal.ansiMagenta"],
 
 			// Highlight settings & styles
 			highlightHue: "284",
@@ -158,7 +151,6 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         .twoslash-popup-container {
             position: absolute;
             z-index: 999 !important;
-            height: max-content;
             background: ${cssVar("twoSlash.background")};
             border: 1px solid ${cssVar("twoSlash.borderColor")};
             border-radius: 4px;
@@ -185,12 +177,6 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
 
         .twoslash-popup-container a:active {
             color: ${cssVar("twoSlash.linkColorActive")};
-        }
-
-        .twoslash-popup-container * {
-            white-space: wrap !important;
-            word-break: normal !important;
-            overflow-wrap: normal !important;
         }
     `;
 
@@ -287,13 +273,16 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         }
 
         .twoslash-popup-code-type {
-            color: ${cssVar("twoSlash.titleColor")} !important;
             font-family: ${cssVar("codeFontFamily")};
             font-weight: 600;
         }
 
         .twoslash-popup-code-type .frame pre {
             display: contents !important;
+        }
+
+        .twoslash-popup-code-type .frame .ec-line {
+            display: unset !important;
         }
 
         .twoslash-popup-code-type .frame .ec-line .code {
@@ -357,15 +346,22 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             text-wrap: balance;
         }
 
-        .twoslash-popup-docs * {
-            overflow-x: unset;
+        .twoslash-popup-docs-tagline {
+            display: flex;
+            text-wrap-style: stable;
         }
+
 
         .twoslash-popup-docs-tag-name {
             color: ${cssVar("twoSlash.tagColor")};
             font-style: italic;
             --shiki-dark-font-style: italic;
             font-weight: 500;
+            margin-right: 0.25rem;
+        }
+
+        .twoslash-popup-docs-tag-value {
+            margin-left: 0.25rem;
         }
 
         .twoslash-popup-docs pre {
@@ -396,15 +392,19 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             padding: 0.15rem !important;
         }
 
-        .twoslash-popup-docs code,
-        .twoslash-popup-docs code span {
-            white-space: preserve !important;
+        .twoslash-popup-docs code {
+            color: var(--sl-color-white) !important;
+            background-color: var(--ec-frm-edBg) !important;
+            padding: .125rem !important;
+            border-radius: 4px !important;
+            position: relative !important;
+            display: inline-block !important;
+            line-height: 1 !important;
         }
 
-        .twoslash-popup-docs code {
-            margin: 0 !important;
-            background-color: var(--ec-frm-edBg) !important;
-            line-height: normal !important;
+        .twoslash-popup-docs-tag-value code {
+            border: 1px solid ${cssVar("twoSlash.borderColor")};
+            border-radius: 4px;
         }
 
         .twoslash-popup-docs code span::after {
