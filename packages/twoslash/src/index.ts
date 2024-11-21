@@ -4,18 +4,19 @@ import {
 	buildMetaChecker,
 	checkForCustomTagsAndMerge,
 	processCompletion,
-	splitCodeToLines,
 	compareNodes,
 	ecConfig,
 	renderType,
 	renderJSDocs,
+	processTwoslashCodeBlock,
+	parseIncludeMeta,
+	TwoslashIncludesManager,
 } from "./helpers";
 import floatingUiCore from "./module-code/floating-ui-core.min";
 import floatingUiDom from "./module-code/floating-ui-dom.min";
 import hoverDocsManager from "./module-code/popup.min";
 import { getTwoSlashBaseStyles, twoSlashStyleSettings } from "./styles";
 import type { PluginTwoslashOptions, TwoSlashStyleSettings } from "./types";
-import { parseIncludeMeta, TwoslashIncludesManager } from "./includes";
 import ts, { type CompilerOptions } from "typescript";
 import {
 	TwoslashCompletionAnnotation,
@@ -74,6 +75,7 @@ export default function ecTwoSlash(
 		explicitTrigger = true,
 		languages = ["ts", "tsx"],
 		includeJsDoc = true,
+		allowNonStandardJsDocTags = false,
 		twoslashOptions = checkForCustomTagsAndMerge(options.twoslashOptions),
 	} = options;
 
@@ -127,26 +129,8 @@ export default function ecTwoSlash(
 						codeBlock.language = twoslash.extension;
 					}
 
-					// Get the EC and Twoslash code blocks
-					const ecCodeBlock = splitCodeToLines(codeWithIncludes);
-					const twoslashCodeBlock = splitCodeToLines(twoslash.code);
-
-					// Replace the EC code block with the Twoslash code block
-					for (const line of twoslashCodeBlock) {
-						const ln = codeBlock.getLine(line.index);
-						if (ln) ln.editText(0, ln.text.length, line.line);
-					}
-
-					// Remove any extra lines from the EC code block
-					if (twoslashCodeBlock.length < ecCodeBlock.length) {
-						for (
-							let i = twoslashCodeBlock.length;
-							i < ecCodeBlock.length;
-							i++
-						) {
-							codeBlock.deleteLine(twoslashCodeBlock.length);
-						}
-					}
+					// Process the Twoslash code block and replace the EC code block with the Twoslash code block
+					processTwoslashCodeBlock(codeBlock, codeWithIncludes, twoslash.code);
 
 					// Process the Twoslash Error Annotations
 					for (const node of twoslash.errors) {
@@ -168,7 +152,12 @@ export default function ecTwoSlash(
 									node,
 									line,
 									await renderType(node.text, ecEngine),
-									await renderJSDocs(node, includeJsDoc, ecEngine),
+									await renderJSDocs(
+										node,
+										includeJsDoc,
+										ecEngine,
+										allowNonStandardJsDocTags,
+									),
 								),
 							);
 						}
@@ -211,7 +200,12 @@ export default function ecTwoSlash(
 								new TwoslashHoverAnnotation(
 									node,
 									await renderType(node.text, ecEngine),
-									await renderJSDocs(node, includeJsDoc, ecEngine),
+									await renderJSDocs(
+										node,
+										includeJsDoc,
+										ecEngine,
+										allowNonStandardJsDocTags,
+									),
 								),
 							);
 						}
