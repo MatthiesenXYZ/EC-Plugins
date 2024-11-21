@@ -1,5 +1,13 @@
 # expressive-code-twoslash
 
+## 0.2.4
+
+### Patch Changes
+
+- [#23](https://github.com/MatthiesenXYZ/EC-Plugins/pull/23) [`171ae90`](https://github.com/MatthiesenXYZ/EC-Plugins/commit/171ae90efaee993462d3e9f67cf0ac694b91558a) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - More CSS cleanup, and organize code
+
+- [#21](https://github.com/MatthiesenXYZ/EC-Plugins/pull/21) [`178ae11`](https://github.com/MatthiesenXYZ/EC-Plugins/commit/178ae117fd505e30cee8e40d0500f81c62378572) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - Fix: Small CSS issue for mobile devices
+
 ## 0.2.3
 
 ### Patch Changes
