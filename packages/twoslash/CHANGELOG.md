@@ -1,5 +1,11 @@
 # expressive-code-twoslash
 
+## 0.2.5
+
+### Patch Changes
+
+- [#24](https://github.com/MatthiesenXYZ/EC-Plugins/pull/24) [`a1644f7`](https://github.com/MatthiesenXYZ/EC-Plugins/commit/a1644f71ad599c74a3786535364d46d11920a3a3) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - Fix box shadow on twoslash code type info section
+
 ## 0.2.4
 
 ### Patch Changes

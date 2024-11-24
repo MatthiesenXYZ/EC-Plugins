@@ -1,6 +1,6 @@
 {
 	"name": "expressive-code-twoslash",
-	"version": "0.2.4",
+	"version": "0.2.5",
 	"description": "Add Twoslash support to your Expressive Code TypeScript code blocks.",
 	"author": {
 		"email": "adam@matthiesen.xyz",
