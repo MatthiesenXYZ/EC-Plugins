@@ -297,6 +297,10 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             box-shadow: none !important;
         }
 
+        .twoslash-popup-docs .frame {
+            box-shadow: none !important;
+        }
+
         .twoslash-popup-code-type .frame .header::before {
             border: none !important;
         }
