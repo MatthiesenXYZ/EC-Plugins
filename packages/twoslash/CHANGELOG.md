@@ -1,5 +1,11 @@
 # expressive-code-twoslash
 
+## 0.2.6
+
+### Patch Changes
+
+- [#26](https://github.com/MatthiesenXYZ/EC-Plugins/pull/26) [`506b145`](https://github.com/MatthiesenXYZ/EC-Plugins/commit/506b1451101e6ce8fb79022d3f0f0e308eb726b0) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - Remove frame box shadow from docs popup
+
 ## 0.2.5
 
 ### Patch Changes
