@@ -1,5 +1,15 @@
 # expressive-code-twoslash
 
+## 0.3.0
+
+### Minor Changes
+
+- [#28](https://github.com/MatthiesenXYZ/EC-Plugins/pull/28) [`f8d2c4c`](https://github.com/MatthiesenXYZ/EC-Plugins/commit/f8d2c4cf5da8062e91ec0a4c936c0ef14cbc8ce9) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - Move expressive-code from a normal dependency to a peerDependency
+
+### Patch Changes
+
+- [`1493d18`](https://github.com/MatthiesenXYZ/EC-Plugins/commit/1493d18de2555a6503d748366c398f3900882238) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - fix styleoverrides type
+
 ## 0.2.6
 
 ### Patch Changes
