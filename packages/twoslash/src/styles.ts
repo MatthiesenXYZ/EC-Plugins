@@ -7,12 +7,6 @@ import {
 } from "@expressive-code/core";
 import type { TwoSlashStyleSettings } from "./types";
 
-declare module "@expressive-code/core" {
-	export interface StyleSettings {
-		twoSlash: TwoSlashStyleSettings;
-	}
-}
-
 /**
  * Represents the style settings for the TwoSlash plugin.
  */

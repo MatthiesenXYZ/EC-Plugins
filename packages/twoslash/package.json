@@ -31,9 +31,7 @@
 		"default": "./dist/index.js"
 	},
 	"types": "./dist/index.d.ts",
-	"files": [
-		"dist"
-	],
+	"files": ["dist"],
 	"scripts": {
 		"build-js-module": "tsm --require=../../scripts/filter-warnings.cjs ./scripts/minify.ts",
 		"compile": "tsup ./src/index.ts --format esm --dts --sourcemap --clean",
@@ -42,7 +40,6 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"expressive-code": "^0.38.3",
 		"mdast-util-from-markdown": "^2.0.2",
 		"mdast-util-gfm": "^3.0.0",
 		"mdast-util-to-hast": "^13.2.0",
@@ -54,6 +51,7 @@
 	},
 	"peerDependencies": {
 		"@expressive-code/core": "^0.38.3",
+		"expressive-code": "^0.38.3",
 		"typescript": "^5.5"
 	}
 }
