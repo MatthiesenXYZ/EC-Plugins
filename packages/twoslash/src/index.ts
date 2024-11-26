@@ -31,6 +31,12 @@ import { ExpressiveCode } from "expressive-code";
 
 export type { PluginTwoslashOptions, TwoSlashStyleSettings };
 
+declare module "@expressive-code/core" {
+	export interface StyleSettings {
+		twoSlash: TwoSlashStyleSettings;
+	}
+}
+
 /**
  * Default TypeScript compiler options used in TwoSlash.
  *
