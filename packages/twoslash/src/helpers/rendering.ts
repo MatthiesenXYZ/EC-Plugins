@@ -1,5 +1,10 @@
+import { type Element, h } from "@expressive-code/core/hast";
 import type { ExpressiveCode } from "expressive-code";
 import { fromMarkdown } from "mdast-util-from-markdown";
+import { gfmFromMarkdown } from "mdast-util-gfm";
+import { toHast } from "mdast-util-to-hast";
+import type { NodeHover, NodeQuery } from "twoslash";
+import type { RenderJSDocs } from "../types";
 import {
 	jsdocTags,
 	reFunctionCleanup,
@@ -10,11 +15,6 @@ import {
 	reLeadingPropertyMethod,
 	reTypeCleanup,
 } from "./regex";
-import { gfmFromMarkdown } from "mdast-util-gfm";
-import { toHast } from "mdast-util-to-hast";
-import { h, type Element } from "@expressive-code/core/hast";
-import type { NodeHover, NodeQuery } from "twoslash";
-import type { RenderJSDocs } from "../types";
 
 /**
  * Renders markdown content with code blocks using ExpressiveCode.

@@ -2,7 +2,7 @@ import {
 	type AnnotationRenderOptions,
 	ExpressiveCodeAnnotation,
 } from "@expressive-code/core";
-import { type Root, type Element, h } from "@expressive-code/core/hast";
+import { type Element, type Root, h } from "@expressive-code/core/hast";
 import type { NodeHighlight } from "twoslash";
 
 /**

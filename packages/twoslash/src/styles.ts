@@ -1,9 +1,9 @@
 import {
-  lighten,
-  PluginStyleSettings,
-  type ResolverContext,
-  type StyleResolverFn,
-  toHexColor,
+	PluginStyleSettings,
+	type ResolverContext,
+	type StyleResolverFn,
+	lighten,
+	toHexColor,
 } from "@expressive-code/core";
 import type { TwoSlashStyleSettings } from "./types";
 
@@ -11,91 +11,91 @@ import type { TwoSlashStyleSettings } from "./types";
  * Represents the style settings for the TwoSlash plugin.
  */
 export const twoSlashStyleSettings = new PluginStyleSettings({
-  defaultValues: {
-    twoSlash: {
-      // Main styles
-      borderColor: ({ theme }) =>
-        theme.colors["titleBar.border"] ||
-        lighten(
-          theme.colors["editor.background"],
-          theme.type === "dark" ? 0.5 : -0.15,
-        ) ||
-        "transparent",
-      background: ({ theme }) => theme.colors["editor.background"] || theme.bg,
-      hoverUnderlineColor: ({ theme }) => theme.fg || "#888",
-      textColor: ({ theme }) => theme.colors["editor.foreground"] || theme.fg,
-      popupDocsMaxHeight: "200px",
-      tagColor: ({ theme }) => theme.colors["terminal.ansiBrightBlue"],
+	defaultValues: {
+		twoSlash: {
+			// Main styles
+			borderColor: ({ theme }) =>
+				theme.colors["titleBar.border"] ||
+				lighten(
+					theme.colors["editor.background"],
+					theme.type === "dark" ? 0.5 : -0.15,
+				) ||
+				"transparent",
+			background: ({ theme }) => theme.colors["editor.background"] || theme.bg,
+			hoverUnderlineColor: ({ theme }) => theme.fg || "#888",
+			textColor: ({ theme }) => theme.colors["editor.foreground"] || theme.fg,
+			popupDocsMaxHeight: "200px",
+			tagColor: ({ theme }) => theme.colors["terminal.ansiBrightBlue"],
 
-      // Link styles
-      linkColor: ({ theme }) => theme.colors["terminal.ansiBrightBlue"],
-      linkColorVisited: ({ theme }) =>
-        theme.colors["terminal.ansiBrightMagenta"],
-      linkColorHover: ({ theme }) => theme.colors["terminal.ansiBrightCyan"],
-      linkColorActive: ({ theme }) => theme.colors["terminal.ansiBrightGreen"],
+			// Link styles
+			linkColor: ({ theme }) => theme.colors["terminal.ansiBrightBlue"],
+			linkColorVisited: ({ theme }) =>
+				theme.colors["terminal.ansiBrightMagenta"],
+			linkColorHover: ({ theme }) => theme.colors["terminal.ansiBrightCyan"],
+			linkColorActive: ({ theme }) => theme.colors["terminal.ansiBrightGreen"],
 
-      // Highlight settings & styles
-      highlightHue: "284",
-      highlightDefaultLuminance: ["32%", "75%"],
-      highlightDefaultChroma: "40",
-      highlightBackgroundOpacity: "50%",
-      highlightBorderLuminance: "48%",
-      highlightBorderOpacity: "81.6%",
-      highlightBackground: (context) => resolveHighlight(context).background,
-      highlightBorderColor: (context) => resolveHighlight(context).border,
+			// Highlight settings & styles
+			highlightHue: "284",
+			highlightDefaultLuminance: ["32%", "75%"],
+			highlightDefaultChroma: "40",
+			highlightBackgroundOpacity: "50%",
+			highlightBorderLuminance: "48%",
+			highlightBorderOpacity: "81.6%",
+			highlightBackground: (context) => resolveHighlight(context).background,
+			highlightBorderColor: (context) => resolveHighlight(context).border,
 
-      // Error Annotation and Custom Tag styles
-      errorColor: ({ theme }) => theme.colors["terminal.ansiRed"],
-      warnColor: ({ theme }) => theme.colors["terminal.ansiYellow"],
-      suggestionColor: ({ theme }) => theme.colors["terminal.ansiGreen"],
-      messageColor: ({ theme }) => theme.colors["terminal.ansiBlue"],
+			// Error Annotation and Custom Tag styles
+			errorColor: ({ theme }) => theme.colors["terminal.ansiRed"],
+			warnColor: ({ theme }) => theme.colors["terminal.ansiYellow"],
+			suggestionColor: ({ theme }) => theme.colors["terminal.ansiGreen"],
+			messageColor: ({ theme }) => theme.colors["terminal.ansiBlue"],
 
-      // Completion main styles
-      cursorColor: ({ theme }) => theme.colors["editorCursor.foreground"],
-      completionBoxBackground: ({ theme }) =>
-        theme.colors["editorSuggestWidget.background"] ||
-        theme.colors["editor.background"] ||
-        theme.bg,
-      completionBoxBorder: ({ theme }) =>
-        theme.colors["editorSuggestWidget.border"] ||
-        theme.colors["titleBar.border"] ||
-        lighten(
-          theme.colors["editor.background"],
-          theme.type === "dark" ? 0.5 : -0.15,
-        ) ||
-        "transparent",
-      completionBoxColor: ({ theme }) =>
-        theme.colors["editorSuggestWidget.foreground"] ||
-        theme.colors["editor.foreground"] ||
-        theme.fg,
-      completionBoxMatchedColor: ({ theme }) =>
-        theme.colors["editorSuggestWidget.highlightForeground"] ||
-        theme.colors["editor.findMatchBackground"] ||
-        theme.colors["terminal.ansiBrightCyan"],
-      completionBoxHoverBackground: ({ theme }) =>
-        theme.colors["editorSuggestWidget.selectedBackground"] ||
-        theme.colors["editor.findMatchHighlightBackground"] ||
-        "#888",
+			// Completion main styles
+			cursorColor: ({ theme }) => theme.colors["editorCursor.foreground"],
+			completionBoxBackground: ({ theme }) =>
+				theme.colors["editorSuggestWidget.background"] ||
+				theme.colors["editor.background"] ||
+				theme.bg,
+			completionBoxBorder: ({ theme }) =>
+				theme.colors["editorSuggestWidget.border"] ||
+				theme.colors["titleBar.border"] ||
+				lighten(
+					theme.colors["editor.background"],
+					theme.type === "dark" ? 0.5 : -0.15,
+				) ||
+				"transparent",
+			completionBoxColor: ({ theme }) =>
+				theme.colors["editorSuggestWidget.foreground"] ||
+				theme.colors["editor.foreground"] ||
+				theme.fg,
+			completionBoxMatchedColor: ({ theme }) =>
+				theme.colors["editorSuggestWidget.highlightForeground"] ||
+				theme.colors["editor.findMatchBackground"] ||
+				theme.colors["terminal.ansiBrightCyan"],
+			completionBoxHoverBackground: ({ theme }) =>
+				theme.colors["editorSuggestWidget.selectedBackground"] ||
+				theme.colors["editor.findMatchHighlightBackground"] ||
+				"#888",
 
-      // Completion icon colors
-      completionIconClass: "#EE9D28",
-      completionIconConstructor: "#b180d7",
-      completionIconFunction: "#b180d7",
-      completionIconInterface: "#75beff",
-      completionIconModule: "#cccccc",
-      completionIconMethod: "#b180d7",
-      completionIconProperty: "#cccccc",
-      completionIconString: "#cccccc",
-    },
-  },
-  cssVarExclusions: [
-    "twoSlash.highlightHue",
-    "twoSlash.highlightDefaultLuminance",
-    "twoSlash.highlightDefaultChroma",
-    "twoSlash.highlightBackgroundOpacity",
-    "twoSlash.highlightBorderLuminance",
-    "twoSlash.highlightBorderOpacity",
-  ],
+			// Completion icon colors
+			completionIconClass: "#EE9D28",
+			completionIconConstructor: "#b180d7",
+			completionIconFunction: "#b180d7",
+			completionIconInterface: "#75beff",
+			completionIconModule: "#cccccc",
+			completionIconMethod: "#b180d7",
+			completionIconProperty: "#cccccc",
+			completionIconString: "#cccccc",
+		},
+	},
+	cssVarExclusions: [
+		"twoSlash.highlightHue",
+		"twoSlash.highlightDefaultLuminance",
+		"twoSlash.highlightDefaultChroma",
+		"twoSlash.highlightBackgroundOpacity",
+		"twoSlash.highlightBorderLuminance",
+		"twoSlash.highlightBorderOpacity",
+	],
 });
 
 /**
@@ -111,7 +111,7 @@ export const twoSlashStyleSettings = new PluginStyleSettings({
  * @returns {string} The generated CSS styles as a string.
  */
 export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
-  const baseCSS = `
+	const baseCSS = `
     :root {
         .main-pane { 
             z-index: 1; 
@@ -123,7 +123,7 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
     }
     `;
 
-  const popupDocsCSS = `
+	const popupDocsCSS = `
 
         @media (min-width: 500px) {
             .twoslash-popup-container:before {
@@ -174,7 +174,7 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         }
     `;
 
-  const staticDocsCSS = `
+	const staticDocsCSS = `
         .twoslash-static-container {
             display: block;
             z-index: 10;
@@ -226,7 +226,7 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         }
     `;
 
-  const sharedDocsCSS = `
+	const sharedDocsCSS = `
         .twoslash,
         .twoslash-noline { 
             position: relative; 
@@ -422,7 +422,7 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         }    
     `;
 
-  const completionCSS = `
+	const completionCSS = `
         .twoslash .twoslash-completion {
             position: relative;
             margin-top: 0.1rem;
@@ -542,7 +542,7 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         }
     `;
 
-  const errorCSS = `
+	const errorCSS = `
         .twoslash-noline .twoslash-static {
             position: relative;
         }
@@ -603,7 +603,7 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         }
     `;
 
-  const customTagCSS = `
+	const customTagCSS = `
         .twoslash-custom-box {
             margin-left: 0rem;
             margin-right: 0rem;
@@ -660,7 +660,7 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         }
     `;
 
-  const highlightCSS = `
+	const highlightCSS = `
         .twoslash-highlighted {
             background-color: ${cssVar("twoSlash.highlightBackground")};
             border: 1px solid ${cssVar("twoSlash.highlightBorderColor")};
@@ -670,26 +670,26 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         }
     `;
 
-  const styles = [
-    // Base styles
-    baseCSS,
-    // Popup docs styles
-    popupDocsCSS,
-    // Static docs styles
-    staticDocsCSS,
-    // Shared docs styles
-    sharedDocsCSS,
-    // Completion styles
-    completionCSS,
-    // Error styles
-    errorCSS,
-    // Highlight styles
-    highlightCSS,
-    // Custom tag styles
-    customTagCSS,
-  ];
+	const styles = [
+		// Base styles
+		baseCSS,
+		// Popup docs styles
+		popupDocsCSS,
+		// Static docs styles
+		staticDocsCSS,
+		// Shared docs styles
+		sharedDocsCSS,
+		// Completion styles
+		completionCSS,
+		// Error styles
+		errorCSS,
+		// Highlight styles
+		highlightCSS,
+		// Custom tag styles
+		customTagCSS,
+	];
 
-  return styles.join("\n");
+	return styles.join("\n");
 }
 
 /**
@@ -700,14 +700,14 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
  * @returns {Object} An object containing the resolved background and border styles.
  */
 function resolveHighlight({
-  resolveSetting: r,
+	resolveSetting: r,
 }: Parameters<StyleResolverFn>[0]): { background: string; border: string } {
-  return {
-    background: toHexColor(
-      `lch(${r("twoSlash.highlightDefaultLuminance")} ${r("twoSlash.highlightDefaultChroma")} ${r("twoSlash.highlightHue")} / ${r("twoSlash.highlightBackgroundOpacity")})`,
-    ),
-    border: toHexColor(
-      `lch(${r("twoSlash.highlightBorderLuminance")} ${r("twoSlash.highlightDefaultChroma")} ${r("twoSlash.highlightHue")} / ${r("twoSlash.highlightBorderOpacity")})`,
-    ),
-  };
+	return {
+		background: toHexColor(
+			`lch(${r("twoSlash.highlightDefaultLuminance")} ${r("twoSlash.highlightDefaultChroma")} ${r("twoSlash.highlightHue")} / ${r("twoSlash.highlightBackgroundOpacity")})`,
+		),
+		border: toHexColor(
+			`lch(${r("twoSlash.highlightBorderLuminance")} ${r("twoSlash.highlightDefaultChroma")} ${r("twoSlash.highlightHue")} / ${r("twoSlash.highlightBorderOpacity")})`,
+		),
+	};
 }
