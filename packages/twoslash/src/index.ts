@@ -1,22 +1,6 @@
 import { type ExpressiveCodePlugin, definePlugin } from "@expressive-code/core";
+import { ExpressiveCode } from "expressive-code";
 import { createTwoslasher } from "twoslash";
-import {
-	buildMetaChecker,
-	checkForCustomTagsAndMerge,
-	processCompletion,
-	compareNodes,
-	ecConfig,
-	renderType,
-	renderJSDocs,
-	processTwoslashCodeBlock,
-	parseIncludeMeta,
-	TwoslashIncludesManager,
-} from "./helpers";
-import floatingUiCore from "./module-code/floating-ui-core.min";
-import floatingUiDom from "./module-code/floating-ui-dom.min";
-import hoverDocsManager from "./module-code/popup.min";
-import { getTwoSlashBaseStyles, twoSlashStyleSettings } from "./styles";
-import type { PluginTwoslashOptions, TwoSlashStyleSettings } from "./types";
 import ts, { type CompilerOptions } from "typescript";
 import {
 	TwoslashCompletionAnnotation,
@@ -27,7 +11,23 @@ import {
 	TwoslashHoverAnnotation,
 	TwoslashStaticAnnotation,
 } from "./annotations";
-import { ExpressiveCode } from "expressive-code";
+import {
+	TwoslashIncludesManager,
+	buildMetaChecker,
+	checkForCustomTagsAndMerge,
+	compareNodes,
+	ecConfig,
+	parseIncludeMeta,
+	processCompletion,
+	processTwoslashCodeBlock,
+	renderJSDocs,
+	renderType,
+} from "./helpers";
+import floatingUiCore from "./module-code/floating-ui-core.min";
+import floatingUiDom from "./module-code/floating-ui-dom.min";
+import hoverDocsManager from "./module-code/popup.min";
+import { getTwoSlashBaseStyles, twoSlashStyleSettings } from "./styles";
+import type { PluginTwoslashOptions, TwoSlashStyleSettings } from "./types";
 
 export type { PluginTwoslashOptions, TwoSlashStyleSettings };
 

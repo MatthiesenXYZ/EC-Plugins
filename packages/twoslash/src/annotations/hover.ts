@@ -1,8 +1,8 @@
 import {
-	ExpressiveCodeAnnotation,
 	type AnnotationRenderOptions,
+	ExpressiveCodeAnnotation,
 } from "@expressive-code/core";
-import { h, type Root, type Element } from "@expressive-code/core/hast";
+import { type Element, type Root, h } from "@expressive-code/core/hast";
 import type { NodeHover } from "twoslash";
 import type { RenderJSDocs } from "../types";
 

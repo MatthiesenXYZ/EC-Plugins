@@ -1,7 +1,7 @@
 import {
+	type AnnotationRenderOptions,
 	ExpressiveCodeAnnotation,
 	type ExpressiveCodeLine,
-	type AnnotationRenderOptions,
 } from "@expressive-code/core";
 import { h } from "@expressive-code/core/hast";
 import type { NodeCompletion } from "twoslash";

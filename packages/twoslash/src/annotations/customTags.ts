@@ -1,13 +1,13 @@
 import {
+	type AnnotationRenderOptions,
 	ExpressiveCodeAnnotation,
 	type ExpressiveCodeLine,
-	type AnnotationRenderOptions,
 } from "@expressive-code/core";
-import { h, type Element } from "@expressive-code/core/hast";
+import { type Element, h } from "@expressive-code/core/hast";
 import type { NodeTag } from "twoslash";
-import { customTagsIcons } from "../icons/customTagsIcons";
 import { getCustomTagClass, getCustomTagString } from "../helpers";
-import type { TwoslashTag, CustomTagsIcon } from "../types";
+import { customTagsIcons } from "../icons/customTagsIcons";
+import type { CustomTagsIcon, TwoslashTag } from "../types";
 
 /**
  * Represents a custom annotation for Twoslash tags.

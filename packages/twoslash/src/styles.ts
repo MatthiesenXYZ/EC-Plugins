@@ -1,8 +1,8 @@
 import {
-	lighten,
 	PluginStyleSettings,
 	type ResolverContext,
 	type StyleResolverFn,
+	lighten,
 	toHexColor,
 } from "@expressive-code/core";
 import type { TwoSlashStyleSettings } from "./types";
@@ -346,6 +346,11 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             font-weight: 400;
             line-height: ${cssVar("codeLineHeight")};
             text-wrap: balance;
+        }
+
+        .twoslash-popup-docs code {
+            font-family: ${cssVar("codeFontFamily")};
+            font-weight: ${cssVar("codeFontWeight")};
         }
 
         .twoslash-popup-docs-tagline {
