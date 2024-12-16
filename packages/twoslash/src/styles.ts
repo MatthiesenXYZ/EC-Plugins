@@ -400,7 +400,6 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         }
 
         .twoslash-popup-docs code {
-            color: var(--sl-color-white) !important;
             background-color: var(--ec-frm-edBg) !important;
             padding: .125rem !important;
             border-radius: 4px !important;
