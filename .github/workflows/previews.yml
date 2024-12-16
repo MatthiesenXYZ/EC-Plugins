@@ -1,6 +1,6 @@
 name: Preview Packages - pkg.pr.new
 
-on: [pull_request]
+on: [push, pull_request]
 
 jobs:
   build:
