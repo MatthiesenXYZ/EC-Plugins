@@ -379,8 +379,8 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             position: relative !important;
             font-family: ${cssVar("codeFontFamily")};
             display: inline-block !important;
-            line-height: 1 !important;
-            border: 2px solid ${cssVar("twoSlash.borderColor")} !important;
+            line-height: ${cssVar("codeLineHeight")};
+            border: var(--ec-brdWd) solid ${cssVar("twoSlash.borderColor")} !important;
         }
 
         .twoslash-popup-docs.twoslash-popup-docs-tags {
@@ -400,13 +400,12 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         }
 
         .twoslash-popup-docs code {
-            color: var(--sl-color-white) !important;
             background-color: var(--ec-frm-edBg) !important;
             padding: .125rem !important;
             border-radius: 4px !important;
             position: relative !important;
             display: inline-block !important;
-            line-height: 1 !important;
+            line-height: ${cssVar("codeLineHeight")};
         }
 
         .twoslash-popup-docs-tag-value code,
@@ -473,7 +472,6 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             display: flex;
             align-items: center;
             gap: 0.25em;
-            line-height: 1em;
         }
 
         .twoslash-completion-item:hover {
