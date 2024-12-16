@@ -1,6 +1,12 @@
 name: Preview Packages - pkg.pr.new
 
-on: [push, pull_request]
+on: 
+  push:
+    paths:
+      - 'packages/**'
+  pull_request:
+    paths:
+      - 'packages/**'
 
 jobs:
   build:
