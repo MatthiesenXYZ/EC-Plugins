@@ -1,5 +1,15 @@
 # expressive-code-twoslash
 
+## 0.3.1
+
+### Patch Changes
+
+- [#32](https://github.com/MatthiesenXYZ/EC-Plugins/pull/32) [`b094bb2`](https://github.com/MatthiesenXYZ/EC-Plugins/commit/b094bb2c5b035b66d287c5c57c548e7439d4f788) Thanks [@IMax153](https://github.com/IMax153)! - Ensure Twoslash popup documentation uses the configured code font-family for inline code
+
+- [#35](https://github.com/MatthiesenXYZ/EC-Plugins/pull/35) [`68e8569`](https://github.com/MatthiesenXYZ/EC-Plugins/commit/68e8569b46fec127ad9425381a96eba8a07cb0a5) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - fix line height size
+
+- [#35](https://github.com/MatthiesenXYZ/EC-Plugins/pull/35) [`68e8569`](https://github.com/MatthiesenXYZ/EC-Plugins/commit/68e8569b46fec127ad9425381a96eba8a07cb0a5) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - Remove unused style that referenced Starlight
+
 ## 0.3.0
 
 ### Minor Changes
