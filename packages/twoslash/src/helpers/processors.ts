@@ -1,7 +1,7 @@
 import type { ExpressiveCodeBlock } from "expressive-code";
 import type { NodeCompletion, TwoslashReturn } from "twoslash";
-import type { CompletionIcon, CompletionItem } from "../types";
 import { completionIcons } from "../icons/completionIcons";
+import type { CompletionIcon, CompletionItem } from "../types";
 
 /**
  * Splits the given code string into an array of objects, each containing the line index and the line content.
