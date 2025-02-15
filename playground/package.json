@@ -11,15 +11,14 @@
 		"astro": "astro"
 	},
 	"dependencies": {
-		"@astrojs/starlight": "^0.29.0",
-		"astro": "^4.16.10",
-		"astro-integration-kit": "^0.17.0",
-		"astro-expressive-code": "^0.38.3",
+		"@astrojs/starlight": "^0.31.1",
+		"astro": "^5.3.0",
+		"astro-expressive-code": "^0.40.2",
 		"expressive-code-twoslash": "workspace:*"
 	},
 	"devDependencies": {
 		"@astrojs/check": "^0.9.4",
 		"@types/node": "^20.17.1",
-		"typescript": "^5.6.3"
+		"typescript": "^5.7.3"
 	}
 }
