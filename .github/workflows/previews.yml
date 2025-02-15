@@ -8,14 +8,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
 
       - name: Setup Node.js based on .node-version
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4
         with:
-          node-version-file: '.node-version'
+          node-version-file: '20.14.0'
           cache: 'pnpm'
 
       - name: Install Dependencies
