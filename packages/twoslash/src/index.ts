@@ -56,7 +56,7 @@ const defaultCompilerOptions: CompilerOptions = {
 	exactOptionalPropertyTypes: true,
 	downlevelIteration: true,
 	skipLibCheck: true,
-	lib: ["ES2022", "DOM", "DOM.Iterable"],
+	lib: ["Bundler", "ES2022", "DOM", "DOM.Iterable"],
 	noEmit: true,
 };
 
@@ -75,7 +75,7 @@ export default function ecTwoSlash(
 	options: PluginTwoslashOptions = {},
 ): ExpressiveCodePlugin {
 	/**
-	 * Destructures the options object to extract configuration settings.
+	 * Destructure the options object to extract configuration settings.
 	 */
 	const {
 		explicitTrigger = true,
@@ -220,7 +220,7 @@ export default function ecTwoSlash(
 					// Process the Twoslash Completion Annotations
 					for (const node of twoslash.completions) {
 						// Process the completion item
-						const proccessed = processCompletion(node);
+						const processed = processCompletion(node);
 						const line = codeBlock.getLine(node.line);
 
 						if (line) {
@@ -234,24 +234,24 @@ export default function ecTwoSlash(
 								if (annotation.inlineRange) {
 									const { columnStart, columnEnd } = annotation.inlineRange;
 									if (
-										proccessed.startCharacter >= columnStart &&
-										proccessed.startCharacter <= columnEnd
+										processed.startCharacter >= columnStart &&
+										processed.startCharacter <= columnEnd
 									) {
 										annotation.inlineRange.columnStart =
-											proccessed.startCharacter;
+											processed.startCharacter;
 									}
 								}
 
 								if (
-									annotation.hover.start === proccessed.startCharacter &&
-									annotation.hover.length === proccessed.length
+									annotation.hover.start === processed.startCharacter &&
+									annotation.hover.length === processed.length
 								) {
 									line.deleteAnnotation(annotation);
 								}
 							}
 
 							line.addAnnotation(
-								new TwoslashCompletionAnnotation(proccessed, node, line),
+								new TwoslashCompletionAnnotation(processed, node, line),
 							);
 						}
 					}
