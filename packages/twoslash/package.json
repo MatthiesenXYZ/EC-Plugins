@@ -52,8 +52,8 @@
 		"uglify-js": "^3.19.3"
 	},
 	"peerDependencies": {
-		"@expressive-code/core": "^0.40.0",
-		"expressive-code": "^0.40.0",
+		"@expressive-code/core": ">=0.40.0",
+		"expressive-code": ">=0.40.0",
 		"typescript": "^5.7"
 	}
 }
