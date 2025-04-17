@@ -1,5 +1,11 @@
 # expressive-code-twoslash
 
+## 0.5.0
+
+### Minor Changes
+
+- [#40](https://github.com/MatthiesenXYZ/EC-Plugins/pull/40) [`54112ed`](https://github.com/MatthiesenXYZ/EC-Plugins/commit/54112ed4a280cb64c03c414b435426514bc223e6) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - Update Peer dependencies to allow newer versions
+
 ## 0.4.0
 
 ### Minor Changes
