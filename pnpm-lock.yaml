@@ -88,10 +88,10 @@ importers:
   packages/twoslash:
     dependencies:
       '@expressive-code/core':
-        specifier: ^0.40.0
+        specifier: '>=0.40.0'
         version: 0.40.2
       expressive-code:
-        specifier: ^0.40.0
+        specifier: '>=0.40.0'
         version: 0.40.2
       mdast-util-from-markdown:
         specifier: ^2.0.2
