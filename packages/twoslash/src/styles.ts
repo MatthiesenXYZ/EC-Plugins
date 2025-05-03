@@ -546,7 +546,7 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         }
 
         .twoslash.twoerror {
-            display: ruby;
+            display: block;
         }
 
         .twoslash-error-underline {
