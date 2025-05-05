@@ -546,7 +546,7 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         }
 
         .twoslash.twoerror {
-            display: ruby;
+            display: block;
         }
 
         .twoslash-error-underline {
@@ -555,7 +555,6 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         }
 
         .twoslash-error-box {
-            margin-left: 0.5rem;
             display: block;
             z-index: 10;
             padding: 0.1rem 0.3rem;
