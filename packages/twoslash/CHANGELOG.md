@@ -1,5 +1,11 @@
 # expressive-code-twoslash
 
+## 0.5.2
+
+### Patch Changes
+
+- [#45](https://github.com/MatthiesenXYZ/EC-Plugins/pull/45) [`0f5af0a`](https://github.com/MatthiesenXYZ/EC-Plugins/commit/0f5af0ab11334a9d60d1dd223508b4a12ca9e386) Thanks [@Adammatthiesen](https://github.com/Adammatthiesen)! - Update styles to allow error blocks with longer messages to actually wrap correctly
+
 ## 0.5.1
 
 ### Patch Changes
