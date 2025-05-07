@@ -546,7 +546,7 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         }
 
         .twoslash.twoerror {
-            display: block;
+            display: flex;
         }
 
         .twoslash-error-underline {
@@ -555,7 +555,7 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
         }
 
         .twoslash-error-box {
-            display: block;
+            display: flex;
             z-index: 10;
             padding: 0.1rem 0.3rem;
             border-radius: 0.2rem;
@@ -566,7 +566,7 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             white-space: nowrap !important;
             word-break: normal !important;
             overflow-wrap: normal !important;
-            width: max-content !important;
+	    flex: 0 1 100%;
         }
 
         .twoslash-error-box .twoslash-error-box-icon,
@@ -574,6 +574,14 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
             display: inline-block;
             vertical-align: middle;
         }
+
+ 	.twoslash-error-box-content {
+  	    flex: 0 1 100%;
+	}
+
+ 	.twoslash-error-box-content-message {
+	    white-space: normal;
+  	}
 
         .twoslash-error-level-error {
             color: ${cssVar("twoSlash.errorColor")} !important;
