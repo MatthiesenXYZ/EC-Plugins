@@ -1,5 +1,11 @@
 # expressive-code-twoslash
 
+## 0.5.3
+
+### Patch Changes
+
+- [#47](https://github.com/MatthiesenXYZ/EC-Plugins/pull/47) [`1d29cdb`](https://github.com/MatthiesenXYZ/EC-Plugins/commit/1d29cdb58c6b5ac497b05325f4f7b995663301f4) Thanks [@lishaduck](https://github.com/lishaduck)! - fix: line on type extractions
+
 ## 0.5.2
 
 ### Patch Changes
