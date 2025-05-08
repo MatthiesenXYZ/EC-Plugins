@@ -281,6 +281,7 @@ export function getTwoSlashBaseStyles({ cssVar }: ResolverContext): string {
 
         .twoslash-popup-code-type .frame .ec-line .code {
             padding-inline-start: 0 !important;
+            border-inline-start: none !important;
         }
 
         .twoslash-popup-code-type .frame pre > code {
